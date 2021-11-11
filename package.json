@@ -1,10 +1,10 @@
 {
-  "name": "smart-edge",
+  "name": "@tisoap/react-flow-smart-edge",
   "version": "0.1.0",
   "license": "MIT",
   "author": "Tiso Alvarez Puccinelli",
   "main": "dist/index.js",
-  "module": "dist/smart-edge.esm.js",
+  "module": "dist/react-flow-smart-edge.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist",
