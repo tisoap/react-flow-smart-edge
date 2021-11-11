@@ -1,6 +1,6 @@
 # React Flow Smart Edge
 
-Special Edge for React Flow that never intersects with other nodes.
+Special Edge for [React Flow](https://github.com/wbkd/react-flow) that never intersects with other nodes.
 
 ![Smart Edge](https://raw.githubusercontent.com/tisoap/react-flow-smart-edge/main/.github/images/example.gif)
 

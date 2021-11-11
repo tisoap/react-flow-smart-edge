@@ -1,6 +1,21 @@
 {
   "name": "@tisoap/react-flow-smart-edge",
   "version": "0.1.2",
+  "keywords": [
+    "react",
+    "typescript",
+    "graph",
+    "flow",
+    "flowchart",
+    "smart",
+    "edge",
+    "pathfinding",
+    "react-flow-smart-edge"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tisoap/react-flow-smart-edge.git"
+  },
   "license": "MIT",
   "author": "Tiso Alvarez Puccinelli",
   "main": "dist/index.js",
@@ -72,6 +87,7 @@
   },
   "peerDependencies": {
     "react": ">=16",
+    "react-dom": ">=16",
     "react-flow-renderer": "^9"
   },
   "engines": {
