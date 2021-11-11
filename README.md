@@ -2,7 +2,7 @@
 
 Special Edge for React Flow that never intersects with other nodes.
 
-<img src=".github/images/example.gif" width="688">
+![Smart Edge](https://raw.githubusercontent.com/tisoap/react-flow-smart-edge/main/.github/images/example.gif)
 
 ## Install
 
