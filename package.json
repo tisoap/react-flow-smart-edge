@@ -1,28 +1,25 @@
 {
+  "name": "smart-edge",
   "version": "0.1.0",
   "license": "MIT",
+  "author": "Tiso Alvarez Puccinelli",
   "main": "dist/index.js",
+  "module": "dist/smart-edge.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist",
     "src"
   ],
-  "engines": {
-    "node": ">=10"
-  },
   "scripts": {
-    "start": "tsdx watch",
+    "analyze": "size-limit --why",
     "build": "tsdx build",
-    "test": "tsdx test --passWithNoTests",
+    "build-storybook": "build-storybook",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "size": "size-limit",
-    "analyze": "size-limit --why",
+    "start": "tsdx watch",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
-  },
-  "peerDependencies": {
-    "react": ">=16"
+    "test": "tsdx test --passWithNoTests"
   },
   "husky": {
     "hooks": {
@@ -35,9 +32,38 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "smart-edge",
-  "author": "Tiso Alvarez Puccinelli",
-  "module": "dist/smart-edge.esm.js",
+  "dependencies": {
+    "pathfinding": "^0.4.18"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@size-limit/preset-small-lib": "^6.0.4",
+    "@storybook/addon-essentials": "^6.3.12",
+    "@storybook/addon-info": "^5.3.21",
+    "@storybook/addon-links": "^6.3.12",
+    "@storybook/addons": "^6.3.12",
+    "@storybook/react": "^6.3.12",
+    "@types/pathfinding": "^0.0.5",
+    "@types/react": "^17.0.34",
+    "@types/react-dom": "^17.0.11",
+    "babel-loader": "^8.2.3",
+    "husky": "^7.0.4",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-flow-renderer": "^9.6.11",
+    "react-is": "^17.0.2",
+    "size-limit": "^6.0.4",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.4"
+  },
+  "peerDependencies": {
+    "react": ">=16",
+    "react-flow-renderer": "^9.6.11"
+  },
+  "engines": {
+    "node": ">=10"
+  },
   "size-limit": [
     {
       "path": "dist/smart-edge.cjs.production.min.js",
@@ -47,25 +73,5 @@
       "path": "dist/smart-edge.esm.js",
       "limit": "10 KB"
     }
-  ],
-  "devDependencies": {
-    "@babel/core": "^7.16.0",
-    "@size-limit/preset-small-lib": "^6.0.4",
-    "@storybook/addon-essentials": "^6.3.12",
-    "@storybook/addon-info": "^5.3.21",
-    "@storybook/addon-links": "^6.3.12",
-    "@storybook/addons": "^6.3.12",
-    "@storybook/react": "^6.3.12",
-    "@types/react": "^17.0.34",
-    "@types/react-dom": "^17.0.11",
-    "babel-loader": "^8.2.3",
-    "husky": "^7.0.4",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-is": "^17.0.2",
-    "size-limit": "^6.0.4",
-    "tsdx": "^0.14.1",
-    "tslib": "^2.3.1",
-    "typescript": "^4.4.4"
-  }
+  ]
 }
