@@ -1,12 +1,19 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Thing } from '../.';
+import { Graph } from '../stories/PathFindingEdge/Graph';
+import { data } from '../stories/PathFindingEdge/dummyData';
+
+const style = {
+  background: '#fafafa',
+  width: '100%',
+  height: '100%',
+};
 
 const App = () => {
   return (
-    <div>
-      <Thing />
+    <div style={style}>
+      <Graph elements={data} />
     </div>
   );
 };
