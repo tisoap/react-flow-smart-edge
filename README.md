@@ -41,6 +41,7 @@ export const Graph = (props) => {
 
   return (
     <ReactFlow
+      elements={elements}
       edgeTypes={{
         smart: PathFindingEdge,
       }}
