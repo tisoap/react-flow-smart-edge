@@ -62,7 +62,7 @@
     "react-flow-renderer": "^9.6.11"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "size-limit": [
     {
