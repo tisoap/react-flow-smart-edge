@@ -1,3 +1,3 @@
-import PathFindingEdge from './PathFindingEdge'
+import PathFindingEdge from './PathFindingEdge';
 
-export { PathFindingEdge } ;
+export { PathFindingEdge };

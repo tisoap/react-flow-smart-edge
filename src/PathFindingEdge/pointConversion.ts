@@ -23,41 +23,41 @@ const gridRatio = 10;
  * always a "walkable" area around the grid.
  */
 export const graphToGridPoint = (
-	graphPoint: XYPosition,
-	smallestX: number,
-	smallestY: number,
+  graphPoint: XYPosition,
+  smallestX: number,
+  smallestY: number
 ): XYPosition => {
-	let x = graphPoint.x / gridRatio;
-	let y = graphPoint.y / gridRatio;
+  let x = graphPoint.x / gridRatio;
+  let y = graphPoint.y / gridRatio;
 
-	let referenceX = smallestX / gridRatio;
-	let referenceY = smallestY / gridRatio;
+  let referenceX = smallestX / gridRatio;
+  let referenceY = smallestY / gridRatio;
 
-	if (referenceX < 1) {
-		while (referenceX !== 1) {
-			referenceX++;
-			x++;
-		}
-	} else if (referenceX > 1) {
-		while (referenceX !== 1) {
-			referenceX--;
-			x--;
-		}
-	}
+  if (referenceX < 1) {
+    while (referenceX !== 1) {
+      referenceX++;
+      x++;
+    }
+  } else if (referenceX > 1) {
+    while (referenceX !== 1) {
+      referenceX--;
+      x--;
+    }
+  }
 
-	if (referenceY < 1) {
-		while (referenceY !== 1) {
-			referenceY++;
-			y++;
-		}
-	} else if (referenceY > 1) {
-		while (referenceY !== 1) {
-			referenceY--;
-			y--;
-		}
-	}
+  if (referenceY < 1) {
+    while (referenceY !== 1) {
+      referenceY++;
+      y++;
+    }
+  } else if (referenceY > 1) {
+    while (referenceY !== 1) {
+      referenceY--;
+      y--;
+    }
+  }
 
-	return { x, y };
+  return { x, y };
 };
 
 /**
@@ -65,39 +65,39 @@ export const graphToGridPoint = (
  * graphToGridPoint.
  */
 export const gridToGraphPoint = (
-	gridPoint: XYPosition,
-	smallestX: number,
-	smallestY: number,
+  gridPoint: XYPosition,
+  smallestX: number,
+  smallestY: number
 ): XYPosition => {
-	let x = gridPoint.x * gridRatio;
-	let y = gridPoint.y * gridRatio;
+  let x = gridPoint.x * gridRatio;
+  let y = gridPoint.y * gridRatio;
 
-	let referenceX = smallestX;
-	let referenceY = smallestY;
+  let referenceX = smallestX;
+  let referenceY = smallestY;
 
-	if (referenceX < gridRatio) {
-		while (referenceX !== gridRatio) {
-			referenceX = referenceX + gridRatio;
-			x = x - gridRatio;
-		}
-	} else if (referenceX > gridRatio) {
-		while (referenceX !== gridRatio) {
-			referenceX = referenceX - gridRatio;
-			x = x + gridRatio;
-		}
-	}
+  if (referenceX < gridRatio) {
+    while (referenceX !== gridRatio) {
+      referenceX = referenceX + gridRatio;
+      x = x - gridRatio;
+    }
+  } else if (referenceX > gridRatio) {
+    while (referenceX !== gridRatio) {
+      referenceX = referenceX - gridRatio;
+      x = x + gridRatio;
+    }
+  }
 
-	if (referenceY < gridRatio) {
-		while (referenceY !== gridRatio) {
-			referenceY = referenceY + gridRatio;
-			y = y - gridRatio;
-		}
-	} else if (referenceY > gridRatio) {
-		while (referenceY !== gridRatio) {
-			referenceY = referenceY - gridRatio;
-			y = y + gridRatio;
-		}
-	}
+  if (referenceY < gridRatio) {
+    while (referenceY !== gridRatio) {
+      referenceY = referenceY + gridRatio;
+      y = y - gridRatio;
+    }
+  } else if (referenceY > gridRatio) {
+    while (referenceY !== gridRatio) {
+      referenceY = referenceY - gridRatio;
+      y = y + gridRatio;
+    }
+  }
 
-	return { x, y };
+  return { x, y };
 };
