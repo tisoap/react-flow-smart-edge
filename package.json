@@ -1,6 +1,6 @@
 {
   "name": "@tisoap/react-flow-smart-edge",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "author": "Tiso Alvarez Puccinelli",
   "main": "dist/index.js",
