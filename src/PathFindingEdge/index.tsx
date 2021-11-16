@@ -1,11 +1,11 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
+import useDebounce from 'react-use/lib/useDebounce';
 import { BezierEdge, getMarkerEnd, useStoreState } from 'react-flow-renderer';
 import { createGrid, PointInfo, gridRatio } from './createGrid';
 import { drawSmoothLinePath } from './drawSvgPath';
 import { generatePath } from './generatePath';
 import { getBoundingBoxes } from './getBoundingBoxes';
 import { gridToGraphPoint } from './pointConversion';
-import useDebounce from './useDebounce';
 import type { EdgeProps, Node } from 'react-flow-renderer';
 
 interface PathFindingEdgeProps<T = any> extends EdgeProps<T> {
@@ -91,12 +91,23 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 
 const DebouncedPathFindingEdge = memo((props: EdgeProps) => {
   const storeNodes = useStoreState((state) => state.nodes);
-  const [debouncedNodes, debouncedProps] = useDebounce(
-    [storeNodes, props],
-    200
+  const [debouncedProps, setDebouncedProps] = useState({
+    storeNodes,
+    ...props,
+  });
+
+  useDebounce(
+    () => {
+      setDebouncedProps({
+        storeNodes,
+        ...props,
+      });
+    },
+    200,
+    [props, storeNodes]
   );
 
-  return <PathFindingEdge storeNodes={debouncedNodes} {...debouncedProps} />;
+  return <PathFindingEdge {...debouncedProps} />;
 });
 
 export default DebouncedPathFindingEdge;
