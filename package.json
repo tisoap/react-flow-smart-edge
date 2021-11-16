@@ -30,6 +30,7 @@
     "build-storybook": "build-storybook",
     "lint": "tsdx lint --fix",
     "prepare": "tsdx build",
+    "release": "np",
     "start": "tsdx watch",
     "storybook": "start-storybook -p 6006",
     "test": "tsdx test --passWithNoTests"
@@ -76,6 +77,7 @@
     "eslint-plugin-react": "7.27.0",
     "eslint-plugin-react-hooks": "4.3.0",
     "husky": "7.0.4",
+    "np": "7.5.0",
     "prettier": "2.4.1",
     "react": "16.14.0",
     "react-dom": "16.14.0",
