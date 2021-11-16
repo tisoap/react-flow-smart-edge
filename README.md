@@ -59,7 +59,7 @@ The `PathFindingEdge` takes the same options as a [React Flow Edge](https://reac
 
 ## Example
 
-There is a minimum example in this repository [`example` folder](https://github.com/tisoap/react-flow-smart-edge/tree/main/example). Clone this repository and run `cd example; npm i; npm start`.
+There is a minimum example in this repository [`example` folder](https://github.com/tisoap/react-flow-smart-edge/tree/main/example). Clone this repository and run `yarn; cd example; yarn; yarn start`.
 
 ## License
 
