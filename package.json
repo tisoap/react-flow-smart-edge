@@ -26,12 +26,11 @@
     "src"
   ],
   "scripts": {
-    "analyze": "size-limit --why",
     "build": "tsdx build",
     "build-storybook": "build-storybook",
-    "lint": "tsdx lint --fix",
+    "lint": "tsdx lint src test",
+    "lint-fix": "tsdx lint src test --fix",
     "prepare": "tsdx build",
-    "size": "size-limit",
     "start": "tsdx watch",
     "storybook": "start-storybook -p 6006",
     "test": "tsdx test --passWithNoTests"
@@ -59,12 +58,14 @@
     "@storybook/addon-links": "6.3.12",
     "@storybook/addons": "6.3.12",
     "@storybook/react": "6.3.12",
+    "@types/jest": "27.0.2",
     "@types/pathfinding": "0.0.5",
     "@types/react": "17.0.34",
     "@types/react-dom": "17.0.11",
     "@typescript-eslint/eslint-plugin": "5.3.1",
     "@typescript-eslint/parser": "5.3.1",
     "babel-eslint": "10.1.0",
+    "babel-jest": "27.3.1",
     "babel-loader": "8.2.3",
     "eslint": "8.2.0",
     "eslint-config-prettier": "7.2.0",
@@ -81,7 +82,7 @@
     "react-dom": "17.0.2",
     "react-flow-renderer": "9.6.11",
     "react-is": "17.0.2",
-    "size-limit": "6.0.4",
+    "ts-jest": "27.0.7",
     "tsdx": "0.14.1",
     "tslib": "2.3.1",
     "typescript": "4.4.4"
@@ -94,14 +95,5 @@
   "engines": {
     "node": ">=12"
   },
-  "size-limit": [
-    {
-      "path": "dist/smart-edge.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/smart-edge.esm.js",
-      "limit": "10 KB"
-    }
-  ]
+  "packageManager": "yarn@3.1.0"
 }
