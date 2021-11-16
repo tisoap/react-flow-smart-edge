@@ -1,3 +1,8 @@
-import PathFindingEdge from './PathFindingEdge';
+import { SmartEdge } from './SmartEdge';
+import { SmartEdgeProvider } from './SmartEdge/context';
+import type { SmartEdgeOptions } from './SmartEdge/context';
 
-export { PathFindingEdge };
+export { SmartEdge, SmartEdgeProvider };
+export type { SmartEdgeOptions };
+
+export default SmartEdge;

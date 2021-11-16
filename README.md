@@ -15,23 +15,23 @@ npm install @tisoap/react-flow-smart-edge
 ```jsx
 import React from 'react';
 import ReactFlow from 'react-flow-renderer';
-import { PathFindingEdge } from '@tisoap/react-flow-smart-edge';
+import { SmartEdge } from '@tisoap/react-flow-smart-edge';
 
 const elements = [
   {
     id: '1',
     data: { label: 'Node 1' },
-    position: { x: 430, y: 0 },
+    position: { x: 300, y: 100 },
   },
   {
     id: '2',
     data: { label: 'Node 2' },
-    position: { x: 230, y: 90 },
+    position: { x: 300, y: 200 },
   },
   {
-    id: 'e12',
-    source: '1',
-    target: '2',
+    id: 'e21',
+    source: '2',
+    target: '1',
     type: 'smart',
   },
 ];
@@ -43,7 +43,7 @@ export const Graph = (props) => {
     <ReactFlow
       elements={elements}
       edgeTypes={{
-        smart: PathFindingEdge,
+        smart: SmartEdge,
       }}
       {...rest}
     >
@@ -55,11 +55,49 @@ export const Graph = (props) => {
 
 ## Options
 
-The `PathFindingEdge` takes the same options as a [React Flow Edge](https://reactflow.dev/docs/api/edges/).
+The `SmartEdge` takes the same options as a [React Flow Edge](https://reactflow.dev/docs/api/edges/).
+
+You can configure additional options wrapping your graph with `SmartEdgeProvider` and passing an options `value`. The available options are:
+
+```js
+const options = {
+  // Configure by how many milliseconds the Edge render should be debounced, default 200, pass 0 to disable.
+  debounceTime: 100,
+};
+```
+
+Usage:
+
+```jsx
+import React from 'react';
+import ReactFlow from 'react-flow-renderer';
+import { SmartEdge, SmartEdgeProvider } from '@tisoap/react-flow-smart-edge';
+import elements from './elements';
+
+export const Graph = (props) => {
+  const { children, ...rest } = props;
+
+  return (
+    <SmartEdgeProvider value={{ debounceTime: 300 }}>
+      <ReactFlow
+        elements={elements}
+        edgeTypes={{
+          smart: SmartEdge,
+        }}
+        {...rest}
+      >
+        {children}
+      </ReactFlow>
+    </SmartEdgeProvider>
+  );
+};
+```
 
 ## Example
 
 There is a minimum example in this repository [`example` folder](https://github.com/tisoap/react-flow-smart-edge/tree/main/example). Clone this repository and run `yarn; cd example; yarn; yarn start`.
+
+you can also see the Storybook examples or interact with the stories yourself by cloning this repository and running `yarn; yarn storybook`.
 
 ## License
 
