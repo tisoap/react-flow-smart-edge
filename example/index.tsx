@@ -1,8 +1,7 @@
-import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Graph } from '../stories/PathFindingEdge/Graph';
-import { data } from '../stories/PathFindingEdge/dummyData';
+import { Graph } from '../stories/SmartEdge/Graph';
+import { data } from '../stories/SmartEdge/dummyData';
 
 const style = {
   background: '#fafafa',

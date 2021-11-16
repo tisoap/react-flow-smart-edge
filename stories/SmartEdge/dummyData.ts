@@ -9,8 +9,8 @@ export const data = [
       label: 'Node 1',
     },
     position: {
-      x: 430,
-      y: 0,
+      x: 490,
+      y: 40,
     },
   },
   {
@@ -19,8 +19,8 @@ export const data = [
       label: 'Node 2',
     },
     position: {
-      x: 230,
-      y: 90,
+      x: 270,
+      y: 130,
     },
   },
   {
@@ -29,8 +29,8 @@ export const data = [
       label: 'Node 2a',
     },
     position: {
-      x: 0,
-      y: 180,
+      x: 40,
+      y: 220,
     },
   },
   {
@@ -39,8 +39,8 @@ export const data = [
       label: 'Node 2b',
     },
     position: {
-      x: 230,
-      y: 180,
+      x: 270,
+      y: 220,
     },
   },
   {
@@ -49,8 +49,8 @@ export const data = [
       label: 'Node 2c',
     },
     position: {
-      x: 430,
-      y: 180,
+      x: 470,
+      y: 220,
     },
   },
   {
@@ -59,8 +59,8 @@ export const data = [
       label: 'Node 2d',
     },
     position: {
-      x: 475,
-      y: 270,
+      x: 515,
+      y: 310,
     },
   },
   {
@@ -69,71 +69,90 @@ export const data = [
       label: 'Node 3',
     },
     position: {
-      x: 430,
-      y: 90,
+      x: 470,
+      y: 130,
     },
   },
   {
     id: 'e12',
     source: '1',
     target: '2',
-    type: 'pathFinding',
+    type: 'smart',
     arrowHeadType,
   },
   {
     id: 'e13',
     source: '1',
     target: '3',
-    type: 'pathFinding',
+    type: 'smart',
     arrowHeadType,
   },
   {
     id: 'e22a',
     source: '2',
     target: '2a',
-    type: 'pathFinding',
+    type: 'smart',
     arrowHeadType,
   },
   {
     id: 'e22b',
     source: '2',
     target: '2b',
-    type: 'pathFinding',
+    type: 'smart',
     arrowHeadType,
   },
   {
     id: 'e22c',
     source: '2',
     target: '2c',
-    type: 'pathFinding',
+    type: 'smart',
     arrowHeadType,
   },
   {
     id: 'e2c2d',
     source: '2c',
     target: '2d',
-    type: 'pathFinding',
+    type: 'smart',
     arrowHeadType,
   },
   {
     id: 'e2d2c',
     source: '2d',
     target: '2c',
-    type: 'pathFinding',
+    type: 'smart',
     arrowHeadType,
   },
   {
     id: 'e2d1',
     source: '2d',
     target: '1',
-    type: 'pathFinding',
+    type: 'smart',
     arrowHeadType,
   },
   {
     id: 'e2a2a',
     source: '2a',
     target: '2a',
-    type: 'pathFinding',
+    type: 'smart',
     arrowHeadType,
+  },
+];
+
+export const data2 = [
+  {
+    id: '1',
+    data: { label: 'Node 1' },
+    position: { x: 300, y: 100 },
+  },
+  {
+    id: '2',
+    data: { label: 'Node 2' },
+    position: { x: 300, y: 200 },
+  },
+  {
+    id: 'e21',
+    source: '2',
+    target: '1',
+    type: 'smart',
   },
 ];
