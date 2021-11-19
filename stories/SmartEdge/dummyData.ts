@@ -128,6 +128,7 @@ export const data = [
     target: '1',
     type: 'smart',
     arrowHeadType,
+    label: 'Node 2d to Node 1',
   },
   {
     id: 'e2a2a',
@@ -154,5 +155,6 @@ export const data2 = [
     source: '2',
     target: '1',
     type: 'smart',
+    label: 'Label',
   },
 ];

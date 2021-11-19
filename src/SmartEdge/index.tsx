@@ -1,6 +1,11 @@
 import React, { memo, useContext, useState } from 'react';
 import useDebounce from 'react-use/lib/useDebounce';
-import { BezierEdge, getMarkerEnd, useStoreState } from 'react-flow-renderer';
+import {
+  BezierEdge,
+  getMarkerEnd,
+  useStoreState,
+  EdgeText,
+} from 'react-flow-renderer';
 import { createGrid, PointInfo, gridRatio } from './createGrid';
 import { drawSmoothLinePath } from './drawSvgPath';
 import { generatePath } from './generatePath';
@@ -29,6 +34,12 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
     markerEndId,
     style,
     storeNodes,
+    label,
+    labelStyle,
+    labelShowBg,
+    labelBgStyle,
+    labelBgPadding,
+    labelBgBorderRadius,
   } = props;
 
   // We use the node's information to generate bounding boxes for them
@@ -57,20 +68,20 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
   const { grid, start, end } = createGrid(graph, nodes, source, target);
 
   // We then can use the grid representation to do pathfinding
-  const gridPath = generatePath(grid, start, end);
+  const { fullPath, smoothedPath } = generatePath(grid, start, end);
 
   /*
-		Fallback to BezierEdge if no path was found.
-		length = 0: no path was found
-		length = 1: starting and ending points are the same
-		length = 2: a single straight line from point A to point B
-	*/
-  if (gridPath.length <= 2) {
+    Fallback to BezierEdge if no path was found.
+    length = 0: no path was found
+    length = 1: starting and ending points are the same
+    length = 2: a single straight line from point A to point B
+  */
+  if (smoothedPath.length <= 2) {
     return <BezierEdge {...props} />;
   }
 
   // Here we convert the grid path to a sequence of graph coordinates.
-  const graphPath = gridPath.map((gridPoint) => {
+  const graphPath = smoothedPath.map((gridPoint) => {
     const [x, y] = gridPoint;
     const graphPoint = gridToGraphPoint({ x, y }, graph.xMin, graph.yMin);
     return [graphPoint.x, graphPoint.y];
@@ -78,15 +89,40 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 
   // Finally, we can use the graph path to draw the edge
   const svgPathString = drawSmoothLinePath(source, target, graphPath);
+
+  // The Label, if any, should be placed in the middle of the path
+  const [middleX, middleY] = fullPath[Math.floor(fullPath.length / 2)];
+  const { x: labelX, y: labelY } = gridToGraphPoint(
+    { x: middleX, y: middleY },
+    graph.xMin,
+    graph.yMin
+  );
+
+  const text = label ? (
+    <EdgeText
+      x={labelX}
+      y={labelY}
+      label={label}
+      labelStyle={labelStyle}
+      labelShowBg={labelShowBg}
+      labelBgStyle={labelBgStyle}
+      labelBgPadding={labelBgPadding}
+      labelBgBorderRadius={labelBgBorderRadius}
+    />
+  ) : null;
+
   const markerEnd = getMarkerEnd(arrowHeadType, markerEndId);
 
   return (
-    <path
-      style={style}
-      className="react-flow__edge-path"
-      d={svgPathString}
-      markerEnd={markerEnd}
-    />
+    <>
+      <path
+        style={style}
+        className="react-flow__edge-path"
+        d={svgPathString}
+        markerEnd={markerEnd}
+      />
+      {text}
+    </>
   );
 });
 
