@@ -28,7 +28,7 @@
   "scripts": {
     "build": "tsdx build",
     "build-storybook": "build-storybook",
-    "lint": "tsdx lint --fix",
+    "lint": "tsdx lint src test stories --fix",
     "prepare": "tsdx build",
     "release": "np",
     "start": "tsdx watch",
@@ -44,6 +44,8 @@
     "printWidth": 80,
     "semi": true,
     "singleQuote": true,
+    "tabWidth": 2,
+    "tabs": false,
     "trailingComma": "es5"
   },
   "dependencies": {
