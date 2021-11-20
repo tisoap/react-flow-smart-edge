@@ -102,3 +102,9 @@ you can also see the Storybook examples or interact with the stories yourself by
 ## License
 
 This project is [MIT](https://github.com/tisoap/react-flow-smart-edge/blob/main/LICENSE) licensed.
+
+### Support
+
+Liked this project and want to show your support? Buy me a coffee:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J472RAJ)
