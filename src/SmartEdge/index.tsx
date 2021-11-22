@@ -6,7 +6,7 @@ import {
   useStoreState,
   EdgeText,
 } from 'react-flow-renderer';
-import { createGrid, PointInfo, gridRatio } from './createGrid';
+import { createGrid, PointInfo } from './createGrid';
 import { drawSmoothLinePath } from './drawSvgPath';
 import { generatePath } from './generatePath';
 import { getBoundingBoxes } from './getBoundingBoxes';
@@ -17,10 +17,6 @@ import { SmartEdgeContext, SmartEdgeProvider, useSmartEdge } from './context';
 interface PathFindingEdgeProps<T = any> extends EdgeProps<T> {
   storeNodes: Node<T>[];
 }
-
-const nodePadding = 10;
-const graphPadding = 20;
-const roundCoordinatesTo = gridRatio;
 
 const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
   const {
@@ -42,12 +38,14 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
     labelBgBorderRadius,
   } = props;
 
+  const { gridRatio, nodePadding } = useSmartEdge();
+  const roundCoordinatesTo = gridRatio;
+
   // We use the node's information to generate bounding boxes for them
   // and the graph
   const { graph, nodes } = getBoundingBoxes(
     storeNodes,
     nodePadding,
-    graphPadding,
     roundCoordinatesTo
   );
 
@@ -65,7 +63,13 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 
   // With this information, we can create a 2D grid representation of
   // our graph, that tells us where in the graph there is a "free" space or not
-  const { grid, start, end } = createGrid(graph, nodes, source, target);
+  const { grid, start, end } = createGrid(
+    graph,
+    nodes,
+    source,
+    target,
+    gridRatio
+  );
 
   // We then can use the grid representation to do pathfinding
   const { fullPath, smoothedPath } = generatePath(grid, start, end);
@@ -83,7 +87,12 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
   // Here we convert the grid path to a sequence of graph coordinates.
   const graphPath = smoothedPath.map((gridPoint) => {
     const [x, y] = gridPoint;
-    const graphPoint = gridToGraphPoint({ x, y }, graph.xMin, graph.yMin);
+    const graphPoint = gridToGraphPoint(
+      { x, y },
+      graph.xMin,
+      graph.yMin,
+      gridRatio
+    );
     return [graphPoint.x, graphPoint.y];
   });
 
@@ -95,7 +104,8 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
   const { x: labelX, y: labelY } = gridToGraphPoint(
     { x: middleX, y: middleY },
     graph.xMin,
-    graph.yMin
+    graph.yMin,
+    gridRatio
   );
 
   const text = label ? (

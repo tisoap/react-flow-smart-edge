@@ -39,7 +39,7 @@ export const GraphWithProvider = ({
   ...rest
 }: GraphWithProviderProps) => {
   return (
-    <SmartEdgeProvider value={options}>
+    <SmartEdgeProvider options={options}>
       <Graph {...rest} />
     </SmartEdgeProvider>
   );
