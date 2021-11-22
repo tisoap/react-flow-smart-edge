@@ -4,11 +4,9 @@ import {
   getNextPointFromPosition,
 } from './guaranteeWalkablePath';
 import { graphToGridPoint } from './pointConversion';
-import { round } from './utils';
+import { round, roundUp } from './utils';
 import type { NodeBoundingBox, GraphBoundingBox } from './getBoundingBoxes';
 import type { Position } from 'react-flow-renderer';
-
-export const gridRatio = 10;
 
 export type PointInfo = {
   x: number;
@@ -20,21 +18,22 @@ export const createGrid = (
   graph: GraphBoundingBox,
   nodes: NodeBoundingBox[],
   source: PointInfo,
-  target: PointInfo
+  target: PointInfo,
+  gridRatio = 2
 ) => {
   const { xMin, yMin, width, height } = graph;
 
   // Create a grid representation of the graph box, where each cell is
   // equivalent to 10x10 pixels on the graph. We'll use this  simplified grid
   // to do pathfinding.
-  const mapColumns = width / gridRatio;
-  const mapRows = height / gridRatio;
+  const mapColumns = roundUp(width, gridRatio) / gridRatio + 1;
+  const mapRows = roundUp(height, gridRatio) / gridRatio + 1;
   const grid = new Grid(mapColumns, mapRows);
 
   // Update the grid representation with the space the nodes take up
   nodes.forEach((node) => {
-    const nodeStart = graphToGridPoint(node.topLeft, xMin, yMin);
-    const nodeEnd = graphToGridPoint(node.bottomRight, xMin, yMin);
+    const nodeStart = graphToGridPoint(node.topLeft, xMin, yMin, gridRatio);
+    const nodeEnd = graphToGridPoint(node.bottomRight, xMin, yMin, gridRatio);
 
     for (let x = nodeStart.x; x < nodeEnd.x; x++) {
       for (let y = nodeStart.y; y < nodeEnd.y; y++) {
@@ -50,7 +49,8 @@ export const createGrid = (
       y: round(source.y, gridRatio),
     },
     xMin,
-    yMin
+    yMin,
+    gridRatio
   );
 
   const endGrid = graphToGridPoint(
@@ -59,7 +59,8 @@ export const createGrid = (
       y: round(target.y, gridRatio),
     },
     xMin,
-    yMin
+    yMin,
+    gridRatio
   );
 
   // Guarantee a walkable path between the start and end points, even if the

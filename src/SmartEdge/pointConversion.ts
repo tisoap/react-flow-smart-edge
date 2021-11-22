@@ -1,7 +1,5 @@
 import type { XYPosition } from 'react-flow-renderer';
 
-const gridRatio = 10;
-
 /**
  * Each bounding box is a collection of X/Y points in a graph, and we
  * need to convert them to "occupied" cells in a 2D grid representation.
@@ -25,7 +23,8 @@ const gridRatio = 10;
 export const graphToGridPoint = (
   graphPoint: XYPosition,
   smallestX: number,
-  smallestY: number
+  smallestY: number,
+  gridRatio: number
 ): XYPosition => {
   let x = graphPoint.x / gridRatio;
   let y = graphPoint.y / gridRatio;
@@ -67,7 +66,8 @@ export const graphToGridPoint = (
 export const gridToGraphPoint = (
   gridPoint: XYPosition,
   smallestX: number,
-  smallestY: number
+  smallestY: number,
+  gridRatio: number
 ): XYPosition => {
   let x = gridPoint.x * gridRatio;
   let y = gridPoint.y * gridRatio;

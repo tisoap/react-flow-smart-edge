@@ -57,12 +57,23 @@ export const Graph = (props) => {
 
 The `SmartEdge` takes the same options as a [React Flow Edge](https://reactflow.dev/docs/api/edges/).
 
-You can configure additional options wrapping your graph with `SmartEdgeProvider` and passing an options `value`. The available options are:
+You can configure additional advanced options by wrapping your graph with `SmartEdgeProvider` and passing an `options` object. If an option is not provided it'll assume it's default value. The available options are:
 
 ```js
 const options = {
-  // Configure by how many milliseconds the Edge render should be debounced, default 200, pass 0 to disable.
-  debounceTime: 100,
+  // Configure by how many milliseconds the Edge render should be
+  //debounced. Default 200, 0 to disable.
+  debounceTime: 200,
+
+  // How many pixels of padding is added around nodes, or by how
+  // much should the edge avoid the walls of a node. Default 10,
+  // minimum 2.
+  nodePadding: 10,
+
+  // The size in pixels of each square grid cell used for path
+  // finding. Smaller values for a more accurate path, bigger
+  // for faster path finding. Default 10, minimum 2.
+  gridRatio: 10,
 };
 ```
 
@@ -78,7 +89,7 @@ export const Graph = (props) => {
   const { children, ...rest } = props;
 
   return (
-    <SmartEdgeProvider value={{ debounceTime: 300 }}>
+    <SmartEdgeProvider options={{ debounceTime: 300 }}>
       <ReactFlow
         elements={elements}
         edgeTypes={{

@@ -29,26 +29,15 @@ export type GraphBoundingBox = {
  * of all corner points.
  *
  * @param storeNodes The node list
- * @param nodePadding Optional padding to add to the node's bounding boxes
- * @param graphPadding Optional padding to add to the graph's bounding box
- * @param roundTo If the coordinates should be rounded to this nearest integer
+ * @param nodePadding Optional padding to add to the node's and graph bounding boxes
+ * @param roundTo Everything will be rounded to this nearest integer
  * @returns Graph and nodes bounding boxes.
  */
 export const getBoundingBoxes = (
   storeNodes: Node[],
-  nodePadding = 0,
-  graphPadding = 0,
-  roundTo = 0
+  nodePadding = 2,
+  roundTo = 2
 ) => {
-  // Guarantee that the given parameters are positive integers
-  nodePadding = Math.max(Math.round(nodePadding), 0);
-  graphPadding = Math.max(Math.round(graphPadding), 0);
-  roundTo = Math.max(Math.round(roundTo), 0);
-
-  nodePadding = Number.isInteger(nodePadding) ? nodePadding : 0;
-  graphPadding = Number.isInteger(graphPadding) ? graphPadding : 0;
-  roundTo = Number.isInteger(roundTo) ? roundTo : 0;
-
   let xMax = Number.MIN_SAFE_INTEGER;
   let yMax = Number.MIN_SAFE_INTEGER;
   let xMin = Number.MAX_SAFE_INTEGER;
@@ -107,10 +96,12 @@ export const getBoundingBoxes = (
     };
   });
 
-  xMax = xMax + graphPadding;
-  yMax = yMax + graphPadding;
-  xMin = xMin - graphPadding;
-  yMin = yMin - graphPadding;
+  const graphPadding = nodePadding * 2;
+
+  xMax = roundUp(xMax + graphPadding, roundTo);
+  yMax = roundUp(yMax + graphPadding, roundTo);
+  xMin = roundDown(xMin - graphPadding, roundTo);
+  yMin = roundDown(yMin - graphPadding, roundTo);
 
   const topLeft: XYPosition = {
     x: xMin,

@@ -1,13 +1,18 @@
 import React, { createContext, useContext } from 'react';
 import warning from 'tiny-warning';
+import { toInteger } from './utils';
 import type { ReactNode } from 'react';
 
 export type SmartEdgeOptions = {
-  debounceTime: number;
+  debounceTime?: number;
+  nodePadding?: number;
+  gridRatio?: number;
 };
 
 const defaultOptions: SmartEdgeOptions = {
   debounceTime: 200,
+  nodePadding: 10,
+  gridRatio: 10,
 };
 
 export const SmartEdgeContext = createContext<SmartEdgeOptions | undefined>(
@@ -16,20 +21,32 @@ export const SmartEdgeContext = createContext<SmartEdgeOptions | undefined>(
 
 interface ProviderProps {
   children: ReactNode;
-  value?: SmartEdgeOptions;
+  options?: SmartEdgeOptions;
 }
 
 export const SmartEdgeProvider = ({
   children,
-  value = defaultOptions,
+  options = defaultOptions,
 }: ProviderProps) => {
+  let { debounceTime = 200, nodePadding = 10, gridRatio = 10 } = options;
+
+  // Guarantee that all values are positive integers
+  gridRatio = toInteger(gridRatio, 2);
+  nodePadding = toInteger(nodePadding, 2);
+  debounceTime = toInteger(debounceTime);
+
   warning(
-    value.debounceTime > 30,
+    debounceTime >= 30,
     'A small debounce time on SmartEdge can cause performance issues on large graphs.'
   );
 
+  warning(
+    gridRatio >= 10,
+    'A small grid ratio on SmartEdge can cause performance issues on large graphs.'
+  );
+
   return (
-    <SmartEdgeContext.Provider value={value}>
+    <SmartEdgeContext.Provider value={{ debounceTime, nodePadding, gridRatio }}>
       {children}
     </SmartEdgeContext.Provider>
   );
@@ -42,5 +59,13 @@ export const useSmartEdge = () => {
     throw new Error('useSmartEdge must be used within a SmartEdgeProvider');
   }
 
-  return context;
+  if (
+    context.debounceTime === undefined ||
+    context.gridRatio === undefined ||
+    context.nodePadding === undefined
+  ) {
+    throw new Error('Missing options on SmartEdgeProvider');
+  }
+
+  return context as Required<SmartEdgeOptions>;
 };

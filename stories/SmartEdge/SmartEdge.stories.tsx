@@ -25,9 +25,16 @@ const TemplateWithProvider: Story<GraphWithProviderProps> = (args) => (
   <GraphWithProvider {...args} />
 );
 
+const defaultOptions = {
+  debounceTime: 200,
+  nodePadding: 10,
+  gridRatio: 10,
+};
+
 export const smallerDebounce = TemplateWithProvider.bind({});
 smallerDebounce.args = {
   options: {
+    ...defaultOptions,
     debounceTime: 50,
   },
   elements: data,
@@ -36,7 +43,44 @@ smallerDebounce.args = {
 export const noDebounce = TemplateWithProvider.bind({});
 noDebounce.args = {
   options: {
+    ...defaultOptions,
     debounceTime: 0,
+  },
+  elements: data,
+};
+
+export const biggerNodePadding = TemplateWithProvider.bind({});
+biggerNodePadding.args = {
+  options: {
+    ...defaultOptions,
+    nodePadding: 20,
+  },
+  elements: data,
+};
+
+export const smallerNodePadding = TemplateWithProvider.bind({});
+smallerNodePadding.args = {
+  options: {
+    ...defaultOptions,
+    nodePadding: 8,
+  },
+  elements: data,
+};
+
+export const biggerGridRatio = TemplateWithProvider.bind({});
+biggerGridRatio.args = {
+  options: {
+    ...defaultOptions,
+    gridRatio: 15,
+  },
+  elements: data,
+};
+
+export const smallerGridRatio = TemplateWithProvider.bind({});
+smallerGridRatio.args = {
+  options: {
+    ...defaultOptions,
+    gridRatio: 6,
   },
   elements: data,
 };
