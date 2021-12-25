@@ -113,11 +113,11 @@ export const Graph = (props) => {
 };
 ```
 
-## Example
+## Examples
 
-There is a minimum example in this repository [`example` folder](https://github.com/tisoap/react-flow-smart-edge/tree/main/example). Clone this repository and run `yarn; cd example; yarn; yarn start`.
+You can see Storybook examples by visiting this page: https://tisoap.github.io/react-flow-smart-edge/
 
-you can also see the Storybook examples or interact with the stories yourself by cloning this repository and running `yarn; yarn storybook`.
+There's also is a minimum example in this repository [`example` folder](https://github.com/tisoap/react-flow-smart-edge/tree/main/example). Clone this repository and run `yarn; cd example; yarn; yarn start`.
 
 ## License
 

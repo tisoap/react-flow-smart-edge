@@ -12,6 +12,7 @@
     "pathfinding",
     "react-flow-smart-edge"
   ],
+  "homepage": "https://tisoap.github.io/react-flow-smart-edge/",
   "repository": {
     "type": "git",
     "url": "https://github.com/tisoap/react-flow-smart-edge.git"
@@ -26,9 +27,11 @@
     "src"
   ],
   "scripts": {
-    "build": "tsdx build",
     "build-storybook": "build-storybook",
+    "build": "tsdx build",
+    "deploy-storybook": "gh-pages -d storybook-static",
     "lint": "tsdx lint src test stories --fix",
+    "predeploy": "npm run build-storybook",
     "prepare": "tsdx build",
     "release": "np",
     "start": "tsdx watch",
@@ -81,6 +84,7 @@
     "eslint-plugin-prettier": "3.3.1",
     "eslint-plugin-react": "7.27.0",
     "eslint-plugin-react-hooks": "4.3.0",
+    "gh-pages": "3.2.3",
     "husky": "7.0.4",
     "np": "7.5.0",
     "prettier": "2.4.1",
