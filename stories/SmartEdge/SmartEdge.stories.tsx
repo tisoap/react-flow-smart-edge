@@ -1,8 +1,9 @@
 import React from 'react';
 import { data, data2 } from './dummyData';
-import type { Meta, Story } from '@storybook/react';
 import { Graph, GraphWithProvider } from './Graph';
+import type { Meta, Story } from '@storybook/react';
 import type { GraphProps, GraphWithProviderProps } from './Graph';
+import type { SmartEdgeOptions } from '../../src/SmartEdge/context';
 
 export default {
   title: 'SmartEdge',
@@ -25,10 +26,20 @@ const TemplateWithProvider: Story<GraphWithProviderProps> = (args) => (
   <GraphWithProvider {...args} />
 );
 
-const defaultOptions = {
+const defaultOptions: SmartEdgeOptions = {
   debounceTime: 200,
   nodePadding: 10,
   gridRatio: 10,
+  lineType: 'curve',
+};
+
+export const straightLines = TemplateWithProvider.bind({});
+straightLines.args = {
+  options: {
+    ...defaultOptions,
+    lineType: 'straight',
+  },
+  elements: data,
 };
 
 export const smallerDebounce = TemplateWithProvider.bind({});

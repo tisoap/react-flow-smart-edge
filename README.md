@@ -62,7 +62,7 @@ You can configure additional advanced options by wrapping your graph with `Smart
 ```js
 const options = {
   // Configure by how many milliseconds the Edge render should be
-  //debounced. Default 200, 0 to disable.
+  // debounced. Default 200, 0 to disable.
   debounceTime: 200,
 
   // How many pixels of padding is added around nodes, or by how
@@ -74,6 +74,11 @@ const options = {
   // finding. Smaller values for a more accurate path, bigger
   // for faster path finding. Default 10, minimum 2.
   gridRatio: 10,
+
+  // The type of line that is draw. Available options are:
+  // 'curve' - Curved lines with BezierEdge fallback (default)
+  // 'straight' - Straight lines with StepEdge fallback
+  lineType: 'curve',
 };
 ```
 
