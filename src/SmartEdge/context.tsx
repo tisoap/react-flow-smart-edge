@@ -7,12 +7,16 @@ export type SmartEdgeOptions = {
   debounceTime?: number;
   nodePadding?: number;
   gridRatio?: number;
+  lineType?: 'curve' | 'straight';
+  lessCorners?: boolean;
 };
 
 const defaultOptions: SmartEdgeOptions = {
   debounceTime: 200,
   nodePadding: 10,
   gridRatio: 10,
+  lineType: 'curve',
+  lessCorners: false,
 };
 
 export const SmartEdgeContext = createContext<SmartEdgeOptions | undefined>(
@@ -28,12 +32,23 @@ export const SmartEdgeProvider = ({
   children,
   options = defaultOptions,
 }: ProviderProps) => {
-  let { debounceTime = 200, nodePadding = 10, gridRatio = 10 } = options;
+  let {
+    debounceTime = 200,
+    nodePadding = 10,
+    gridRatio = 10,
+    lineType = 'curve',
+    lessCorners = false,
+  } = options;
 
   // Guarantee that all values are positive integers
   gridRatio = toInteger(gridRatio, 2);
   nodePadding = toInteger(nodePadding, 2);
   debounceTime = toInteger(debounceTime);
+
+  // Guarantee correct line type
+  if (lineType !== 'curve' && lineType !== 'straight') {
+    lineType = 'curve';
+  }
 
   warning(
     debounceTime >= 30,
@@ -46,7 +61,9 @@ export const SmartEdgeProvider = ({
   );
 
   return (
-    <SmartEdgeContext.Provider value={{ debounceTime, nodePadding, gridRatio }}>
+    <SmartEdgeContext.Provider
+      value={{ debounceTime, nodePadding, gridRatio, lineType, lessCorners }}
+    >
       {children}
     </SmartEdgeContext.Provider>
   );
@@ -62,7 +79,8 @@ export const useSmartEdge = () => {
   if (
     context.debounceTime === undefined ||
     context.gridRatio === undefined ||
-    context.nodePadding === undefined
+    context.nodePadding === undefined ||
+    context.lineType === undefined
   ) {
     throw new Error('Missing options on SmartEdgeProvider');
   }

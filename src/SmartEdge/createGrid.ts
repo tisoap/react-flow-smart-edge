@@ -24,8 +24,8 @@ export const createGrid = (
   const { xMin, yMin, width, height } = graph;
 
   // Create a grid representation of the graph box, where each cell is
-  // equivalent to 10x10 pixels on the graph. We'll use this  simplified grid
-  // to do pathfinding.
+  // equivalent to 10x10 pixels (or the grid ratio) on the graph. We'll use
+  // this simplified grid to do pathfinding.
   const mapColumns = roundUp(width, gridRatio) / gridRatio + 1;
   const mapRows = roundUp(height, gridRatio) / gridRatio + 1;
   const grid = new Grid(mapColumns, mapRows);

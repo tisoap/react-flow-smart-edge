@@ -8,14 +8,14 @@ import type { XYPosition } from 'react-flow-renderer';
  * to the top most point in the graph (the graph.topLeft point).
  *
  * Since the top most point can have X/Y values different than zero,
- * and each cell in a grid represents a 10x10 pixel area in the grid,
- * there's need to be a conversion between a point in a graph to a point
- * in the grid.
+ * and each cell in a grid represents a 10x10 pixel area in the grid (or a
+ * gridRatio area), there's need to be a conversion between a point in a graph
+ * to a point in the grid.
  *
- * We do this conversion by dividing a graph point X/Y values by 10, and
- * "shifting" their values up or down, depending on the values of the top most
- * point in the graph. The top most point in the graph will have the smallest
- * values for X and Y.
+ * We do this conversion by dividing a graph point X/Y values by the grid ratio,
+ * and "shifting" their values up or down, depending on the values of the top
+ * most point in the graph. The top most point in the graph will have the
+ * smallest values for X and Y.
  *
  * We avoid setting nodes in the border of the grid (x=0 or y=0), so there's
  * always a "walkable" area around the grid.

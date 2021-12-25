@@ -1,8 +1,9 @@
 import React from 'react';
 import { data, data2 } from './dummyData';
-import type { Meta, Story } from '@storybook/react';
 import { Graph, GraphWithProvider } from './Graph';
+import type { Meta, Story } from '@storybook/react';
 import type { GraphProps, GraphWithProviderProps } from './Graph';
+import type { SmartEdgeOptions } from '../../src/SmartEdge/context';
 
 export default {
   title: 'SmartEdge',
@@ -16,19 +17,35 @@ DefaultExample.args = {
   elements: data,
 };
 
-export const smallExample = Template.bind({});
-smallExample.args = {
-  elements: data2,
-};
-
 const TemplateWithProvider: Story<GraphWithProviderProps> = (args) => (
   <GraphWithProvider {...args} />
 );
 
-const defaultOptions = {
+const defaultOptions: SmartEdgeOptions = {
   debounceTime: 200,
   nodePadding: 10,
   gridRatio: 10,
+  lineType: 'curve',
+  lessCorners: false,
+};
+
+export const straightLines = TemplateWithProvider.bind({});
+straightLines.args = {
+  options: {
+    ...defaultOptions,
+    lineType: 'straight',
+  },
+  elements: data,
+};
+
+export const straightLinesWithLessCorners = TemplateWithProvider.bind({});
+straightLinesWithLessCorners.args = {
+  options: {
+    ...defaultOptions,
+    lineType: 'straight',
+    lessCorners: true,
+  },
+  elements: data,
 };
 
 export const smallerDebounce = TemplateWithProvider.bind({});
@@ -83,4 +100,9 @@ smallerGridRatio.args = {
     gridRatio: 6,
   },
   elements: data,
+};
+
+export const smallExample = Template.bind({});
+smallExample.args = {
+  elements: data2,
 };

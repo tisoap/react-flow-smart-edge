@@ -2,12 +2,13 @@ import React, { memo, useContext, useState } from 'react';
 import useDebounce from 'react-use/lib/useDebounce';
 import {
   BezierEdge,
+  StraightEdge,
   getMarkerEnd,
   useStoreState,
   EdgeText,
 } from 'react-flow-renderer';
 import { createGrid, PointInfo } from './createGrid';
-import { drawSmoothLinePath } from './drawSvgPath';
+import { drawSmoothLinePath, drawStraightLinePath } from './drawSvgPath';
 import { generatePath } from './generatePath';
 import { getBoundingBoxes } from './getBoundingBoxes';
 import { gridToGraphPoint } from './pointConversion';
@@ -38,7 +39,7 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
     labelBgBorderRadius,
   } = props;
 
-  const { gridRatio, nodePadding } = useSmartEdge();
+  const { gridRatio, nodePadding, lineType, lessCorners } = useSmartEdge();
   const roundCoordinatesTo = gridRatio;
 
   // We use the node's information to generate bounding boxes for them
@@ -72,7 +73,12 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
   );
 
   // We then can use the grid representation to do pathfinding
-  const { fullPath, smoothedPath } = generatePath(grid, start, end);
+  const { fullPath, smoothedPath } = generatePath(
+    grid,
+    start,
+    end,
+    lessCorners
+  );
 
   /*
     Fallback to BezierEdge if no path was found.
@@ -81,7 +87,10 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
     length = 2: a single straight line from point A to point B
   */
   if (smoothedPath.length <= 2) {
-    return <BezierEdge {...props} />;
+    if (lineType === 'curve') {
+      return <BezierEdge {...props} />;
+    }
+    return <StraightEdge {...props} />;
   }
 
   // Here we convert the grid path to a sequence of graph coordinates.
@@ -97,7 +106,10 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
   });
 
   // Finally, we can use the graph path to draw the edge
-  const svgPathString = drawSmoothLinePath(source, target, graphPath);
+  const svgPathString =
+    lineType === 'curve'
+      ? drawSmoothLinePath(source, target, graphPath)
+      : drawStraightLinePath(source, target, graphPath);
 
   // The Label, if any, should be placed in the middle of the path
   const [middleX, middleY] = fullPath[Math.floor(fullPath.length / 2)];
