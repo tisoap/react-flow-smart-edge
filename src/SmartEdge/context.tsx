@@ -8,6 +8,7 @@ export type SmartEdgeOptions = {
   nodePadding?: number;
   gridRatio?: number;
   lineType?: 'curve' | 'straight';
+  lessCorners?: boolean;
 };
 
 const defaultOptions: SmartEdgeOptions = {
@@ -15,6 +16,7 @@ const defaultOptions: SmartEdgeOptions = {
   nodePadding: 10,
   gridRatio: 10,
   lineType: 'curve',
+  lessCorners: false,
 };
 
 export const SmartEdgeContext = createContext<SmartEdgeOptions | undefined>(
@@ -35,6 +37,7 @@ export const SmartEdgeProvider = ({
     nodePadding = 10,
     gridRatio = 10,
     lineType = 'curve',
+    lessCorners = false,
   } = options;
 
   // Guarantee that all values are positive integers
@@ -59,7 +62,7 @@ export const SmartEdgeProvider = ({
 
   return (
     <SmartEdgeContext.Provider
-      value={{ debounceTime, nodePadding, gridRatio, lineType }}
+      value={{ debounceTime, nodePadding, gridRatio, lineType, lessCorners }}
     >
       {children}
     </SmartEdgeContext.Provider>

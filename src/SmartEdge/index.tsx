@@ -2,7 +2,7 @@ import React, { memo, useContext, useState } from 'react';
 import useDebounce from 'react-use/lib/useDebounce';
 import {
   BezierEdge,
-  StepEdge,
+  StraightEdge,
   getMarkerEnd,
   useStoreState,
   EdgeText,
@@ -39,7 +39,7 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
     labelBgBorderRadius,
   } = props;
 
-  const { gridRatio, nodePadding, lineType } = useSmartEdge();
+  const { gridRatio, nodePadding, lineType, lessCorners } = useSmartEdge();
   const roundCoordinatesTo = gridRatio;
 
   // We use the node's information to generate bounding boxes for them
@@ -73,7 +73,12 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
   );
 
   // We then can use the grid representation to do pathfinding
-  const { fullPath, smoothedPath } = generatePath(grid, start, end);
+  const { fullPath, smoothedPath } = generatePath(
+    grid,
+    start,
+    end,
+    lessCorners
+  );
 
   /*
     Fallback to BezierEdge if no path was found.
@@ -85,7 +90,7 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
     if (lineType === 'curve') {
       return <BezierEdge {...props} />;
     }
-    return <StepEdge {...props} />;
+    return <StraightEdge {...props} />;
   }
 
   // Here we convert the grid path to a sequence of graph coordinates.

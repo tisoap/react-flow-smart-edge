@@ -17,11 +17,6 @@ DefaultExample.args = {
   elements: data,
 };
 
-export const smallExample = Template.bind({});
-smallExample.args = {
-  elements: data2,
-};
-
 const TemplateWithProvider: Story<GraphWithProviderProps> = (args) => (
   <GraphWithProvider {...args} />
 );
@@ -31,6 +26,7 @@ const defaultOptions: SmartEdgeOptions = {
   nodePadding: 10,
   gridRatio: 10,
   lineType: 'curve',
+  lessCorners: false,
 };
 
 export const straightLines = TemplateWithProvider.bind({});
@@ -38,6 +34,16 @@ straightLines.args = {
   options: {
     ...defaultOptions,
     lineType: 'straight',
+  },
+  elements: data,
+};
+
+export const straightLinesWithLessCorners = TemplateWithProvider.bind({});
+straightLinesWithLessCorners.args = {
+  options: {
+    ...defaultOptions,
+    lineType: 'straight',
+    lessCorners: true,
   },
   elements: data,
 };
@@ -94,4 +100,9 @@ smallerGridRatio.args = {
     gridRatio: 6,
   },
   elements: data,
+};
+
+export const smallExample = Template.bind({});
+smallExample.args = {
+  elements: data2,
 };

@@ -12,16 +12,27 @@ declare module 'pathfinding' {
   }
 }
 
+const withDiagonalMovement = {
+  allowDiagonal: true,
+  dontCrossCorners: true,
+  diagonalMovement: DiagonalMovement.Always,
+};
+
+const withStraightMovement = {
+  allowDiagonal: false,
+};
+
 export const generatePath = (
   grid: Grid,
   start: XYPosition,
-  end: XYPosition
+  end: XYPosition,
+  lessCorners: boolean
 ) => {
-  const finder = new AStarFinder({
-    diagonalMovement: DiagonalMovement.Always,
-    allowDiagonal: true,
-    dontCrossCorners: true,
-  });
+  const finderOptions = lessCorners
+    ? withStraightMovement
+    : withDiagonalMovement;
+
+  const finder = new AStarFinder(finderOptions);
 
   let fullPath: number[][] = [];
   let smoothedPath: number[][] = [];

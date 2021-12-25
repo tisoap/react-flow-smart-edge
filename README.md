@@ -77,8 +77,12 @@ const options = {
 
   // The type of line that is draw. Available options are:
   // 'curve' - Curved lines with BezierEdge fallback (default)
-  // 'straight' - Straight lines with StepEdge fallback
+  // 'straight' - Straight lines with StraightEdge fallback
   lineType: 'curve',
+
+  // Boolean value to control if the path finding algorithm should
+  // use less diagonal movement, default to false.
+  lessCorners: false,
 };
 ```
 
