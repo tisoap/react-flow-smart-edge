@@ -1,108 +1,100 @@
 {
-  "name": "@tisoap/react-flow-smart-edge",
-  "version": "0.4.0",
-  "keywords": [
-    "react",
-    "typescript",
-    "graph",
-    "flow",
-    "flowchart",
-    "smart",
-    "edge",
-    "pathfinding",
-    "react-flow-smart-edge"
-  ],
-  "homepage": "https://tisoap.github.io/react-flow-smart-edge/",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/tisoap/react-flow-smart-edge.git"
-  },
-  "license": "MIT",
-  "author": "Tiso Alvarez Puccinelli",
-  "main": "dist/index.js",
-  "module": "dist/react-flow-smart-edge.esm.js",
-  "typings": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {
-    "build-storybook": "build-storybook",
-    "build": "tsdx build",
-    "deploy-storybook": "gh-pages -d storybook-static",
-    "lint": "tsdx lint src test stories --fix",
-    "predeploy": "npm run build-storybook",
-    "prepare": "tsdx build",
-    "release": "np",
-    "start": "tsdx watch",
-    "storybook": "start-storybook -p 6006",
-    "test": "tsdx test --passWithNoTests"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
-  },
-  "prettier": {
-    "printWidth": 80,
-    "semi": true,
-    "singleQuote": true,
-    "tabWidth": 2,
-    "tabs": false,
-    "trailingComma": "es5"
-  },
-  "dependencies": {
-    "pathfinding": "0.4.18",
-    "react-use": "17.3.1",
-    "tiny-warning": "1.0.3"
-  },
-  "devDependencies": {
-    "@babel/core": "7.16.0",
-    "@storybook/addon-essentials": "6.4.9",
-    "@storybook/addon-info": "5.3.21",
-    "@storybook/addon-links": "6.4.9",
-    "@storybook/addons": "6.4.9",
-    "@storybook/builder-webpack5": "6.4.9",
-    "@storybook/components": "6.4.9",
-    "@storybook/core-events": "6.4.9",
-    "@storybook/manager-webpack5": "6.4.9",
-    "@storybook/react": "6.4.9",
-    "@storybook/theming": "6.4.9",
-    "@types/pathfinding": "0.0.5",
-    "@types/react": "17.0.34",
-    "@types/react-dom": "17.0.11",
-    "@typescript-eslint/eslint-plugin": "4.33.0",
-    "@typescript-eslint/parser": "4.33.0",
-    "babel-eslint": "10.1.0",
-    "babel-loader": "8.2.3",
-    "eslint": "7.32.0",
-    "eslint-config-prettier": "7.2.0",
-    "eslint-config-react-app": "6.0.0",
-    "eslint-plugin-flowtype": "5.10.0",
-    "eslint-plugin-import": "2.25.3",
-    "eslint-plugin-jsx-a11y": "6.5.1",
-    "eslint-plugin-prettier": "3.3.1",
-    "eslint-plugin-react": "7.27.0",
-    "eslint-plugin-react-hooks": "4.3.0",
-    "gh-pages": "3.2.3",
-    "husky": "7.0.4",
-    "np": "7.5.0",
-    "prettier": "2.4.1",
-    "react": "16.14.0",
-    "react-dom": "16.14.0",
-    "react-flow-renderer": "9.6.11",
-    "regenerator-runtime": "0.13.9",
-    "tsdx": "0.14.1",
-    "tslib": "2.3.1",
-    "typescript": "4.4.4",
-    "webpack": "5.64.1"
-  },
-  "peerDependencies": {
-    "react": ">=16",
-    "react-dom": ">=16",
-    "react-flow-renderer": "^9"
-  },
-  "engines": {
-    "node": ">=12"
-  }
+	"name": "@tisoap/react-flow-smart-edge",
+	"version": "0.4.0",
+	"keywords": [
+		"react",
+		"typescript",
+		"graph",
+		"flow",
+		"flowchart",
+		"smart",
+		"edge",
+		"pathfinding",
+		"react-flow-smart-edge"
+	],
+	"homepage": "https://tisoap.github.io/react-flow-smart-edge/",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tisoap/react-flow-smart-edge.git"
+	},
+	"license": "MIT",
+	"author": "Tiso Alvarez Puccinelli",
+	"main": "dist/index.js",
+	"module": "dist/react-flow-smart-edge.esm.js",
+	"typings": "dist/index.d.ts",
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {
+		"build-storybook": "build-storybook",
+		"build": "tsdx build",
+		"deploy-storybook": "gh-pages -d storybook-static",
+		"lint": "tsdx lint src test stories --fix",
+		"predeploy": "npm run build-storybook",
+		"prepare": "tsdx build",
+		"start": "tsdx watch",
+		"storybook": "start-storybook -p 6006",
+		"test": "tsdx test --passWithNoTests"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "tsdx lint"
+		}
+	},
+	"dependencies": {
+		"pathfinding": "0.4.18",
+		"react-use": "17.3.1",
+		"tiny-warning": "1.0.3"
+	},
+	"devDependencies": {
+		"@babel/core": "7.16.0",
+		"@storybook/addon-essentials": "6.4.9",
+		"@storybook/addon-info": "5.3.21",
+		"@storybook/addon-links": "6.4.9",
+		"@storybook/addons": "6.4.9",
+		"@storybook/builder-webpack5": "6.4.9",
+		"@storybook/components": "6.4.9",
+		"@storybook/core-events": "6.4.9",
+		"@storybook/manager-webpack5": "6.4.9",
+		"@storybook/react": "6.4.9",
+		"@storybook/theming": "6.4.9",
+		"@tisoap/eslint-config-ts-react": "1.1.1",
+		"@types/pathfinding": "0.0.5",
+		"@types/react": "17.0.34",
+		"@types/react-dom": "17.0.11",
+		"@typescript-eslint/eslint-plugin": "4.33.0",
+		"@typescript-eslint/parser": "4.33.0",
+		"babel-eslint": "10.1.0",
+		"babel-loader": "8.2.3",
+		"eslint": "7.32.0",
+		"eslint-config-prettier": "7.2.0",
+		"eslint-config-react-app": "6.0.0",
+		"eslint-plugin-flowtype": "5.10.0",
+		"eslint-plugin-import": "2.25.3",
+		"eslint-plugin-jsx-a11y": "6.5.1",
+		"eslint-plugin-prettier": "3.3.1",
+		"eslint-plugin-storybook": "0.5.6",
+		"eslint-plugin-react": "7.27.0",
+		"eslint-plugin-react-hooks": "4.3.0",
+		"gh-pages": "3.2.3",
+		"husky": "7.0.4",
+		"prettier": "2.4.1",
+		"react": "16.14.0",
+		"react-dom": "16.14.0",
+		"react-flow-renderer": "9.6.11",
+		"regenerator-runtime": "0.13.9",
+		"tsdx": "0.14.1",
+		"tslib": "2.3.1",
+		"typescript": "4.4.4",
+		"webpack": "5.64.1"
+	},
+	"peerDependencies": {
+		"react": ">=16",
+		"react-dom": ">=16",
+		"react-flow-renderer": "^9"
+	},
+	"engines": {
+		"node": ">=12"
+	}
 }
