@@ -1,5 +1,5 @@
 {
-	"include": ["src", "test", "stories", ".eslintrc.js"],
+	"include": ["src", "test", "stories", ".eslintrc.js", "jest.config.js"],
 	"compilerOptions": {
 		"module": "esnext",
 		"lib": ["dom", "esnext"],
