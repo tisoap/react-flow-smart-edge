@@ -70,7 +70,6 @@
 		"dts-cli": "1.2.0",
 		"eslint": "8.9.0",
 		"eslint-config-prettier": "8.3.0",
-		"eslint-config-react-app": "7.0.0",
 		"eslint-plugin-flowtype": "8.0.3",
 		"eslint-plugin-import": "2.25.4",
 		"eslint-plugin-jsx-a11y": "6.5.1",
