@@ -9,6 +9,7 @@ module.exports = {
 		'plugin:storybook/recommended'
 	],
 	rules: {
+		'react/no-multi-comp': 'off',
 		'prettier/prettier': ['error', {}, { usePrettierrc: true }]
 	}
 }

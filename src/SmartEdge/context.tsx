@@ -47,6 +47,7 @@ export const SmartEdgeProvider = ({
 	debounceTime = toInteger(debounceTime)
 
 	// Guarantee correct line type
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (lineType !== 'curve' && lineType !== 'straight') {
 		lineType = 'curve'
 	}

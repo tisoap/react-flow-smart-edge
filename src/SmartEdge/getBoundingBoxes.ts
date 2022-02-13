@@ -47,8 +47,9 @@ export const getBoundingBoxes = (
 		/* eslint-disable
 			@typescript-eslint/no-unsafe-assignment,
 			@typescript-eslint/no-unsafe-member-access,
+			@typescript-eslint/no-unsafe-argument,
 		*/
-		const rf = node?.__rf
+		const rf = node.__rf
 		const width = Math.max(rf?.width || 0, 1)
 		const height = Math.max(rf?.height || 0, 1)
 
@@ -59,6 +60,7 @@ export const getBoundingBoxes = (
 		/* eslint-enable
 			@typescript-eslint/no-unsafe-assignment,
 			@typescript-eslint/no-unsafe-member-access,
+			@typescript-eslint/no-unsafe-argument,
 		*/
 
 		const topLeft: XYPosition = {
