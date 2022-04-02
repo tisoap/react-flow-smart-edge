@@ -49,7 +49,7 @@
 		"tiny-warning": "1.0.3"
 	},
 	"devDependencies": {
-		"@babel/core": "7.17.2",
+		"@babel/core": "7.17.8",
 		"@storybook/addon-essentials": "6.4.20",
 		"@storybook/addon-info": "5.3.21",
 		"@storybook/addon-links": "6.4.20",
@@ -62,12 +62,13 @@
 		"@storybook/theming": "6.4.20",
 		"@tisoap/eslint-config-ts-react": "4.0.0",
 		"@types/pathfinding": "0.0.5",
-		"@types/react": "17.0.39",
-		"@types/react-dom": "17.0.11",
-		"@typescript-eslint/eslint-plugin": "5.11.0",
-		"@typescript-eslint/parser": "5.11.0",
+		"@types/react": "17.0.43",
+		"@types/react-dom": "17.0.14",
+		"@typescript-eslint/eslint-plugin": "5.17.0",
+		"@typescript-eslint/parser": "5.17.0",
 		"babel-eslint": "10.1.0",
-		"babel-loader": "8.2.3",
+		"babel-jest": "27.5.1",
+		"babel-loader": "8.2.4",
 		"dts-cli": "1.2.0",
 		"eslint": "8.12.0",
 		"eslint-config-prettier": "8.5.0",
@@ -87,7 +88,7 @@
 		"regenerator-runtime": "0.13.9",
 		"tslib": "2.3.1",
 		"typescript": "4.5.5",
-		"webpack": "5.68.0"
+		"webpack": "5.71.0"
 	},
 	"peerDependencies": {
 		"react": ">=16",
