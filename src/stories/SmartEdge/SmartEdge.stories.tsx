@@ -3,7 +3,7 @@ import { Graph, GraphWithProvider } from './Graph'
 import { data, data2 } from './dummyData'
 import type { GraphProps, GraphWithProviderProps } from './Graph'
 import type { Meta, Story } from '@storybook/react'
-import type { SmartEdgeOptions } from 'src/SmartEdge/context'
+import type { SmartEdgeOptions } from 'SmartEdge/context'
 
 export default {
 	title: 'SmartEdge',
