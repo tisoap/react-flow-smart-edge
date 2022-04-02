@@ -27,11 +27,12 @@
 		"src"
 	],
 	"scripts": {
+		"build": "yarn lint && yarn test && yarn build-storybook && yarn build-component",
+		"build-component": "dts build",
 		"build-storybook": "build-storybook",
-		"build": "dts build",
 		"deploy-storybook": "gh-pages -d storybook-static",
 		"lint": "dts lint src test stories --fix",
-		"predeploy": "npm run build-storybook",
+		"predeploy": "yarn build",
 		"prepare": "dts build",
 		"start": "dts watch",
 		"storybook": "start-storybook -p 6006",
@@ -91,7 +92,8 @@
 	"peerDependencies": {
 		"react": ">=16",
 		"react-dom": ">=16",
-		"react-flow-renderer": "^9"
+		"react-flow-renderer": "^9",
+		"typescript": ">=4.6.2"
 	},
 	"engines": {
 		"node": ">=12"
