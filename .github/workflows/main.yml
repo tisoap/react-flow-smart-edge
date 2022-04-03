@@ -24,11 +24,5 @@ jobs:
         with:
           install-command: yarn --frozen-lockfile --silent
 
-      - name: Lint
-        run: yarn lint
-
-      - name: Test
-        run: yarn test --ci --coverage --maxWorkers=2
-
-      - name: Build
+      - name: Lint and Build
         run: yarn build
