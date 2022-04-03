@@ -1,13 +1,21 @@
 # React Flow Smart Edge
 
-Special Edge for [React Flow](https://github.com/wbkd/react-flow) that never intersects with other nodes.
+Custom Edges for [React Flow](https://github.com/tisoap/react-flow-smart-edge#readme) that never intersect with other nodes.
 
 ![Smart Edge](https://raw.githubusercontent.com/tisoap/react-flow-smart-edge/main/.github/images/example.gif)
 
 ## Install
 
+With `npm`:
+
 ```bash
 npm install @tisoap/react-flow-smart-edge
+```
+
+With `yarn`:
+
+```bash
+yarn add @tisoap/react-flow-smart-edge
 ```
 
 ## Usage
@@ -17,7 +25,7 @@ import React from 'react'
 import ReactFlow from 'react-flow-renderer'
 import { SmartEdge } from '@tisoap/react-flow-smart-edge'
 
-const elements = [
+const nodes = [
 	{
 		id: '1',
 		data: { label: 'Node 1' },
@@ -27,7 +35,10 @@ const elements = [
 		id: '2',
 		data: { label: 'Node 2' },
 		position: { x: 300, y: 200 }
-	},
+	}
+]
+
+const edges = [
 	{
 		id: 'e21',
 		source: '2',
@@ -36,15 +47,18 @@ const elements = [
 	}
 ]
 
+const edgeTypes = {
+	smart: SmartEdge
+}
+
 export const Graph = (props) => {
 	const { children, ...rest } = props
 
 	return (
 		<ReactFlow
-			elements={elements}
-			edgeTypes={{
-				smart: SmartEdge
-			}}
+			defaultNodes={nodes}
+			defaultEdges={edges}
+			edgeTypes={edgeTypes}
 			{...rest}
 		>
 			{children}
@@ -55,7 +69,7 @@ export const Graph = (props) => {
 
 ## Options
 
-The `SmartEdge` takes the same options as a [React Flow Edge](https://reactflow.dev/docs/api/edges/).
+The `SmartEdge` takes the same options as a [React Flow Edge](https://reactflow.dev/docs/api/edges/edge-options/).
 
 You can configure additional advanced options by wrapping your graph with `SmartEdgeProvider` and passing an `options` object. If an option is not provided it'll assume it's default value. The available options are:
 
@@ -92,18 +106,25 @@ Usage:
 import React from 'react'
 import ReactFlow from 'react-flow-renderer'
 import { SmartEdge, SmartEdgeProvider } from '@tisoap/react-flow-smart-edge'
-import elements from './elements'
+import { nodes, edges } from './data'
+
+const edgeTypes = {
+	smart: SmartEdge
+}
+
+const smartOptions = {
+	debounceTime: 300
+}
 
 export const Graph = (props) => {
 	const { children, ...rest } = props
 
 	return (
-		<SmartEdgeProvider options={{ debounceTime: 300 }}>
+		<SmartEdgeProvider options={smartOptions}>
 			<ReactFlow
-				elements={elements}
-				edgeTypes={{
-					smart: SmartEdge
-				}}
+				defaultNodes={nodes}
+				defaultEdges={edges}
+				edgeTypes={edgeTypes}
 				{...rest}
 			>
 				{children}
