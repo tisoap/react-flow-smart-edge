@@ -42,6 +42,8 @@ export const graphToGridPoint = (
 			referenceX--
 			x--
 		}
+	} else {
+		// Nothing to do
 	}
 
 	if (referenceY < 1) {
@@ -54,6 +56,8 @@ export const graphToGridPoint = (
 			referenceY--
 			y--
 		}
+	} else {
+		// Nothing to do
 	}
 
 	return { x, y }
@@ -85,6 +89,8 @@ export const gridToGraphPoint = (
 			referenceX = referenceX - gridRatio
 			x = x + gridRatio
 		}
+	} else {
+		// Nothing to do
 	}
 
 	if (referenceY < gridRatio) {
@@ -97,6 +103,8 @@ export const gridToGraphPoint = (
 			referenceY = referenceY - gridRatio
 			y = y + gridRatio
 		}
+	} else {
+		// Nothing to do
 	}
 
 	return { x, y }

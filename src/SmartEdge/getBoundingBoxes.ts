@@ -44,24 +44,13 @@ export const getBoundingBoxes = (
 	let yMin = Number.MAX_SAFE_INTEGER
 
 	const nodes: NodeBoundingBox[] = storeNodes.map((node) => {
-		/* eslint-disable
-			@typescript-eslint/no-unsafe-assignment,
-			@typescript-eslint/no-unsafe-member-access,
-			@typescript-eslint/no-unsafe-argument,
-		*/
-		const rf = node.__rf
-		const width = Math.max(rf?.width || 0, 1)
-		const height = Math.max(rf?.height || 0, 1)
+		const width = Math.max(node.width || 0, 1)
+		const height = Math.max(node.height || 0, 1)
 
 		const position: XYPosition = {
-			x: rf?.position?.x || 0,
-			y: rf?.position?.y || 0
+			x: node.positionAbsolute?.x || 0,
+			y: node.positionAbsolute?.y || 0
 		}
-		/* eslint-enable
-			@typescript-eslint/no-unsafe-assignment,
-			@typescript-eslint/no-unsafe-member-access,
-			@typescript-eslint/no-unsafe-argument,
-		*/
 
 		const topLeft: XYPosition = {
 			x: position.x - nodePadding,

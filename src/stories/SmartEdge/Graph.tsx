@@ -1,10 +1,14 @@
 import React from 'react'
 import ReactFlow from 'react-flow-renderer'
-import { SmartEdge, SmartEdgeProvider } from '../../src'
-import type { SmartEdgeOptions } from '../../src'
+import { SmartEdge, SmartEdgeProvider } from '../../index'
+import type { SmartEdgeOptions } from '../../index'
 import type { ReactFlowProps } from 'react-flow-renderer'
 
 export type GraphProps = ReactFlowProps
+
+const edgeTypes = {
+	smart: SmartEdge
+}
 
 export const Graph = (props: ReactFlowProps) => {
 	const { children, ...rest } = props
@@ -20,9 +24,7 @@ export const Graph = (props: ReactFlowProps) => {
 			style={style}
 			maxZoom={1}
 			minZoom={0.5}
-			edgeTypes={{
-				smart: SmartEdge
-			}}
+			edgeTypes={edgeTypes}
 			{...rest}
 		>
 			{children}
