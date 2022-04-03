@@ -2,8 +2,7 @@ import React, { memo, useContext, useState } from 'react'
 import {
 	BezierEdge,
 	StraightEdge,
-	getMarkerEnd,
-	useStoreState,
+	useNodes,
 	EdgeText
 } from 'react-flow-renderer'
 import useDebounce from 'react-use/lib/useDebounce'
@@ -16,8 +15,7 @@ import { gridToGraphPoint } from './pointConversion'
 import type { PointInfo } from './createGrid'
 import type { EdgeProps, Node } from 'react-flow-renderer'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface PathFindingEdgeProps<T = any> extends EdgeProps<T> {
+interface PathFindingEdgeProps<T = unknown> extends EdgeProps<T> {
 	storeNodes: Node<T>[]
 }
 
@@ -29,8 +27,6 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 		targetX,
 		targetY,
 		targetPosition,
-		arrowHeadType,
-		markerEndId,
 		style,
 		storeNodes,
 		label,
@@ -38,7 +34,9 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 		labelShowBg,
 		labelBgStyle,
 		labelBgPadding,
-		labelBgBorderRadius
+		labelBgBorderRadius,
+		markerEnd,
+		markerStart
 	} = props
 
 	const { gridRatio, nodePadding, lineType, lessCorners } = useSmartEdge()
@@ -130,8 +128,6 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 		/>
 	) : null
 
-	const markerEnd = getMarkerEnd(arrowHeadType, markerEndId)
-
 	return (
 		<>
 			<path
@@ -139,6 +135,7 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 				className='react-flow__edge-path'
 				d={svgPathString}
 				markerEnd={markerEnd}
+				markerStart={markerStart}
 			/>
 			{text}
 		</>
@@ -146,7 +143,7 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 })
 
 const DebouncedPathFindingEdge = memo((props: EdgeProps) => {
-	const storeNodes = useStoreState((state) => state.nodes)
+	const storeNodes = useNodes()
 	const { debounceTime } = useSmartEdge()
 	const [debouncedProps, setDebouncedProps] = useState({
 		storeNodes,
@@ -168,7 +165,7 @@ const DebouncedPathFindingEdge = memo((props: EdgeProps) => {
 })
 
 const RegularPathFindingEdge = memo((props: EdgeProps) => {
-	const storeNodes = useStoreState((state) => state.nodes)
+	const storeNodes = useNodes()
 	return <PathFindingEdge storeNodes={storeNodes} {...props} />
 })
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Graph, GraphWithProvider } from './Graph'
-import { data, data2 } from './dummyData'
+import { edges1, edges2, nodes1, nodes2 } from './dummyData'
 import type { GraphProps, GraphWithProviderProps } from './Graph'
 import type { Meta, Story } from '@storybook/react'
 import type { SmartEdgeOptions } from 'SmartEdge/context'
@@ -14,7 +14,8 @@ const Template: Story<GraphProps> = (args) => <Graph {...args} />
 
 export const DefaultExample = Template.bind({})
 DefaultExample.args = {
-	elements: data
+	defaultNodes: nodes1,
+	defaultEdges: edges1
 }
 
 const TemplateWithProvider: Story<GraphWithProviderProps> = (args) => (
@@ -31,78 +32,79 @@ const defaultOptions: SmartEdgeOptions = {
 
 export const StraightLines = TemplateWithProvider.bind({})
 StraightLines.args = {
+	...DefaultExample.args,
 	options: {
 		...defaultOptions,
 		lineType: 'straight'
-	},
-	elements: data
+	}
 }
 
 export const StraightLinesWithLessCorners = TemplateWithProvider.bind({})
 StraightLinesWithLessCorners.args = {
+	...DefaultExample.args,
 	options: {
 		...defaultOptions,
 		lineType: 'straight',
 		lessCorners: true
-	},
-	elements: data
+	}
 }
 
 export const SmallerDebounce = TemplateWithProvider.bind({})
 SmallerDebounce.args = {
+	...DefaultExample.args,
 	options: {
 		...defaultOptions,
 		debounceTime: 50
-	},
-	elements: data
+	}
 }
 
 export const NoDebounce = TemplateWithProvider.bind({})
 NoDebounce.args = {
+	...DefaultExample.args,
 	options: {
 		...defaultOptions,
 		debounceTime: 0
-	},
-	elements: data
+	}
 }
 
 export const BiggerNodePadding = TemplateWithProvider.bind({})
 BiggerNodePadding.args = {
+	...DefaultExample.args,
 	options: {
 		...defaultOptions,
 		nodePadding: 20
-	},
-	elements: data
+	}
 }
 
 export const SmallerNodePadding = TemplateWithProvider.bind({})
 SmallerNodePadding.args = {
+	...DefaultExample.args,
 	options: {
 		...defaultOptions,
 		nodePadding: 8
-	},
-	elements: data
+	}
 }
 
 export const BiggerGridRatio = TemplateWithProvider.bind({})
 BiggerGridRatio.args = {
+	...DefaultExample.args,
 	options: {
 		...defaultOptions,
 		gridRatio: 15
-	},
-	elements: data
+	}
 }
 
 export const SmallerGridRatio = TemplateWithProvider.bind({})
 SmallerGridRatio.args = {
+	...DefaultExample.args,
 	options: {
 		...defaultOptions,
 		gridRatio: 6
-	},
-	elements: data
+	}
 }
 
 export const SmallExample = Template.bind({})
 SmallExample.args = {
-	elements: data2
+	defaultNodes: nodes2,
+	defaultEdges: edges2
 }
