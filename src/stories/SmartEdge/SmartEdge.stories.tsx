@@ -1,5 +1,8 @@
+import { expect } from '@storybook/jest'
+import { within } from '@storybook/testing-library'
 import React from 'react'
 import { Graph, GraphWithProvider } from './Graph'
+import { drag, wait, getElementClientCenter } from './drag'
 import { edges1, edges2, nodes1, nodes2 } from './dummyData'
 import type { GraphProps, GraphWithProviderProps } from './Graph'
 import type { Meta, Story } from '@storybook/react'
@@ -16,6 +19,23 @@ export const DefaultExample = Template.bind({})
 DefaultExample.args = {
 	defaultNodes: nodes1,
 	defaultEdges: edges1
+}
+DefaultExample.play = async ({ canvasElement }) => {
+	const dragX = 200
+	const dragY = 100
+
+	await wait(500)
+	const canvas = within(canvasElement)
+	const node = canvas.getByText('Node 1')
+	const currentCenter = getElementClientCenter(node)
+
+	await drag(node, { delta: { x: dragX, y: dragY } })
+	const newCenter = getElementClientCenter(node)
+
+	await expect(newCenter).toEqual({
+		x: currentCenter.x + dragX,
+		y: currentCenter.y + dragY
+	})
 }
 
 const TemplateWithProvider: Story<GraphWithProviderProps> = (args) => (

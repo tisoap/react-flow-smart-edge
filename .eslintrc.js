@@ -11,5 +11,13 @@ module.exports = {
 	rules: {
 		'react/no-multi-comp': 'off',
 		'prettier/prettier': ['error', {}, { usePrettierrc: true }]
-	}
+	},
+	overrides: [
+		{
+			files: ['*.stories.tsx'],
+			rules: {
+				'@typescript-eslint/await-thenable': 'off'
+			}
+		}
+	]
 }
