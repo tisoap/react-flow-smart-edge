@@ -2,24 +2,25 @@ import React, { memo } from 'react'
 import { EdgeText } from 'react-flow-renderer'
 import {
 	createGrid,
-	drawSmoothLinePath,
-	drawStraightLinePath,
 	generatePath,
 	getBoundingBoxes,
 	gridToGraphPoint
 } from '../functions'
-import type { PointInfo } from '../functions'
+import type { PointInfo, SVGDrawFunction } from '../functions'
 import type { EdgeProps, Node, BezierEdge } from 'react-flow-renderer'
 
+/**
+ * Any valid Edge component from react-flow-renderer
+ */
 export type EdgeComponent = typeof BezierEdge
 
 export type SmartEdgeOptions = {
 	debounceTime: number
 	nodePadding: number
 	gridRatio: number
-	lineType: 'curve' | 'straight'
 	lessCorners: boolean
 	fallback: EdgeComponent
+	drawEdge: SVGDrawFunction
 }
 
 export interface PathFindingEdgeProps<T = unknown> extends EdgeProps<T> {
@@ -51,7 +52,7 @@ export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 	const {
 		gridRatio,
 		nodePadding,
-		lineType,
+		drawEdge,
 		lessCorners,
 		fallback: FallbackEdge
 	} = options
@@ -114,10 +115,7 @@ export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 	})
 
 	// Finally, we can use the graph path to draw the edge
-	const svgPathString =
-		lineType === 'curve'
-			? drawSmoothLinePath(source, target, graphPath)
-			: drawStraightLinePath(source, target, graphPath)
+	const svgPathString = drawEdge(source, target, graphPath)
 
 	// The Label, if any, should be placed in the middle of the path
 	const [middleX, middleY] = fullPath[Math.floor(fullPath.length / 2)]

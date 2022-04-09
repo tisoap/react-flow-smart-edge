@@ -1,5 +1,10 @@
 import type { XYPosition } from 'react-flow-renderer'
 
+/**
+ * Takes source and target {x, y} points, together with an array of number
+ * tuples [x, y] representing the points along the path, and returns a string
+ * to be used as the SVG path.
+ */
 export type SVGDrawFunction = (
 	source: XYPosition,
 	target: XYPosition,
