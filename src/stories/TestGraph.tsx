@@ -1,12 +1,13 @@
 import React from 'react'
 import ReactFlow from 'react-flow-renderer'
-import { SmartEdge } from '../index'
+import { SmartBezierEdge, SmartStraightEdge } from '../index'
 import type { ReactFlowProps } from 'react-flow-renderer'
 
 export type GraphProps = ReactFlowProps
 
 const edgeTypes = {
-	smart: SmartEdge
+	smartBezier: SmartBezierEdge,
+	smartStraight: SmartStraightEdge
 }
 
 export const Graph = (props: GraphProps) => {

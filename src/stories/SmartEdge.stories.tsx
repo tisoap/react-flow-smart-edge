@@ -1,7 +1,13 @@
 import { expect } from '@storybook/jest'
 import { within } from '@storybook/testing-library'
 import React from 'react'
-import { edges1, edges2, nodes1, nodes2 } from './DummyData'
+import {
+	edges1Bezier,
+	edges1Straight,
+	edges2Bezier,
+	nodes1,
+	nodes2
+} from './DummyData'
 import {
 	SimulateDragAndDrop,
 	wait,
@@ -12,18 +18,15 @@ import type { GraphProps } from './TestGraph'
 import type { Meta, Story } from '@storybook/react'
 
 export default {
-	title: 'SmartEdge',
+	title: 'React Flow Smart Edge',
 	component: Graph
 } as Meta
 
-const Template: Story<GraphProps> = (args) => <Graph {...args} />
-
-export const DefaultExample = Template.bind({})
-DefaultExample.args = {
-	defaultNodes: nodes1,
-	defaultEdges: edges1
+interface PlayFunctionProps {
+	canvasElement: HTMLElement
 }
-DefaultExample.play = async ({ canvasElement }) => {
+
+const dragElementTest = async ({ canvasElement }: PlayFunctionProps) => {
 	const dragX = 200
 	const dragY = 100
 
@@ -41,8 +44,24 @@ DefaultExample.play = async ({ canvasElement }) => {
 	})
 }
 
+const Template: Story<GraphProps> = (args) => <Graph {...args} />
+
+export const SmartBezier = Template.bind({})
+SmartBezier.args = {
+	defaultNodes: nodes1,
+	defaultEdges: edges1Bezier
+}
+SmartBezier.play = dragElementTest
+
+export const SmartStraight = Template.bind({})
+SmartStraight.args = {
+	defaultNodes: nodes1,
+	defaultEdges: edges1Straight
+}
+SmartStraight.play = dragElementTest
+
 export const SmallExample = Template.bind({})
 SmallExample.args = {
 	defaultNodes: nodes2,
-	defaultEdges: edges2
+	defaultEdges: edges2Bezier
 }

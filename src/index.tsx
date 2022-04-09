@@ -1,7 +1,4 @@
-import { SmartEdge, SmartEdgeFactory } from './SmartEdge'
-import type { SmartEdgeOptions } from './SmartEdge'
+import { SmartBezierEdge } from './SmartEdge'
+export * from './SmartEdge'
 
-export { SmartEdge, SmartEdgeFactory }
-export type { SmartEdgeOptions }
-
-export default SmartEdge
+export default SmartBezierEdge
