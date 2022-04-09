@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactFlow from 'react-flow-renderer'
-import { SmartEdge, SmartEdgeProvider } from '../index'
-import type { SmartEdgeOptions } from '../index'
+import { SmartEdge } from '../index'
 import type { ReactFlowProps } from 'react-flow-renderer'
 
 export type GraphProps = ReactFlowProps
@@ -10,7 +9,7 @@ const edgeTypes = {
 	smart: SmartEdge
 }
 
-export const Graph = (props: ReactFlowProps) => {
+export const Graph = (props: GraphProps) => {
 	const { children, ...rest } = props
 
 	const style = {
@@ -29,20 +28,5 @@ export const Graph = (props: ReactFlowProps) => {
 		>
 			{children}
 		</ReactFlow>
-	)
-}
-
-export type GraphWithProviderProps = GraphProps & {
-	options: SmartEdgeOptions
-}
-
-export const GraphWithProvider = ({
-	options,
-	...rest
-}: GraphWithProviderProps) => {
-	return (
-		<SmartEdgeProvider options={options}>
-			<Graph {...rest} />
-		</SmartEdgeProvider>
 	)
 }

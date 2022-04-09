@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState } from 'react'
+import React, { memo, useState } from 'react'
 import {
 	BezierEdge,
 	StraightEdge,
@@ -14,12 +14,12 @@ import {
 import { generatePath } from '../functions/generatePath'
 import { getBoundingBoxes } from '../functions/getBoundingBoxes'
 import { gridToGraphPoint } from '../functions/pointConversion'
-import { SmartEdgeContext, SmartEdgeProvider, useSmartEdge } from './context'
 import type { PointInfo } from '../functions/createGrid'
 import type { EdgeProps, Node } from 'react-flow-renderer'
 
 interface PathFindingEdgeProps<T = unknown> extends EdgeProps<T> {
 	storeNodes: Node<T>[]
+	options: SmartEdgeOptions
 }
 
 const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
@@ -39,10 +39,11 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 		labelBgPadding,
 		labelBgBorderRadius,
 		markerEnd,
-		markerStart
+		markerStart,
+		options
 	} = props
 
-	const { gridRatio, nodePadding, lineType, lessCorners } = useSmartEdge()
+	const { gridRatio, nodePadding, lineType, lessCorners } = options
 	const roundCoordinatesTo = gridRatio
 
 	// We use the node's information to generate bounding boxes for them
@@ -144,52 +145,56 @@ const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 		</>
 	)
 })
+PathFindingEdge.displayName = 'PathFindingEdge'
 
-const DebouncedPathFindingEdge = memo((props: EdgeProps) => {
-	const storeNodes = useNodes()
-	const { debounceTime } = useSmartEdge()
-	const [debouncedProps, setDebouncedProps] = useState({
-		storeNodes,
-		...props
+export type SmartEdgeOptions = {
+	debounceTime: number
+	nodePadding: number
+	gridRatio: number
+	lineType: 'curve' | 'straight'
+	lessCorners: boolean
+}
+
+export const SmartEdgeFactory = ({
+	debounceTime = 200,
+	nodePadding = 10,
+	gridRatio = 10,
+	lineType = 'curve',
+	lessCorners = false
+}: Partial<SmartEdgeOptions>) => {
+	// Once SmartEdgeFactory() is called, options will be part of the
+	// DebouncedPathFindingEdge closure and will never change.
+	const options: SmartEdgeOptions = {
+		debounceTime,
+		nodePadding,
+		gridRatio,
+		lineType,
+		lessCorners
+	}
+
+	const DebouncedPathFindingEdge = memo((props: EdgeProps) => {
+		const storeNodes = useNodes()
+		const [debouncedProps, setDebouncedProps] = useState({
+			storeNodes,
+			...props
+		})
+
+		useDebounce(
+			() => {
+				setDebouncedProps({
+					storeNodes,
+					...props
+				})
+			},
+			debounceTime,
+			[props, storeNodes]
+		)
+
+		return <PathFindingEdge {...debouncedProps} options={options} />
 	})
 
-	useDebounce(
-		() => {
-			setDebouncedProps({
-				storeNodes,
-				...props
-			})
-		},
-		debounceTime,
-		[props, storeNodes]
-	)
+	DebouncedPathFindingEdge.displayName = 'DebouncedPathFindingEdge'
+	return DebouncedPathFindingEdge
+}
 
-	return <PathFindingEdge {...debouncedProps} />
-})
-
-const RegularPathFindingEdge = memo((props: EdgeProps) => {
-	const storeNodes = useNodes()
-	return <PathFindingEdge storeNodes={storeNodes} {...props} />
-})
-
-RegularPathFindingEdge.displayName = 'RegularPathFindingEdge'
-
-export const SmartEdge = memo((props: EdgeProps) => {
-	const context = useContext(SmartEdgeContext)
-
-	if (!context) {
-		return (
-			<SmartEdgeProvider>
-				<DebouncedPathFindingEdge {...props} />;
-			</SmartEdgeProvider>
-		)
-	}
-
-	if (context.debounceTime === 0) {
-		return <RegularPathFindingEdge {...props} />
-	}
-
-	return <DebouncedPathFindingEdge {...props} />
-})
-
-SmartEdge.displayName = 'SmartEdge'
+export const SmartEdge = SmartEdgeFactory({})

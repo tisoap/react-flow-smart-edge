@@ -1,8 +1,7 @@
-import { SmartEdge } from './SmartEdge'
-import { SmartEdgeProvider } from './SmartEdge/context'
-import type { SmartEdgeOptions } from './SmartEdge/context'
+import { SmartEdge, SmartEdgeFactory } from './SmartEdge'
+import type { SmartEdgeOptions } from './SmartEdge'
 
-export { SmartEdge, SmartEdgeProvider }
+export { SmartEdge, SmartEdgeFactory }
 export type { SmartEdgeOptions }
 
 export default SmartEdge
