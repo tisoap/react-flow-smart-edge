@@ -2,6 +2,7 @@ import { MarkerType, StepEdge, SimpleBezierEdge } from 'react-flow-renderer'
 import {
 	SmartBezierEdge,
 	SmartStraightEdge,
+	SmartStepEdge,
 	smartEdgeFactory,
 	svgDrawSmoothLinePath,
 	svgDrawStraightLinePath,
@@ -28,6 +29,7 @@ const CustomSmartStraightEdge = smartEdgeFactory({
 export const edgeTypes = {
 	smartBezier: SmartBezierEdge,
 	smartStraight: SmartStraightEdge,
+	smartStep: SmartStepEdge,
 	customSmartBezier: CustomSmartBezierEdge,
 	customSmartStraight: CustomSmartStraightEdge
 }
@@ -200,12 +202,17 @@ export const edges1Straight = edges1Bezier.map((edge) => ({
 	type: 'smartStraight'
 }))
 
-export const edges2CustomBezier = edges1Bezier.map((edge) => ({
+export const edges1Step = edges1Bezier.map((edge) => ({
+	...edge,
+	type: 'smartStep'
+}))
+
+export const edges1CustomBezier = edges1Bezier.map((edge) => ({
 	...edge,
 	type: 'customSmartBezier'
 }))
 
-export const edges2CustomStraight = edges1Bezier.map((edge) => ({
+export const edges1CustomStraight = edges1Bezier.map((edge) => ({
 	...edge,
 	type: 'customSmartStraight'
 }))

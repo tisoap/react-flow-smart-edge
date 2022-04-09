@@ -1,16 +1,18 @@
-import { AStarFinder, Util, DiagonalMovement } from 'pathfinding'
+// FIXME: The "pathfinding" module doe not have proper typings.
+/* eslint-disable
+	@typescript-eslint/no-unsafe-call,
+	@typescript-eslint/no-unsafe-member-access,
+	@typescript-eslint/no-unsafe-assignment,
+	@typescript-eslint/ban-ts-comment,
+*/
+import {
+	AStarFinder,
+	JumpPointFinder,
+	Util,
+	DiagonalMovement
+} from 'pathfinding'
 import type { Grid } from 'pathfinding'
 import type { XYPosition } from 'react-flow-renderer'
-
-// https://www.npmjs.com/package/pathfinding#advanced-usage
-declare module 'pathfinding' {
-	interface FinderOptions extends Heuristic {
-		diagonalMovement?: DiagonalMovement
-		weight?: number
-		allowDiagonal?: boolean
-		dontCrossCorners?: boolean
-	}
-}
 
 /**
  * Takes source and target {x, y} points, together with an grid representation
@@ -30,8 +32,6 @@ export const pathfindingAStarDiagonal: PathFindingFunction = (
 	end
 ) => {
 	const finder = new AStarFinder({
-		allowDiagonal: true,
-		dontCrossCorners: true,
 		diagonalMovement: DiagonalMovement.Always
 	})
 
@@ -56,7 +56,7 @@ export const pathfindingAStarNoDiagonal: PathFindingFunction = (
 	end
 ) => {
 	const finder = new AStarFinder({
-		allowDiagonal: false
+		diagonalMovement: DiagonalMovement.Never
 	})
 
 	let fullPath: number[][] = []
@@ -65,6 +65,33 @@ export const pathfindingAStarNoDiagonal: PathFindingFunction = (
 	try {
 		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
 		smoothedPath = Util.smoothenPath(grid, fullPath)
+	} catch {
+		// No path was found. This can happen if the end point is "surrounded"
+		// by other nodes, or if the starting and ending nodes are on top of
+		// each other.
+	}
+
+	return { fullPath, smoothedPath }
+}
+
+export const pathfindingJumpPointNoDiagonal: PathFindingFunction = (
+	grid,
+	start,
+	end
+) => {
+	// FIXME: The "pathfinding" module doe not have proper typings.
+	// @ts-ignore
+	const finder = new JumpPointFinder({
+		diagonalMovement: DiagonalMovement.Never
+	})
+
+	let fullPath: number[][] = []
+	let smoothedPath: number[][] = []
+
+	try {
+		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
+		// Jump point works better using only the full path.
+		smoothedPath = fullPath
 	} catch {
 		// No path was found. This can happen if the end point is "surrounded"
 		// by other nodes, or if the starting and ending nodes are on top of

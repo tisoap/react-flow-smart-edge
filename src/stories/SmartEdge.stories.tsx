@@ -3,9 +3,10 @@ import React from 'react'
 import {
 	edges1Bezier,
 	edges1Straight,
+	edges1Step,
 	edges1Random,
-	edges2CustomBezier,
-	edges2CustomStraight,
+	edges1CustomBezier,
+	edges1CustomStraight,
 	edges2Bezier,
 	nodes1,
 	nodes2,
@@ -59,6 +60,12 @@ SmartStraight.args = {
 	defaultEdges: edges1Straight
 }
 
+export const SmartStep = Template.bind({})
+SmartStep.args = {
+	...SmartBezier.args,
+	defaultEdges: edges1Step
+}
+
 export const MixedRandomSmartEdges = Template.bind({})
 MixedRandomSmartEdges.args = {
 	...SmartBezier.args,
@@ -68,13 +75,13 @@ MixedRandomSmartEdges.args = {
 export const CustomBezier = Template.bind({})
 CustomBezier.args = {
 	...SmartBezier.args,
-	defaultEdges: edges2CustomBezier
+	defaultEdges: edges1CustomBezier
 }
 
 export const CustomStraight = Template.bind({})
 CustomStraight.args = {
 	...SmartBezier.args,
-	defaultEdges: edges2CustomStraight
+	defaultEdges: edges1CustomStraight
 }
 
 export const SmallExample = Template.bind({})
