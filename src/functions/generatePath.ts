@@ -12,27 +12,52 @@ declare module 'pathfinding' {
 	}
 }
 
-const withDiagonalMovement = {
-	allowDiagonal: true,
-	dontCrossCorners: true,
-	diagonalMovement: DiagonalMovement.Always
-}
-
-const withStraightMovement = {
-	allowDiagonal: false
-}
-
-export const generatePath = (
+/**
+ * Takes source and target {x, y} points, together with an grid representation
+ * of the graph, and returns two arrays of number tuples [x, y]. The first
+ * array represents the full path from source to target, and the second array
+ * represents a condensed path from source to target.
+ */
+export type PathFindingFunction = (
 	grid: Grid,
 	start: XYPosition,
-	end: XYPosition,
-	lessCorners: boolean
-) => {
-	const finderOptions = lessCorners
-		? withStraightMovement
-		: withDiagonalMovement
+	end: XYPosition
+) => { fullPath: number[][]; smoothedPath: number[][] }
 
-	const finder = new AStarFinder(finderOptions)
+export const pathfindingAStarDiagonal: PathFindingFunction = (
+	grid,
+	start,
+	end
+) => {
+	const finder = new AStarFinder({
+		allowDiagonal: true,
+		dontCrossCorners: true,
+		diagonalMovement: DiagonalMovement.Always
+	})
+
+	let fullPath: number[][] = []
+	let smoothedPath: number[][] = []
+
+	try {
+		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
+		smoothedPath = Util.smoothenPath(grid, fullPath)
+	} catch {
+		// No path was found. This can happen if the end point is "surrounded"
+		// by other nodes, or if the starting and ending nodes are on top of
+		// each other.
+	}
+
+	return { fullPath, smoothedPath }
+}
+
+export const pathfindingAStarNoDiagonal: PathFindingFunction = (
+	grid,
+	start,
+	end
+) => {
+	const finder = new AStarFinder({
+		allowDiagonal: false
+	})
 
 	let fullPath: number[][] = []
 	let smoothedPath: number[][] = []

@@ -4,6 +4,7 @@ import React from 'react'
 import {
 	edges1Bezier,
 	edges1Straight,
+	edges1Mixed,
 	edges2Bezier,
 	nodes1,
 	nodes2
@@ -59,6 +60,13 @@ SmartStraight.args = {
 	defaultEdges: edges1Straight
 }
 SmartStraight.play = dragElementTest
+
+export const MixedSmartEdges = Template.bind({})
+MixedSmartEdges.args = {
+	defaultNodes: nodes1,
+	defaultEdges: edges1Mixed
+}
+MixedSmartEdges.play = dragElementTest
 
 export const SmallExample = Template.bind({})
 SmallExample.args = {

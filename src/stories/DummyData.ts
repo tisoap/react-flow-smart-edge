@@ -170,7 +170,7 @@ export const edges1Straight = edges1Bezier.map((edge) => ({
 	type: 'smartStraight'
 }))
 
-export const edges2Straight = edges2Bezier.map((edge) => ({
+export const edges1Mixed = edges1Bezier.map((edge, index) => ({
 	...edge,
-	type: 'smartStraight'
+	type: index % 2 === 0 ? 'smartStraight' : 'smartBezier'
 }))

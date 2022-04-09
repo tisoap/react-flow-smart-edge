@@ -1,12 +1,11 @@
 import React, { memo } from 'react'
 import { EdgeText } from 'react-flow-renderer'
-import {
-	createGrid,
-	generatePath,
-	getBoundingBoxes,
-	gridToGraphPoint
+import { createGrid, getBoundingBoxes, gridToGraphPoint } from '../functions'
+import type {
+	PointInfo,
+	SVGDrawFunction,
+	PathFindingFunction
 } from '../functions'
-import type { PointInfo, SVGDrawFunction } from '../functions'
 import type { EdgeProps, Node, BezierEdge } from 'react-flow-renderer'
 
 /**
@@ -18,9 +17,9 @@ export type SmartEdgeOptions = {
 	debounceTime: number
 	nodePadding: number
 	gridRatio: number
-	lessCorners: boolean
 	fallback: EdgeComponent
 	drawEdge: SVGDrawFunction
+	generatePath: PathFindingFunction
 }
 
 export interface PathFindingEdgeProps<T = unknown> extends EdgeProps<T> {
@@ -53,8 +52,8 @@ export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 		gridRatio,
 		nodePadding,
 		drawEdge,
-		lessCorners,
-		fallback: FallbackEdge
+		fallback: FallbackEdge,
+		generatePath
 	} = options
 
 	const roundCoordinatesTo = gridRatio
@@ -90,7 +89,7 @@ export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 	)
 
 	// We then can use the grid representation to do pathfinding
-	const { fullPath, smoothedPath } = generatePath(grid, start, end, lessCorners)
+	const { fullPath, smoothedPath } = generatePath(grid, start, end)
 
 	/*
     Fallback to BezierEdge if no path was found.

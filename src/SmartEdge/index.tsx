@@ -1,17 +1,32 @@
 import { BezierEdge, StraightEdge } from 'react-flow-renderer'
-import { drawSmoothLinePath, drawStraightLinePath } from '../functions'
-import { SmartEdgeFactory } from './SmartEdgeFactory'
+import {
+	svgDrawSmoothLinePath,
+	svgDrawStraightLinePath,
+	pathfindingAStarDiagonal,
+	pathfindingAStarNoDiagonal
+} from '../functions'
+import { smartEdgeFactory } from './SmartEdgeFactory'
+import type { PathFindingFunction, SVGDrawFunction } from '../functions'
 import type { SmartEdgeOptions } from './SmartEdgeFactory'
 
-export { SmartEdgeFactory }
-export type { SmartEdgeOptions }
+export {
+	smartEdgeFactory,
+	svgDrawSmoothLinePath,
+	svgDrawStraightLinePath,
+	pathfindingAStarDiagonal,
+	pathfindingAStarNoDiagonal
+}
 
-export const SmartBezierEdge = SmartEdgeFactory({
-	drawEdge: drawSmoothLinePath,
-	fallback: BezierEdge
+export type { SmartEdgeOptions, PathFindingFunction, SVGDrawFunction }
+
+export const SmartBezierEdge = smartEdgeFactory({
+	drawEdge: svgDrawSmoothLinePath,
+	fallback: BezierEdge,
+	generatePath: pathfindingAStarDiagonal
 })
 
-export const SmartStraightEdge = SmartEdgeFactory({
-	drawEdge: drawStraightLinePath,
-	fallback: StraightEdge
+export const SmartStraightEdge = smartEdgeFactory({
+	drawEdge: svgDrawStraightLinePath,
+	fallback: StraightEdge,
+	generatePath: pathfindingAStarNoDiagonal
 })

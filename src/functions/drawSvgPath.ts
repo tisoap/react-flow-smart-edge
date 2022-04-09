@@ -14,7 +14,11 @@ export type SVGDrawFunction = (
 /**
  * Draws a SVG path from a list of points, using straight lines.
  */
-export const drawStraightLinePath: SVGDrawFunction = (source, target, path) => {
+export const svgDrawStraightLinePath: SVGDrawFunction = (
+	source,
+	target,
+	path
+) => {
 	let svgPathString = `M ${source.x}, ${source.y} `
 
 	path.forEach((point) => {
@@ -30,7 +34,11 @@ export const drawStraightLinePath: SVGDrawFunction = (source, target, path) => {
 /**
  * Draws a SVG path from a list of points, using rounded lines.
  */
-export const drawSmoothLinePath: SVGDrawFunction = (source, target, path) => {
+export const svgDrawSmoothLinePath: SVGDrawFunction = (
+	source,
+	target,
+	path
+) => {
 	const points = [[source.x, source.y], ...path, [target.x, target.y]]
 	return quadraticBezierCurve(points)
 }
