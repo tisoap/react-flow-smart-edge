@@ -1,6 +1,36 @@
-import { MarkerType } from 'react-flow-renderer'
+import { MarkerType, StepEdge, SimpleBezierEdge } from 'react-flow-renderer'
+import {
+	SmartBezierEdge,
+	SmartStraightEdge,
+	smartEdgeFactory,
+	svgDrawSmoothLinePath,
+	svgDrawStraightLinePath,
+	pathfindingAStarDiagonal,
+	pathfindingAStarNoDiagonal
+} from '../index'
 
 const markerEndType = MarkerType.Arrow
+
+const CustomSmartBezierEdge = smartEdgeFactory({
+	drawEdge: svgDrawSmoothLinePath,
+	fallback: SimpleBezierEdge,
+	generatePath: pathfindingAStarNoDiagonal,
+	debounceTime: 0
+})
+
+const CustomSmartStraightEdge = smartEdgeFactory({
+	drawEdge: svgDrawStraightLinePath,
+	fallback: StepEdge,
+	generatePath: pathfindingAStarDiagonal,
+	debounceTime: 0
+})
+
+export const edgeTypes = {
+	smartBezier: SmartBezierEdge,
+	smartStraight: SmartStraightEdge,
+	customSmartBezier: CustomSmartBezierEdge,
+	customSmartStraight: CustomSmartStraightEdge
+}
 
 export const nodes1 = [
 	{
@@ -170,7 +200,19 @@ export const edges1Straight = edges1Bezier.map((edge) => ({
 	type: 'smartStraight'
 }))
 
-export const edges1Mixed = edges1Bezier.map((edge, index) => ({
+export const edges2CustomBezier = edges1Bezier.map((edge) => ({
 	...edge,
-	type: index % 2 === 0 ? 'smartStraight' : 'smartBezier'
+	type: 'customSmartBezier'
+}))
+
+export const edges2CustomStraight = edges1Bezier.map((edge) => ({
+	...edge,
+	type: 'customSmartStraight'
+}))
+
+export const edges1Random = edges1Bezier.map((edge) => ({
+	...edge,
+	type: Object.keys(edgeTypes)[
+		Math.floor(Math.random() * Object.keys(edgeTypes).length)
+	]
 }))

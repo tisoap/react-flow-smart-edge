@@ -1,14 +1,8 @@
 import React from 'react'
 import ReactFlow from 'react-flow-renderer'
-import { SmartBezierEdge, SmartStraightEdge } from '../index'
 import type { ReactFlowProps } from 'react-flow-renderer'
 
 export type GraphProps = ReactFlowProps
-
-const edgeTypes = {
-	smartBezier: SmartBezierEdge,
-	smartStraight: SmartStraightEdge
-}
 
 export const Graph = (props: GraphProps) => {
 	const { children, ...rest } = props
@@ -20,13 +14,7 @@ export const Graph = (props: GraphProps) => {
 	}
 
 	return (
-		<ReactFlow
-			style={style}
-			maxZoom={1}
-			minZoom={0.5}
-			edgeTypes={edgeTypes}
-			{...rest}
-		>
+		<ReactFlow style={style} maxZoom={1} minZoom={0.5} {...rest}>
 			{children}
 		</ReactFlow>
 	)

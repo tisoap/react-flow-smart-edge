@@ -3,10 +3,13 @@ import React from 'react'
 import {
 	edges1Bezier,
 	edges1Straight,
-	edges1Mixed,
+	edges1Random,
+	edges2CustomBezier,
+	edges2CustomStraight,
 	edges2Bezier,
 	nodes1,
-	nodes2
+	nodes2,
+	edgeTypes
 } from './DummyData'
 import { SimulateDragAndDrop, wait } from './SimulateDragAndDrop'
 import { Graph } from './TestGraph'
@@ -39,27 +42,44 @@ const Template: Story<GraphProps> = (args) => <Graph {...args} />
 
 export const SmartBezier = Template.bind({})
 SmartBezier.args = {
+	edgeTypes,
 	defaultNodes: nodes1,
 	defaultEdges: edges1Bezier
 }
-SmartBezier.play = dragElementRandomly
+
+export const SmartBezierWithInteraction = Template.bind({})
+SmartBezierWithInteraction.args = {
+	...SmartBezier.args
+}
+SmartBezierWithInteraction.play = dragElementRandomly
 
 export const SmartStraight = Template.bind({})
 SmartStraight.args = {
-	defaultNodes: nodes1,
+	...SmartBezier.args,
 	defaultEdges: edges1Straight
 }
-SmartStraight.play = dragElementRandomly
 
-export const MixedSmartEdges = Template.bind({})
-MixedSmartEdges.args = {
-	defaultNodes: nodes1,
-	defaultEdges: edges1Mixed
+export const MixedRandomSmartEdges = Template.bind({})
+MixedRandomSmartEdges.args = {
+	...SmartBezier.args,
+	defaultEdges: edges1Random
 }
-MixedSmartEdges.play = dragElementRandomly
+
+export const CustomBezier = Template.bind({})
+CustomBezier.args = {
+	...SmartBezier.args,
+	defaultEdges: edges2CustomBezier
+}
+
+export const CustomStraight = Template.bind({})
+CustomStraight.args = {
+	...SmartBezier.args,
+	defaultEdges: edges2CustomStraight
+}
 
 export const SmallExample = Template.bind({})
 SmallExample.args = {
+	edgeTypes,
 	defaultNodes: nodes2,
 	defaultEdges: edges2Bezier
 }
