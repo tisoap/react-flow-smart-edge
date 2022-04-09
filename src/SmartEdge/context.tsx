@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react'
 import warning from 'tiny-warning'
-import { toInteger } from './utils'
+import { toInteger } from '../functions/utils'
 import type { ReactNode } from 'react'
 
 export type SmartEdgeOptions = {

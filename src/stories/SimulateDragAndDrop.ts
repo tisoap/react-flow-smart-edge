@@ -1,7 +1,7 @@
 // https://testing-library.com/docs/example-drag/
 import { fireEvent } from '@storybook/testing-library'
 
-function isElement(obj: unknown): obj is HTMLElement {
+const isElement = (obj: unknown): obj is HTMLElement => {
 	if (typeof obj !== 'object') {
 		return false
 	}
@@ -24,7 +24,7 @@ function isElement(obj: unknown): obj is HTMLElement {
 	return false
 }
 
-export function getElementClientCenter(element: HTMLElement): Point {
+export const getElementClientCenter = (element: HTMLElement): Point => {
 	const { left, top, width, height } = element.getBoundingClientRect()
 	return {
 		x: left + width / 2,
@@ -52,10 +52,10 @@ type DragOptions = {
 	steps?: number
 }
 
-export async function drag(
+export const SimulateDragAndDrop = async (
 	element: HTMLElement,
 	{ to: inTo, delta, steps = 20, duration = 500 }: DragOptions
-) {
+) => {
 	const from = getElementClientCenter(element)
 	let to: Point
 

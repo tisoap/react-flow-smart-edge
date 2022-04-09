@@ -1,10 +1,14 @@
 import { expect } from '@storybook/jest'
 import { within } from '@storybook/testing-library'
 import React from 'react'
-import { Graph, GraphWithProvider } from './Graph'
-import { drag, wait, getElementClientCenter } from './drag'
-import { edges1, edges2, nodes1, nodes2 } from './dummyData'
-import type { GraphProps, GraphWithProviderProps } from './Graph'
+import { edges1, edges2, nodes1, nodes2 } from './DummyData'
+import {
+	SimulateDragAndDrop,
+	wait,
+	getElementClientCenter
+} from './SimulateDragAndDrop'
+import { Graph, GraphWithProvider } from './TestGraph'
+import type { GraphProps, GraphWithProviderProps } from './TestGraph'
 import type { Meta, Story } from '@storybook/react'
 import type { SmartEdgeOptions } from 'SmartEdge/context'
 
@@ -29,7 +33,7 @@ DefaultExample.play = async ({ canvasElement }) => {
 	const node = canvas.getByText('Node 1')
 	const currentCenter = getElementClientCenter(node)
 
-	await drag(node, { delta: { x: dragX, y: dragY } })
+	await SimulateDragAndDrop(node, { delta: { x: dragX, y: dragY } })
 	const newCenter = getElementClientCenter(node)
 
 	await expect(newCenter).toEqual({

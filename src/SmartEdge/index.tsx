@@ -6,13 +6,16 @@ import {
 	EdgeText
 } from 'react-flow-renderer'
 import useDebounce from 'react-use/lib/useDebounce'
+import { createGrid } from '../functions/createGrid'
+import {
+	drawSmoothLinePath,
+	drawStraightLinePath
+} from '../functions/drawSvgPath'
+import { generatePath } from '../functions/generatePath'
+import { getBoundingBoxes } from '../functions/getBoundingBoxes'
+import { gridToGraphPoint } from '../functions/pointConversion'
 import { SmartEdgeContext, SmartEdgeProvider, useSmartEdge } from './context'
-import { createGrid } from './createGrid'
-import { drawSmoothLinePath, drawStraightLinePath } from './drawSvgPath'
-import { generatePath } from './generatePath'
-import { getBoundingBoxes } from './getBoundingBoxes'
-import { gridToGraphPoint } from './pointConversion'
-import type { PointInfo } from './createGrid'
+import type { PointInfo } from '../functions/createGrid'
 import type { EdgeProps, Node } from 'react-flow-renderer'
 
 interface PathFindingEdgeProps<T = unknown> extends EdgeProps<T> {
