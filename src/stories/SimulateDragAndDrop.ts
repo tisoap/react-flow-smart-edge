@@ -24,7 +24,7 @@ const isElement = (obj: unknown): obj is HTMLElement => {
 	return false
 }
 
-export const getElementClientCenter = (element: HTMLElement): Point => {
+const getElementClientCenter = (element: HTMLElement): Point => {
 	const { left, top, width, height } = element.getBoundingClientRect()
 	return {
 		x: left + width / 2,
@@ -54,7 +54,7 @@ type DragOptions = {
 
 export const SimulateDragAndDrop = async (
 	element: HTMLElement,
-	{ to: inTo, delta, steps = 20, duration = 500 }: DragOptions
+	{ to: inTo, delta, steps = 10, duration = 200 }: DragOptions
 ) => {
 	const from = getElementClientCenter(element)
 	let to: Point
