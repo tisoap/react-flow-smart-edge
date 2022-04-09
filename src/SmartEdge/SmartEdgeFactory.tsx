@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react'
-import { useNodes } from 'react-flow-renderer'
+import { useNodes, BezierEdge } from 'react-flow-renderer'
 import useDebounce from 'react-use/lib/useDebounce'
 import { PathFindingEdge } from './PathFindingEdge'
 import type { SmartEdgeOptions } from './PathFindingEdge'
@@ -12,14 +12,16 @@ export const SmartEdgeFactory = ({
 	nodePadding = 10,
 	gridRatio = 10,
 	lineType = 'curve',
-	lessCorners = false
+	lessCorners = false,
+	fallback = BezierEdge
 }: Partial<SmartEdgeOptions>) => {
 	const options: SmartEdgeOptions = {
 		debounceTime,
 		nodePadding,
 		gridRatio,
 		lineType,
-		lessCorners
+		lessCorners,
+		fallback
 	}
 
 	const DebouncedPathFindingEdge = memo((props: EdgeProps) => {

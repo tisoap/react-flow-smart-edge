@@ -1,15 +1,17 @@
 import React, { memo } from 'react'
-import { BezierEdge, StraightEdge, EdgeText } from 'react-flow-renderer'
-import { createGrid } from '../functions/createGrid'
+import { EdgeText } from 'react-flow-renderer'
 import {
+	createGrid,
 	drawSmoothLinePath,
-	drawStraightLinePath
-} from '../functions/drawSvgPath'
-import { generatePath } from '../functions/generatePath'
-import { getBoundingBoxes } from '../functions/getBoundingBoxes'
-import { gridToGraphPoint } from '../functions/pointConversion'
-import type { PointInfo } from '../functions/createGrid'
-import type { EdgeProps, Node } from 'react-flow-renderer'
+	drawStraightLinePath,
+	generatePath,
+	getBoundingBoxes,
+	gridToGraphPoint
+} from '../functions'
+import type { PointInfo } from '../functions'
+import type { EdgeProps, Node, BezierEdge } from 'react-flow-renderer'
+
+export type EdgeComponent = typeof BezierEdge
 
 export type SmartEdgeOptions = {
 	debounceTime: number
@@ -17,6 +19,7 @@ export type SmartEdgeOptions = {
 	gridRatio: number
 	lineType: 'curve' | 'straight'
 	lessCorners: boolean
+	fallback: EdgeComponent
 }
 
 export interface PathFindingEdgeProps<T = unknown> extends EdgeProps<T> {
@@ -45,7 +48,14 @@ export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 		options
 	} = props
 
-	const { gridRatio, nodePadding, lineType, lessCorners } = options
+	const {
+		gridRatio,
+		nodePadding,
+		lineType,
+		lessCorners,
+		fallback: FallbackEdge
+	} = options
+
 	const roundCoordinatesTo = gridRatio
 
 	// We use the node's information to generate bounding boxes for them
@@ -88,10 +98,7 @@ export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
     length = 2: a single straight line from point A to point B
   */
 	if (smoothedPath.length <= 2) {
-		if (lineType === 'curve') {
-			return <BezierEdge {...props} />
-		}
-		return <StraightEdge {...props} />
+		return <FallbackEdge {...props} />
 	}
 
 	// Here we convert the grid path to a sequence of graph coordinates.
