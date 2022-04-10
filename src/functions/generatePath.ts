@@ -24,7 +24,10 @@ export type PathFindingFunction = (
 	grid: Grid,
 	start: XYPosition,
 	end: XYPosition
-) => { fullPath: number[][]; smoothedPath: number[][] }
+) => {
+	fullPath: number[][]
+	smoothedPath: number[][]
+}
 
 export const pathfindingAStarDiagonal: PathFindingFunction = (
 	grid,

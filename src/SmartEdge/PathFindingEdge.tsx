@@ -95,7 +95,7 @@ export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 	const { fullPath, smoothedPath } = generatePath(grid, start, end)
 
 	/*
-    Fallback to BezierEdge if no path was found.
+    Use the fallback Edge if no path was found.
     length = 0: no path was found
     length = 1: starting and ending points are the same
     length = 2: a single straight line from point A to point B
