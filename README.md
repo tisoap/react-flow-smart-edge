@@ -63,6 +63,8 @@ const edges = [
 	}
 ]
 
+// You can give any name to your edge types
+// https://reactflow.dev/docs/api/edges/custom-edges/
 const edgeTypes = {
 	smart: SmartBezierEdge
 }
@@ -105,7 +107,7 @@ All those functions take a configuration object as parameter. If an option is no
 
 ```jsx
 import React from 'react'
-import ReactFlow, { StraightEdge } from 'react-flow-renderer'
+import ReactFlow from 'react-flow-renderer'
 import {
 	bezierEdgeFactory,
 	straightEdgeFactory
@@ -115,8 +117,6 @@ import { nodes, edges } from './data'
 const BezierNoDebounce = bezierEdgeFactory({ debounceTime: 0 })
 const StraightSmallPadding = straightEdgeFactory({ nodePadding: 5 })
 
-// You can give any name to your edge types
-// https://reactflow.dev/docs/api/edges/custom-edges/
 const edgeTypes = {
 	smartNoDebounce: BezierNoDebounce,
 	smartSmallPadding: StraightSmallPadding
