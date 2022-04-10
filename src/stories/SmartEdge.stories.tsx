@@ -19,25 +19,13 @@ import type { Meta, Story } from '@storybook/react'
 
 export default {
 	title: 'React Flow Smart Edge',
-	component: Graph
+	component: Graph,
+	argTypes: {
+		edgeTypes: { table: { disable: true } },
+		defaultNodes: { table: { disable: true } },
+		defaultEdges: { table: { disable: true } }
+	}
 } as Meta
-
-interface PlayFunctionProps {
-	canvasElement: HTMLElement
-}
-
-const dragElementRandomly = async ({ canvasElement }: PlayFunctionProps) => {
-	// Selects a random integer between -300 and 300
-	const random = () => Math.floor(Math.random() * 600 - 300)
-	const dragX = random()
-	const dragY = random()
-
-	await wait(500)
-	const canvas = within(canvasElement)
-	const node = canvas.getByText('Node 2b')
-
-	await SimulateDragAndDrop(node, { delta: { x: dragX, y: dragY } })
-}
 
 const Template: Story<GraphProps> = (args) => <Graph {...args} />
 
@@ -52,7 +40,18 @@ export const SmartBezierWithInteraction = Template.bind({})
 SmartBezierWithInteraction.args = {
 	...SmartBezier.args
 }
-SmartBezierWithInteraction.play = dragElementRandomly
+SmartBezierWithInteraction.play = async ({ canvasElement }) => {
+	// Selects a random integer between -300 and 300
+	const random = () => Math.floor(Math.random() * 600 - 300)
+	const dragX = random()
+	const dragY = random()
+
+	await wait(500)
+	const canvas = within(canvasElement)
+	const node = canvas.getByText('Node 2b')
+
+	await SimulateDragAndDrop(node, { delta: { x: dragX, y: dragY } })
+}
 
 export const SmartStraight = Template.bind({})
 SmartStraight.args = {

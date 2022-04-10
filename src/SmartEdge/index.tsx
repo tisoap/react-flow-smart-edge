@@ -1,4 +1,3 @@
-import { BezierEdge, StraightEdge, StepEdge } from 'react-flow-renderer'
 import {
 	svgDrawSmoothLinePath,
 	svgDrawStraightLinePath,
@@ -8,7 +7,10 @@ import {
 } from '../functions'
 import { smartEdgeFactory } from './SmartEdgeFactory'
 import type { PathFindingFunction, SVGDrawFunction } from '../functions'
-import type { SmartEdgeOptions } from './SmartEdgeFactory'
+import type {
+	SmartEdgeOptions,
+	SmartEdgeAdvancedOptions
+} from './SmartEdgeFactory'
 
 export {
 	smartEdgeFactory,
@@ -19,22 +21,9 @@ export {
 	pathfindingJumpPointNoDiagonal
 }
 
-export type { SmartEdgeOptions, PathFindingFunction, SVGDrawFunction }
-
-export const SmartBezierEdge = smartEdgeFactory({
-	drawEdge: svgDrawSmoothLinePath,
-	fallback: BezierEdge,
-	generatePath: pathfindingAStarDiagonal
-})
-
-export const SmartStraightEdge = smartEdgeFactory({
-	drawEdge: svgDrawStraightLinePath,
-	fallback: StraightEdge,
-	generatePath: pathfindingAStarNoDiagonal
-})
-
-export const SmartStepEdge = smartEdgeFactory({
-	drawEdge: svgDrawStraightLinePath,
-	fallback: StepEdge,
-	generatePath: pathfindingJumpPointNoDiagonal
-})
+export type {
+	SmartEdgeOptions,
+	SmartEdgeAdvancedOptions,
+	PathFindingFunction,
+	SVGDrawFunction
+}

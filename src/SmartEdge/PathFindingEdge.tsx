@@ -17,6 +17,9 @@ export type SmartEdgeOptions = {
 	debounceTime: number
 	nodePadding: number
 	gridRatio: number
+}
+
+export type SmartEdgeAdvancedOptions = SmartEdgeOptions & {
 	fallback: EdgeComponent
 	drawEdge: SVGDrawFunction
 	generatePath: PathFindingFunction
@@ -24,7 +27,7 @@ export type SmartEdgeOptions = {
 
 export interface PathFindingEdgeProps<T = unknown> extends EdgeProps<T> {
 	storeNodes: Node<T>[]
-	options: SmartEdgeOptions
+	options: SmartEdgeAdvancedOptions
 }
 
 export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
