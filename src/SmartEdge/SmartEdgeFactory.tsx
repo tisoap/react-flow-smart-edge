@@ -31,6 +31,19 @@ export const smartEdgeFactory = ({
 		fallback
 	}
 
+	if (debounceTime === 0) {
+		const RegularPathFindingEdge = memo((props: EdgeProps) => {
+			const storeNodes = useNodes()
+
+			return (
+				<PathFindingEdge {...props} storeNodes={storeNodes} options={options} />
+			)
+		})
+
+		RegularPathFindingEdge.displayName = 'RegularPathFindingEdge'
+		return RegularPathFindingEdge
+	}
+
 	const DebouncedPathFindingEdge = memo((props: EdgeProps) => {
 		const storeNodes = useNodes()
 		const [debouncedProps, setDebouncedProps] = useState({
