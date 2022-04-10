@@ -4,9 +4,28 @@ import {
 	svgDrawStraightLinePath,
 	pathfindingAStarNoDiagonal
 } from '../SmartEdge'
+import type { FactoryOptions } from '../SmartEdge'
 
-export const SmartStraightEdge = smartEdgeFactory({
+const StraightConfiguration = {
 	drawEdge: svgDrawStraightLinePath,
 	fallback: StraightEdge,
 	generatePath: pathfindingAStarNoDiagonal
-})
+}
+
+export const SmartStraightEdge = smartEdgeFactory(StraightConfiguration)
+SmartStraightEdge.displayName = 'SmartStraightEdge'
+
+export const straightEdgeFactory = ({
+	debounceTime,
+	gridRatio,
+	nodePadding
+}: FactoryOptions) => {
+	const SmartStraightEdge = smartEdgeFactory({
+		...StraightConfiguration,
+		debounceTime,
+		gridRatio,
+		nodePadding
+	})
+	SmartStraightEdge.displayName = 'SmartStraightEdge'
+	return SmartStraightEdge
+}

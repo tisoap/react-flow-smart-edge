@@ -11,6 +11,9 @@ import type { EdgeProps } from 'react-flow-renderer'
 
 export type { SmartEdgeOptions, SmartEdgeAdvancedOptions }
 
+export type FactoryOptions = Partial<SmartEdgeOptions>
+export type AdvancedFactoryOptions = Partial<SmartEdgeAdvancedOptions>
+
 export const smartEdgeFactory = ({
 	debounceTime = 200,
 	nodePadding = 10,
@@ -18,7 +21,7 @@ export const smartEdgeFactory = ({
 	drawEdge = svgDrawSmoothLinePath,
 	generatePath = pathfindingAStarDiagonal,
 	fallback = BezierEdge
-}: Partial<SmartEdgeAdvancedOptions>) => {
+}: AdvancedFactoryOptions) => {
 	const options: SmartEdgeAdvancedOptions = {
 		debounceTime,
 		nodePadding,

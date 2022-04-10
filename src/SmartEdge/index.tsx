@@ -9,7 +9,9 @@ import { smartEdgeFactory } from './SmartEdgeFactory'
 import type { PathFindingFunction, SVGDrawFunction } from '../functions'
 import type {
 	SmartEdgeOptions,
-	SmartEdgeAdvancedOptions
+	SmartEdgeAdvancedOptions,
+	AdvancedFactoryOptions,
+	FactoryOptions
 } from './SmartEdgeFactory'
 
 export {
@@ -25,5 +27,7 @@ export type {
 	SmartEdgeOptions,
 	SmartEdgeAdvancedOptions,
 	PathFindingFunction,
-	SVGDrawFunction
+	SVGDrawFunction,
+	AdvancedFactoryOptions,
+	FactoryOptions
 }
