@@ -1,7 +1,11 @@
 import React, { memo, useState } from 'react'
 import { useNodes, BezierEdge } from 'react-flow-renderer'
 import useDebounce from 'react-use/lib/useDebounce'
-import { svgDrawSmoothLinePath, pathfindingAStarDiagonal } from '../functions'
+import {
+	svgDrawSmoothLinePath,
+	pathfindingAStarDiagonal,
+	toInteger
+} from '../functions'
 import { PathFindingEdge } from './PathFindingEdge'
 import type {
 	SmartEdgeOptions,
@@ -23,9 +27,9 @@ export const smartEdgeFactory = ({
 	fallback = BezierEdge
 }: AdvancedFactoryOptions) => {
 	const options: SmartEdgeAdvancedOptions = {
-		debounceTime,
-		nodePadding,
-		gridRatio,
+		debounceTime: toInteger(debounceTime),
+		nodePadding: toInteger(nodePadding, 2),
+		gridRatio: toInteger(gridRatio, 2),
 		drawEdge,
 		generatePath,
 		fallback
