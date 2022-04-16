@@ -47,9 +47,9 @@ export const nodes1 = [
 		}
 	},
 	{
-		id: '2a',
+		id: '3',
 		data: {
-			label: 'Node 2a'
+			label: 'Node 3'
 		},
 		position: {
 			x: 40,
@@ -57,9 +57,9 @@ export const nodes1 = [
 		}
 	},
 	{
-		id: '2b',
+		id: '4',
 		data: {
-			label: 'Node 2b'
+			label: 'Node 4'
 		},
 		position: {
 			x: 270,
@@ -67,9 +67,9 @@ export const nodes1 = [
 		}
 	},
 	{
-		id: '2c',
+		id: '5',
 		data: {
-			label: 'Node 2c'
+			label: 'Node 5'
 		},
 		position: {
 			x: 470,
@@ -77,9 +77,9 @@ export const nodes1 = [
 		}
 	},
 	{
-		id: '2d',
+		id: '6',
 		data: {
-			label: 'Node 2d'
+			label: 'Node 6'
 		},
 		position: {
 			x: 515,
@@ -87,27 +87,14 @@ export const nodes1 = [
 		}
 	},
 	{
-		id: '3',
+		id: '7',
 		data: {
-			label: 'Node 3'
+			label: 'Node 7'
 		},
 		position: {
 			x: 470,
 			y: 130
 		}
-	}
-]
-
-export const nodes2 = [
-	{
-		id: '1',
-		data: { label: 'Node 1' },
-		position: { x: 300, y: 100 }
-	},
-	{
-		id: '2',
-		data: { label: 'Node 2' },
-		position: { x: 300, y: 200 }
 	}
 ]
 
@@ -120,71 +107,61 @@ export const edges1Bezier = [
 		markerEnd: { type: markerEndType }
 	},
 	{
-		id: 'e13',
+		id: 'e17',
 		source: '1',
+		target: '7',
+		type: 'smartBezier',
+		markerEnd: { type: markerEndType }
+	},
+	{
+		id: 'e23',
+		source: '2',
 		target: '3',
 		type: 'smartBezier',
 		markerEnd: { type: markerEndType }
 	},
 	{
-		id: 'e22a',
+		id: 'e24',
 		source: '2',
-		target: '2a',
+		target: '4',
 		type: 'smartBezier',
 		markerEnd: { type: markerEndType }
 	},
 	{
-		id: 'e22b',
+		id: 'e25',
 		source: '2',
-		target: '2b',
+		target: '5',
 		type: 'smartBezier',
 		markerEnd: { type: markerEndType }
 	},
 	{
-		id: 'e22c',
-		source: '2',
-		target: '2c',
+		id: 'e56',
+		source: '5',
+		target: '6',
 		type: 'smartBezier',
 		markerEnd: { type: markerEndType }
 	},
 	{
-		id: 'e2c2d',
-		source: '2c',
-		target: '2d',
+		id: 'e65',
+		source: '6',
+		target: '5',
 		type: 'smartBezier',
 		markerEnd: { type: markerEndType }
 	},
 	{
-		id: 'e2d2c',
-		source: '2d',
-		target: '2c',
-		type: 'smartBezier',
-		markerEnd: { type: markerEndType }
-	},
-	{
-		id: 'e2d1',
-		source: '2d',
+		id: 'e61',
+		source: '6',
 		target: '1',
 		type: 'smartBezier',
 		markerEnd: { type: markerEndType },
-		label: 'Node 2d to Node 1'
+		label: 'Node 6 to Node 1'
 	},
 	{
-		id: 'e2a2a',
-		source: '2a',
-		target: '2a',
+		id: 'e3',
+		source: '3',
+		target: '3',
 		type: 'smartBezier',
 		markerEnd: { type: markerEndType }
-	}
-]
-
-export const edges2Bezier = [
-	{
-		id: 'e21',
-		source: '2',
-		target: '1',
-		type: 'smartBezier',
-		label: 'Label'
 	}
 ]
 
@@ -206,11 +183,4 @@ export const edges1CustomBezier = edges1Bezier.map((edge) => ({
 export const edges1CustomStraight = edges1Bezier.map((edge) => ({
 	...edge,
 	type: 'customSmartStraight'
-}))
-
-export const edges1Random = edges1Bezier.map((edge) => ({
-	...edge,
-	type: Object.keys(edgeTypes)[
-		Math.floor(Math.random() * Object.keys(edgeTypes).length)
-	]
 }))

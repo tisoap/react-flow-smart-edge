@@ -33,7 +33,7 @@
 		"test-storybook": "test-storybook",
 		"deploy-storybook": "gh-pages -d storybook-static",
 		"lint": "dts lint src",
-		"lint:fix": "dts lint src --fix",
+		"lint-fix": "dts lint src --fix",
 		"predeploy": "yarn build",
 		"prepare": "dts build",
 		"start": "dts watch",
