@@ -1,12 +1,23 @@
 import type { XYPosition } from 'react-flow-renderer'
 
 /**
- * Draws a SVG path from a list of points, using straight lines.
+ * Takes source and target {x, y} points, together with an array of number
+ * tuples [x, y] representing the points along the path, and returns a string
+ * to be used as the SVG path.
  */
-export const drawStraightLinePath = (
+export type SVGDrawFunction = (
 	source: XYPosition,
 	target: XYPosition,
 	path: number[][]
+) => string
+
+/**
+ * Draws a SVG path from a list of points, using straight lines.
+ */
+export const svgDrawStraightLinePath: SVGDrawFunction = (
+	source,
+	target,
+	path
 ) => {
 	let svgPathString = `M ${source.x}, ${source.y} `
 
@@ -23,10 +34,10 @@ export const drawStraightLinePath = (
 /**
  * Draws a SVG path from a list of points, using rounded lines.
  */
-export const drawSmoothLinePath = (
-	source: XYPosition,
-	target: XYPosition,
-	path: number[][]
+export const svgDrawSmoothLinePath: SVGDrawFunction = (
+	source,
+	target,
+	path
 ) => {
 	const points = [[source.x, source.y], ...path, [target.x, target.y]]
 	return quadraticBezierCurve(points)

@@ -1,8 +1,8 @@
-import { SmartEdge } from './SmartEdge'
-import { SmartEdgeProvider } from './SmartEdge/context'
-import type { SmartEdgeOptions } from './SmartEdge/context'
+import { SmartBezierEdge } from './SmartBezierEdge'
 
-export { SmartEdge, SmartEdgeProvider }
-export type { SmartEdgeOptions }
+export * from './SmartEdge'
+export * from './SmartBezierEdge'
+export * from './SmartStepEdge'
+export * from './SmartStraightEdge'
 
-export default SmartEdge
+export default SmartBezierEdge
