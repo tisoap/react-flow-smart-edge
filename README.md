@@ -1,5 +1,14 @@
 # React Flow Smart Edge
 
+![CI](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/main.yml/badge.svg)
+![Code Quality](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/codeql-analysis.yml/badge.svg)
+![TypeScript](https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=white)
+![Storybook](https://img.shields.io/badge/Storybook-FF4785?logo=storybook&logoColor=white)
+![Testing Library](https://img.shields.io/badge/Testing_Library-DC3130?logo=testinglibrary&logoColor=white)
+![ESLint](https://img.shields.io/badge/ESLint-3A33D1?logo=eslint&logoColor=white)
+![Github Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)
+![Yarn](https://img.shields.io/badge/Yarn-2C8EBB?logo=yarn&logoColor=white)
+
 Custom Edges for [React Flow](https://github.com/wbkd/react-flow#readme) that never intersect with other nodes.
 
 ![Smart Edge](https://raw.githubusercontent.com/tisoap/react-flow-smart-edge/main/.github/images/example.gif)
