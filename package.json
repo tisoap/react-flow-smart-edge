@@ -30,14 +30,16 @@
 		"build": "yarn lint && yarn build-storybook && yarn build-component",
 		"build-component": "dts build",
 		"build-storybook": "build-storybook",
-		"test-storybook": "test-storybook",
 		"deploy-storybook": "gh-pages -d storybook-static",
+		"install-playwright": "npx playwright install --with-deps",
 		"lint": "dts lint src",
 		"lint-fix": "dts lint src --fix",
 		"predeploy": "yarn build",
 		"prepare": "dts build",
 		"start": "dts watch",
-		"storybook": "start-storybook -p 6006"
+		"storybook": "start-storybook -p 6006",
+		"test-storybook": "test-storybook",
+		"test-storybook-ci": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"yarn build-storybook --quiet && http-server storybook-static --port 6006 --silent\" \"wait-on tcp:6006 && yarn test-storybook\""
 	},
 	"husky": {
 		"hooks": {
@@ -68,6 +70,7 @@
 		"@types/react-dom": "17.0.14",
 		"@typescript-eslint/eslint-plugin": "5.19.0",
 		"@typescript-eslint/parser": "5.19.0",
+		"concurrently": "7.1.0",
 		"dts-cli": "1.5.0",
 		"eslint": "8.13.0",
 		"eslint-config-prettier": "8.5.0",
@@ -79,6 +82,7 @@
 		"eslint-plugin-react-hooks": "4.4.0",
 		"eslint-plugin-storybook": "0.5.9",
 		"gh-pages": "3.2.3",
+		"http-server": "14.1.0",
 		"husky": "7.0.4",
 		"jest": "27.5.1",
 		"prettier": "2.6.2",
@@ -86,6 +90,7 @@
 		"react-dom": "17.0.2",
 		"react-flow-renderer": "10.1.0",
 		"typescript": "4.6.3",
+		"wait-on": "6.0.1",
 		"webpack": "5.72.0"
 	},
 	"peerDependencies": {

@@ -26,3 +26,6 @@ jobs:
 
       - name: Lint and Build
         run: yarn build
+
+      - name: Run Storybook tests
+        run: yarn test-storybook-ci
