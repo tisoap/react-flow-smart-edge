@@ -270,7 +270,7 @@ export const SmartBezierEdge = smartEdgeFactory({
 export const SmartStepEdge = smartEdgeFactory({
 	drawEdge: svgDrawStraightLinePath,
 	fallback: StepEdge,
-	generatePath: pathfindingJumpPointNoDiagonal
+	generatePath: pathfindingJumpPointNoDiagonal,
 	debounceTime: 200,
 	nodePadding: 10,
 	gridRatio: 10,
@@ -280,7 +280,7 @@ export const SmartStepEdge = smartEdgeFactory({
 export const SmartStraightEdge = smartEdgeFactory({
 	drawEdge: svgDrawStraightLinePath,
 	fallback: StraightEdge,
-	generatePath: pathfindingAStarNoDiagonal
+	generatePath: pathfindingAStarNoDiagonal,
 	debounceTime: 200,
 	nodePadding: 10,
 	gridRatio: 10,
