@@ -10,5 +10,13 @@
 	"[json]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
-	"cSpell.words": ["bezier", "flowtype", "predeploy", "tisoap", "tsdx"]
+	"cSpell.words": [
+		"bahmutov",
+		"bezier",
+		"chromaui",
+		"flowtype",
+		"predeploy",
+		"tisoap",
+		"tsdx"
+	]
 }
