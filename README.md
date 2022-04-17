@@ -1,7 +1,7 @@
 # React Flow Smart Edge
 
-![CI](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/main.yml/badge.svg)
-![Code Quality](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/codeql-analysis.yml/badge.svg)
+![CI](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/main.yml/badge.svg?branch=main)
+![Code Quality](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)
 ![TypeScript](https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=white)
 ![Storybook](https://img.shields.io/badge/Storybook-FF4785?logo=storybook&logoColor=white)
 ![Testing Library](https://img.shields.io/badge/Testing_Library-DC3130?logo=testinglibrary&logoColor=white)
