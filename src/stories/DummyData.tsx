@@ -1,3 +1,4 @@
+import React from 'react'
 import { MarkerType } from 'react-flow-renderer'
 import {
 	SmartBezierEdge,
@@ -6,6 +7,7 @@ import {
 	bezierEdgeFactory,
 	straightEdgeFactory
 } from '../index'
+import CustomLabel from './CustomLabel'
 
 const markerEndType = MarkerType.Arrow
 
@@ -98,6 +100,8 @@ export const nodes1 = [
 	}
 ]
 
+const getLabelComp = () => <CustomLabel label={'Node 6 to Node 1'} />
+
 export const edges1Bezier = [
 	{
 		id: 'e12',
@@ -146,7 +150,8 @@ export const edges1Bezier = [
 		source: '6',
 		target: '5',
 		type: 'smartBezier',
-		markerEnd: { type: markerEndType }
+		markerEnd: { type: markerEndType },
+		label: 'Label 6 to 5'
 	},
 	{
 		id: 'e61',
@@ -154,7 +159,7 @@ export const edges1Bezier = [
 		target: '1',
 		type: 'smartBezier',
 		markerEnd: { type: markerEndType },
-		label: 'Node 6 to Node 1'
+		label: getLabelComp()
 	},
 	{
 		id: 'e3',

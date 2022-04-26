@@ -138,7 +138,9 @@ export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 			labelBgStyle={labelBgStyle}
 			labelBgPadding={labelBgPadding}
 			labelBgBorderRadius={labelBgBorderRadius}
-		/>
+		>
+			{typeof label !== 'string' && label}
+		</EdgeText>
 	) : null
 
 	return (
