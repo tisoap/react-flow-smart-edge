@@ -27,6 +27,8 @@ With `yarn`:
 yarn add @tisoap/react-flow-smart-edge
 ```
 
+This package is only compatible with [**version 10 or newer** of React Flow Edge](https://reactflow.dev/docs/guides/migrate-to-v10/).
+
 ## Support
 
 Like this project and want to show your support? Buy me a coffee:
