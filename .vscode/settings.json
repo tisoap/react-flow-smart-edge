@@ -17,6 +17,7 @@
 		"flowtype",
 		"predeploy",
 		"tisoap",
-		"tsdx"
+		"tsdx",
+		"wontfix"
 	]
 }
