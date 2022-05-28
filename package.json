@@ -48,6 +48,7 @@
 		}
 	},
 	"dependencies": {
+		"lodash.omit": "4.5.0",
 		"pathfinding": "0.4.18",
 		"react-use": "17.4.0",
 		"tiny-warning": "1.0.3"

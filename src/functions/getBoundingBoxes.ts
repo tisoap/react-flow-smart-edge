@@ -33,8 +33,8 @@ export type GraphBoundingBox = {
  * @param roundTo Everything will be rounded to this nearest integer
  * @returns Graph and nodes bounding boxes.
  */
-export const getBoundingBoxes = (
-	storeNodes: Node[],
+export const getBoundingBoxes = <NodeDataType = unknown>(
+	storeNodes: Node<NodeDataType>[],
 	nodePadding = 2,
 	roundTo = 2
 ) => {

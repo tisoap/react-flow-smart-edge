@@ -15,18 +15,25 @@ import type { EdgeProps } from 'react-flow-renderer'
 
 export type { SmartEdgeOptions, SmartEdgeAdvancedOptions }
 
-export type FactoryOptions = Partial<SmartEdgeOptions>
-export type AdvancedFactoryOptions = Partial<SmartEdgeAdvancedOptions>
+export type FactoryOptions<EdgeDataType = unknown> = Partial<
+	SmartEdgeOptions<EdgeDataType>
+>
+export type AdvancedFactoryOptions<EdgeDataType = unknown> = Partial<
+	SmartEdgeAdvancedOptions<EdgeDataType>
+>
 
-export const smartEdgeFactory = ({
+export const smartEdgeFactory = <
+	EdgeDataType = unknown,
+	NodeDataType = unknown
+>({
 	debounceTime = 200,
 	nodePadding = 10,
 	gridRatio = 10,
 	drawEdge = svgDrawSmoothLinePath,
 	generatePath = pathfindingAStarDiagonal,
 	fallback = BezierEdge
-}: AdvancedFactoryOptions) => {
-	const options: SmartEdgeAdvancedOptions = {
+}: AdvancedFactoryOptions<EdgeDataType>) => {
+	const options: SmartEdgeAdvancedOptions<EdgeDataType> = {
 		debounceTime: toInteger(debounceTime),
 		nodePadding: toInteger(nodePadding, 2),
 		gridRatio: toInteger(gridRatio, 2),
@@ -36,11 +43,15 @@ export const smartEdgeFactory = ({
 	}
 
 	if (debounceTime === 0) {
-		const RegularPathFindingEdge = memo((props: EdgeProps) => {
-			const storeNodes = useNodes()
+		const RegularPathFindingEdge = memo((props: EdgeProps<EdgeDataType>) => {
+			const storeNodes = useNodes<NodeDataType>()
 
 			return (
-				<PathFindingEdge {...props} storeNodes={storeNodes} options={options} />
+				<PathFindingEdge<EdgeDataType, NodeDataType>
+					{...props}
+					storeNodes={storeNodes}
+					options={options}
+				/>
 			)
 		})
 

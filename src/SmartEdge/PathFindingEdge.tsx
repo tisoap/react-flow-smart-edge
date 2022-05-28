@@ -1,3 +1,4 @@
+import omit from 'lodash/omit'
 import React, { memo } from 'react'
 import { EdgeText } from 'react-flow-renderer'
 import { createGrid, getBoundingBoxes, gridToGraphPoint } from '../functions'
@@ -6,6 +7,7 @@ import type {
 	SVGDrawFunction,
 	PathFindingFunction
 } from '../functions'
+import type { JSXElementConstructor } from 'react'
 import type { EdgeProps, Node, BezierEdge } from 'react-flow-renderer'
 
 /**
@@ -13,24 +15,38 @@ import type { EdgeProps, Node, BezierEdge } from 'react-flow-renderer'
  */
 export type EdgeComponent = typeof BezierEdge
 
-export type SmartEdgeOptions = {
+export interface SmartEdgeOptions<EdgeDataType = unknown> {
 	debounceTime: number
 	nodePadding: number
 	gridRatio: number
+	customEdgeLabel?: JSXElementConstructor<CustomEdgeProps<EdgeDataType>>
 }
 
-export type SmartEdgeAdvancedOptions = SmartEdgeOptions & {
+export interface SmartEdgeAdvancedOptions<EdgeDataType = unknown>
+	extends SmartEdgeOptions<EdgeDataType> {
 	fallback: EdgeComponent
 	drawEdge: SVGDrawFunction
 	generatePath: PathFindingFunction
 }
 
-export interface PathFindingEdgeProps<T = unknown> extends EdgeProps<T> {
-	storeNodes: Node<T>[]
-	options: SmartEdgeAdvancedOptions
+export interface PathFindingEdgeProps<
+	EdgeDataType = unknown,
+	NodeDataType = unknown
+> extends EdgeProps<EdgeDataType> {
+	storeNodes: Node<NodeDataType>[]
+	options: SmartEdgeAdvancedOptions<EdgeDataType>
 }
 
-export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
+export interface CustomEdgeProps<EdgeDataType = unknown>
+	extends EdgeProps<EdgeDataType> {
+	edgeCenterX: number
+	edgeCenterY: number
+}
+
+function PathFindingEdgeComponent<
+	EdgeDataType = unknown,
+	NodeDataType = unknown
+>(props: PathFindingEdgeProps<EdgeDataType, NodeDataType>) {
 	const {
 		sourceX,
 		sourceY,
@@ -56,14 +72,15 @@ export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 		nodePadding,
 		drawEdge,
 		fallback: FallbackEdge,
-		generatePath
+		generatePath,
+		customEdgeLabel: CustomEdgeLabel
 	} = options
 
 	const roundCoordinatesTo = gridRatio
 
 	// We use the node's information to generate bounding boxes for them
 	// and the graph
-	const { graph, nodes } = getBoundingBoxes(
+	const { graph, nodes } = getBoundingBoxes<NodeDataType>(
 		storeNodes,
 		nodePadding,
 		roundCoordinatesTo
@@ -119,27 +136,45 @@ export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 	// Finally, we can use the graph path to draw the edge
 	const svgPathString = drawEdge(source, target, graphPath)
 
-	// The Label, if any, should be placed in the middle of the path
-	const [middleX, middleY] = fullPath[Math.floor(fullPath.length / 2)]
-	const { x: labelX, y: labelY } = gridToGraphPoint(
-		{ x: middleX, y: middleY },
-		graph.xMin,
-		graph.yMin,
-		gridRatio
-	)
+	let edgeLabel = null
+	const hasStringLabel = !!label && typeof label === 'string'
+	const hasCustomLabel = !!CustomEdgeLabel
 
-	const text = label ? (
-		<EdgeText
-			x={labelX}
-			y={labelY}
-			label={label}
-			labelStyle={labelStyle}
-			labelShowBg={labelShowBg}
-			labelBgStyle={labelBgStyle}
-			labelBgPadding={labelBgPadding}
-			labelBgBorderRadius={labelBgBorderRadius}
-		/>
-	) : null
+	if (hasStringLabel || hasCustomLabel) {
+		// The Label, if any, should be placed in the middle of the path
+		const [middleX, middleY] = fullPath[Math.floor(fullPath.length / 2)]
+		const { x: labelX, y: labelY } = gridToGraphPoint(
+			{ x: middleX, y: middleY },
+			graph.xMin,
+			graph.yMin,
+			gridRatio
+		)
+
+		if (hasCustomLabel) {
+			edgeLabel = (
+				<CustomEdgeLabel
+					{...omit(props, ['storeNodes', 'options'])}
+					edgeCenterX={labelX}
+					edgeCenterY={labelY}
+				/>
+			)
+		}
+
+		if (hasStringLabel && !hasCustomLabel) {
+			edgeLabel = (
+				<EdgeText
+					x={labelX}
+					y={labelY}
+					label={label}
+					labelStyle={labelStyle}
+					labelShowBg={labelShowBg}
+					labelBgStyle={labelBgStyle}
+					labelBgPadding={labelBgPadding}
+					labelBgBorderRadius={labelBgBorderRadius}
+				/>
+			)
+		}
+	}
 
 	return (
 		<>
@@ -150,8 +185,11 @@ export const PathFindingEdge = memo((props: PathFindingEdgeProps) => {
 				markerEnd={markerEnd}
 				markerStart={markerStart}
 			/>
-			{text}
+			{edgeLabel}
 		</>
 	)
-})
-PathFindingEdge.displayName = 'PathFindingEdge'
+}
+
+export const PathFindingEdge = memo(
+	PathFindingEdgeComponent
+) as typeof PathFindingEdgeComponent
