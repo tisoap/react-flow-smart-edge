@@ -18,12 +18,10 @@ SmartStraightEdge.displayName = 'SmartStraightEdge'
 export function straightEdgeFactory<
 	EdgeDataType = unknown,
 	NodeDataType = unknown
->({ debounceTime, gridRatio, nodePadding }: FactoryOptions<EdgeDataType>) {
+>(options: FactoryOptions<EdgeDataType>) {
 	const SmartStraightEdge = smartEdgeFactory<EdgeDataType, NodeDataType>({
 		...StraightConfiguration,
-		debounceTime,
-		gridRatio,
-		nodePadding
+		...options
 	})
 	SmartStraightEdge.displayName = 'SmartStraightEdge'
 	return SmartStraightEdge

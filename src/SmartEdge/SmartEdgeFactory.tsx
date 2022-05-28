@@ -31,7 +31,8 @@ export const smartEdgeFactory = <
 	gridRatio = 10,
 	drawEdge = svgDrawSmoothLinePath,
 	generatePath = pathfindingAStarDiagonal,
-	fallback = BezierEdge
+	fallback = BezierEdge,
+	customEdgeLabel = undefined
 }: AdvancedFactoryOptions<EdgeDataType>) => {
 	const options: SmartEdgeAdvancedOptions<EdgeDataType> = {
 		debounceTime: toInteger(debounceTime),
@@ -39,7 +40,8 @@ export const smartEdgeFactory = <
 		gridRatio: toInteger(gridRatio, 2),
 		drawEdge,
 		generatePath,
-		fallback
+		fallback,
+		customEdgeLabel
 	}
 
 	if (debounceTime === 0) {

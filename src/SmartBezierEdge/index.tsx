@@ -18,12 +18,10 @@ SmartBezierEdge.displayName = 'SmartBezierEdge'
 export function bezierEdgeFactory<
 	EdgeDataType = unknown,
 	NodeDataType = unknown
->({ debounceTime, gridRatio, nodePadding }: FactoryOptions<EdgeDataType>) {
+>(options: FactoryOptions<EdgeDataType>) {
 	const SmartBezierEdge = smartEdgeFactory<EdgeDataType, NodeDataType>({
 		...BezierConfiguration,
-		debounceTime,
-		gridRatio,
-		nodePadding
+		...options
 	})
 	SmartBezierEdge.displayName = 'SmartBezierEdge'
 	return SmartBezierEdge

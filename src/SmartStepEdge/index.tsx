@@ -15,15 +15,12 @@ const StepConfiguration = {
 export const SmartStepEdge = smartEdgeFactory(StepConfiguration)
 SmartStepEdge.displayName = 'SmartStepEdge'
 
-export function stepEdgeFactory<
-	EdgeDataType = unknown,
-	NodeDataType = unknown
->({ debounceTime, gridRatio, nodePadding }: FactoryOptions<EdgeDataType>) {
+export function stepEdgeFactory<EdgeDataType = unknown, NodeDataType = unknown>(
+	options: FactoryOptions<EdgeDataType>
+) {
 	const SmartStepEdge = smartEdgeFactory<EdgeDataType, NodeDataType>({
 		...StepConfiguration,
-		debounceTime,
-		gridRatio,
-		nodePadding
+		...options
 	})
 	SmartStepEdge.displayName = 'SmartStepEdge'
 	return SmartStepEdge
