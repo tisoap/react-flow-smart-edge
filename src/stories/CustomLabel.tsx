@@ -2,7 +2,7 @@ import React from 'react'
 import type { CustomEdgeProps } from '../index'
 import type { EdgeData } from './DummyData'
 
-const size = 40
+const size = 20
 
 export function CustomLabel({
 	edgeCenterX,
@@ -14,12 +14,12 @@ export function CustomLabel({
 		<foreignObject
 			width={size}
 			height={size}
-			x={edgeCenterX}
-			y={edgeCenterY}
+			x={edgeCenterX - size / 2}
+			y={edgeCenterY - size / 2}
 			style={{
 				background: 'transparent',
-				width: '40px',
-				height: '40px',
+				width: 'minContent',
+				height: 'minContent',
 				display: 'flex',
 				justifyContent: 'center',
 				alignItems: 'center',
@@ -27,26 +27,35 @@ export function CustomLabel({
 			}}
 			requiredExtensions='http://www.w3.org/1999/xhtml'
 		>
-			<button
+			<div
 				style={{
-					width: '20px',
-					height: '20px',
-					background: '#eee',
-					border: '1px solid #fff',
-					cursor: 'pointer',
-					borderRadius: '50%',
-					fontSize: '12px',
-					lineHeight: '1'
-				}}
-				onClick={() => {
-					alert(`Clicked ${id}`)
-					if (data) {
-						console.log('Custom field:', data.customField)
-					}
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					flexDirection: 'column'
 				}}
 			>
-				x
-			</button>
+				<button
+					style={{
+						width: '20px',
+						height: '20px',
+						background: '#eee',
+						border: '1px solid #fff',
+						cursor: 'pointer',
+						borderRadius: '50%',
+						fontSize: '12px',
+						lineHeight: '1'
+					}}
+					onClick={() => {
+						alert(`Clicked ${id}`)
+						if (data) {
+							console.log('Custom field:', data.customField)
+						}
+					}}
+				>
+					x
+				</button>
+			</div>
 		</foreignObject>
 	)
 }

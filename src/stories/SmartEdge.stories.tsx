@@ -58,7 +58,6 @@ CustomStraight.args = {
 	defaultEdges: edgesCustomStraight
 }
 
-// FIXME: Custom labels are not centered, and they disappear when a fallback edge is used
 export const CustomBezierLabel = Template.bind({})
 CustomBezierLabel.args = {
 	...SmartBezier.args,
