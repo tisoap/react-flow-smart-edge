@@ -1,4 +1,3 @@
-import { StraightEdge } from 'react-flow-renderer'
 import {
 	smartEdgeFactory,
 	svgDrawStraightLinePath,
@@ -8,7 +7,6 @@ import type { FactoryOptions } from '../SmartEdge'
 
 const StraightConfiguration = {
 	drawEdge: svgDrawStraightLinePath,
-	fallback: StraightEdge,
 	generatePath: pathfindingAStarNoDiagonal
 }
 

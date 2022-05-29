@@ -1,4 +1,3 @@
-import { BezierEdge } from 'react-flow-renderer'
 import {
 	smartEdgeFactory,
 	svgDrawSmoothLinePath,
@@ -8,7 +7,6 @@ import type { FactoryOptions } from '../SmartEdge'
 
 const BezierConfiguration = {
 	drawEdge: svgDrawSmoothLinePath,
-	fallback: BezierEdge,
 	generatePath: pathfindingAStarDiagonal
 }
 

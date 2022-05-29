@@ -1,4 +1,3 @@
-import { StepEdge } from 'react-flow-renderer'
 import {
 	smartEdgeFactory,
 	svgDrawStraightLinePath,
@@ -8,7 +7,6 @@ import type { FactoryOptions } from '../SmartEdge'
 
 const StepConfiguration = {
 	drawEdge: svgDrawStraightLinePath,
-	fallback: StepEdge,
 	generatePath: pathfindingJumpPointNoDiagonal
 }
 

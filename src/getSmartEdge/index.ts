@@ -36,7 +36,7 @@ export type GetSmartEdgeParams<NodeDataType = unknown> = EdgeParams & {
 
 export const getSmartEdge = <NodeDataType = unknown>({
 	options = {},
-	nodes,
+	nodes = [],
 	sourceX,
 	sourceY,
 	targetX,
@@ -51,14 +51,12 @@ export const getSmartEdge = <NodeDataType = unknown>({
 		generatePath = pathfindingAStarDiagonal
 	} = options
 
-	const roundCoordinatesTo = gridRatio
-
 	// We use the node's information to generate bounding boxes for them
 	// and the graph
 	const { graphBox, nodeBoxes } = getBoundingBoxes<NodeDataType>(
 		nodes,
 		nodePadding,
-		roundCoordinatesTo
+		gridRatio
 	)
 
 	const source: PointInfo = {
