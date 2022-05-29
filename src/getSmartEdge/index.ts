@@ -85,6 +85,7 @@ export const getSmartEdge = <NodeDataType = unknown>({
 	)
 
 	// We then can use the grid representation to do pathfinding
+	// TODO: Those can be empty arrays, how to deal with this?
 	const { fullPath, smoothedPath } = generatePath(grid, start, end)
 
 	// Here we convert the grid path to a sequence of graph coordinates.
@@ -104,7 +105,9 @@ export const getSmartEdge = <NodeDataType = unknown>({
 
 	// Compute the edge's middle point using the full path, so users can use
 	// it to position their custom labels
-	const [middleX, middleY] = fullPath[Math.floor(fullPath.length / 2)]
+	const index = Math.floor(fullPath.length / 2)
+	const middlePoint = fullPath[index]
+	const [middleX, middleY] = middlePoint
 	const { x: edgeCenterX, y: edgeCenterY } = gridToGraphPoint(
 		{ x: middleX, y: middleY },
 		graphBox.xMin,

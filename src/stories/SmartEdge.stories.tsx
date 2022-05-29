@@ -4,6 +4,7 @@ import {
 	edgesBezier,
 	edgesStraight,
 	edgesStep,
+	edgesLabel,
 	nodes,
 	edgeTypes
 } from './DummyData'
@@ -41,4 +42,10 @@ export const SmartStep = Template.bind({})
 SmartStep.args = {
 	...SmartBezier.args,
 	defaultEdges: edgesStep
+}
+
+export const SmartBezierWithCustomLabel = Template.bind({})
+SmartBezierWithCustomLabel.args = {
+	...SmartBezier.args,
+	defaultEdges: edgesLabel
 }

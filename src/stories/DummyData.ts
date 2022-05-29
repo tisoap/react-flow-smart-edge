@@ -1,5 +1,6 @@
 import { MarkerType } from 'react-flow-renderer'
 import { SmartBezierEdge, SmartStraightEdge, SmartStepEdge } from '../index'
+import { SmartEdgeCustomLabel } from './CustomLabel'
 import type { Node, Edge } from 'react-flow-renderer'
 
 const markerEndType = MarkerType.Arrow
@@ -7,7 +8,8 @@ const markerEndType = MarkerType.Arrow
 export const edgeTypes = {
 	smartBezier: SmartBezierEdge,
 	smartStraight: SmartStraightEdge,
-	smartStep: SmartStepEdge
+	smartStep: SmartStepEdge,
+	smartBezierLabel: SmartEdgeCustomLabel
 }
 
 export type NodeData = {
@@ -167,4 +169,9 @@ export const edgesStraight: Edge<EdgeData>[] = edgesBezier.map((edge) => ({
 export const edgesStep: Edge<EdgeData>[] = edgesBezier.map((edge) => ({
 	...edge,
 	type: 'smartStep'
+}))
+
+export const edgesLabel: Edge<EdgeData>[] = edgesBezier.map((edge) => ({
+	...edge,
+	type: 'smartBezierLabel'
 }))

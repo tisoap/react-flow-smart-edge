@@ -25,8 +25,8 @@ export type PathFindingFunction = (
 	start: XYPosition,
 	end: XYPosition
 ) => {
-	fullPath: number[][]
-	smoothedPath: number[][]
+	fullPath: number[][] | undefined[]
+	smoothedPath: number[][] | undefined[]
 }
 
 export const pathfindingAStarDiagonal: PathFindingFunction = (
@@ -38,8 +38,8 @@ export const pathfindingAStarDiagonal: PathFindingFunction = (
 		diagonalMovement: DiagonalMovement.Always
 	})
 
-	let fullPath: number[][] = []
-	let smoothedPath: number[][] = []
+	let fullPath: number[][] | undefined[] = []
+	let smoothedPath: number[][] | undefined[] = []
 
 	try {
 		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
@@ -62,8 +62,8 @@ export const pathfindingAStarNoDiagonal: PathFindingFunction = (
 		diagonalMovement: DiagonalMovement.Never
 	})
 
-	let fullPath: number[][] = []
-	let smoothedPath: number[][] = []
+	let fullPath: number[][] | undefined[] = []
+	let smoothedPath: number[][] | undefined[] = []
 
 	try {
 		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
@@ -88,8 +88,8 @@ export const pathfindingJumpPointNoDiagonal: PathFindingFunction = (
 		diagonalMovement: DiagonalMovement.Never
 	})
 
-	let fullPath: number[][] = []
-	let smoothedPath: number[][] = []
+	let fullPath: number[][] | undefined[] = []
+	let smoothedPath: number[][] | undefined[] = []
 
 	try {
 		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
