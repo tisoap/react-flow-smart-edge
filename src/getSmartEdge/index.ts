@@ -3,7 +3,8 @@ import {
 	getBoundingBoxes,
 	gridToGraphPoint,
 	pathfindingAStarDiagonal,
-	svgDrawSmoothLinePath
+	svgDrawSmoothLinePath,
+	toInteger
 } from '../functions'
 import type {
 	PointInfo,
@@ -45,11 +46,13 @@ export const getSmartEdge = <NodeDataType = unknown>({
 	targetPosition
 }: GetSmartEdgeParams<NodeDataType>) => {
 	const {
-		gridRatio = 10,
-		nodePadding = 10,
 		drawEdge = svgDrawSmoothLinePath,
 		generatePath = pathfindingAStarDiagonal
 	} = options
+
+	let { gridRatio = 10, nodePadding = 10 } = options
+	gridRatio = toInteger(gridRatio)
+	nodePadding = toInteger(nodePadding)
 
 	// We use the node's information to generate bounding boxes for them
 	// and the graph
