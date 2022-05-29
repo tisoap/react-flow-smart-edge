@@ -28,13 +28,13 @@ export type GraphBoundingBox = {
  * Get the bounding box of all nodes and the graph itself, as X/Y coordinates
  * of all corner points.
  *
- * @param storeNodes The node list
+ * @param nodes The node list
  * @param nodePadding Optional padding to add to the node's and graph bounding boxes
  * @param roundTo Everything will be rounded to this nearest integer
  * @returns Graph and nodes bounding boxes.
  */
 export const getBoundingBoxes = <NodeDataType = unknown>(
-	storeNodes: Node<NodeDataType>[],
+	nodes: Node<NodeDataType>[],
 	nodePadding = 2,
 	roundTo = 2
 ) => {
@@ -43,7 +43,7 @@ export const getBoundingBoxes = <NodeDataType = unknown>(
 	let xMin = Number.MAX_SAFE_INTEGER
 	let yMin = Number.MAX_SAFE_INTEGER
 
-	const nodes: NodeBoundingBox[] = storeNodes.map((node) => {
+	const nodeBoxes: NodeBoundingBox[] = nodes.map((node) => {
 		const width = Math.max(node.width || 0, 1)
 		const height = Math.max(node.height || 0, 1)
 
@@ -126,7 +126,7 @@ export const getBoundingBoxes = <NodeDataType = unknown>(
 	const width = Math.abs(topLeft.x - topRight.x)
 	const height = Math.abs(topLeft.y - bottomLeft.y)
 
-	const graph: GraphBoundingBox = {
+	const graphBox: GraphBoundingBox = {
 		topLeft,
 		bottomLeft,
 		topRight,
@@ -139,5 +139,5 @@ export const getBoundingBoxes = <NodeDataType = unknown>(
 		yMin
 	}
 
-	return { nodes, graph }
+	return { nodeBoxes, graphBox }
 }

@@ -75,7 +75,7 @@ function PathFindingEdgeComponent<
 
 	// We use the node's information to generate bounding boxes for them
 	// and the graph
-	const { graph, nodes } = getBoundingBoxes<NodeDataType>(
+	const { graphBox, nodeBoxes } = getBoundingBoxes<NodeDataType>(
 		storeNodes,
 		nodePadding,
 		roundCoordinatesTo
@@ -96,8 +96,8 @@ function PathFindingEdgeComponent<
 	// With this information, we can create a 2D grid representation of
 	// our graph, that tells us where in the graph there is a "free" space or not
 	const { grid, start, end } = createGrid(
-		graph,
-		nodes,
+		graphBox,
+		nodeBoxes,
 		source,
 		target,
 		gridRatio
@@ -121,8 +121,8 @@ function PathFindingEdgeComponent<
 		const [x, y] = gridPoint
 		const graphPoint = gridToGraphPoint(
 			{ x, y },
-			graph.xMin,
-			graph.yMin,
+			graphBox.xMin,
+			graphBox.yMin,
 			gridRatio
 		)
 		return [graphPoint.x, graphPoint.y]
@@ -139,8 +139,8 @@ function PathFindingEdgeComponent<
 		const [middleX, middleY] = fullPath[Math.floor(fullPath.length / 2)]
 		const { x: labelX, y: labelY } = gridToGraphPoint(
 			{ x: middleX, y: middleY },
-			graph.xMin,
-			graph.yMin,
+			graphBox.xMin,
+			graphBox.yMin,
 			gridRatio
 		)
 
