@@ -15,12 +15,8 @@ import type { EdgeProps } from 'react-flow-renderer'
 
 export type { SmartEdgeOptions, SmartEdgeAdvancedOptions }
 
-export type FactoryOptions<EdgeDataType = unknown> = Partial<
-	SmartEdgeOptions<EdgeDataType>
->
-export type AdvancedFactoryOptions<EdgeDataType = unknown> = Partial<
-	SmartEdgeAdvancedOptions<EdgeDataType>
->
+export type FactoryOptions = Partial<SmartEdgeOptions>
+export type AdvancedFactoryOptions = Partial<SmartEdgeAdvancedOptions>
 
 export const smartEdgeFactory = <
 	EdgeDataType = unknown,
@@ -31,17 +27,15 @@ export const smartEdgeFactory = <
 	gridRatio = 10,
 	drawEdge = svgDrawSmoothLinePath,
 	generatePath = pathfindingAStarDiagonal,
-	fallback = BezierEdge,
-	customEdgeLabel = undefined
-}: AdvancedFactoryOptions<EdgeDataType>) => {
-	const options: SmartEdgeAdvancedOptions<EdgeDataType> = {
+	fallback = BezierEdge
+}: AdvancedFactoryOptions) => {
+	const options: SmartEdgeAdvancedOptions = {
 		debounceTime: toInteger(debounceTime),
 		nodePadding: toInteger(nodePadding, 2),
 		gridRatio: toInteger(gridRatio, 2),
 		drawEdge,
 		generatePath,
-		fallback,
-		customEdgeLabel
+		fallback
 	}
 
 	if (debounceTime === 0) {

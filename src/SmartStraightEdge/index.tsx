@@ -18,7 +18,7 @@ SmartStraightEdge.displayName = 'SmartStraightEdge'
 export function straightEdgeFactory<
 	EdgeDataType = unknown,
 	NodeDataType = unknown
->(options: FactoryOptions<EdgeDataType>) {
+>(options: FactoryOptions) {
 	const SmartStraightEdge = smartEdgeFactory<EdgeDataType, NodeDataType>({
 		...StraightConfiguration,
 		...options

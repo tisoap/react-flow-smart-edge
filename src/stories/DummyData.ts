@@ -6,7 +6,6 @@ import {
 	bezierEdgeFactory,
 	straightEdgeFactory
 } from '../index'
-import { CustomLabel } from './CustomLabel'
 import type { Node, Edge } from 'react-flow-renderer'
 
 const markerEndType = MarkerType.Arrow
@@ -19,17 +18,12 @@ const SmartStraightEdgeNoDebounce = straightEdgeFactory({
 	debounceTime: 0
 })
 
-const SmartBezierLabel = bezierEdgeFactory({
-	customEdgeLabel: CustomLabel
-})
-
 export const edgeTypes = {
 	smartBezier: SmartBezierEdge,
 	smartStraight: SmartStraightEdge,
 	smartStep: SmartStepEdge,
 	customSmartBezier: SmartBezierEdgeNoDebounce,
-	customSmartStraight: SmartStraightEdgeNoDebounce,
-	smartBezierLabel: SmartBezierLabel
+	customSmartStraight: SmartStraightEdgeNoDebounce
 }
 
 export type NodeData = {
@@ -202,8 +196,3 @@ export const edgesCustomStraight: Edge<EdgeData>[] = edgesBezier.map(
 		type: 'customSmartStraight'
 	})
 )
-
-export const edgesBezierLabel: Edge<EdgeData>[] = edgesBezier.map((edge) => ({
-	...edge,
-	type: 'smartBezierLabel'
-}))

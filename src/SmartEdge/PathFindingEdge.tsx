@@ -1,4 +1,3 @@
-import omit from 'lodash/omit'
 import React, { memo } from 'react'
 import { EdgeText } from 'react-flow-renderer'
 import { createGrid, getBoundingBoxes, gridToGraphPoint } from '../functions'
@@ -7,7 +6,6 @@ import type {
 	SVGDrawFunction,
 	PathFindingFunction
 } from '../functions'
-import type { JSXElementConstructor } from 'react'
 import type { EdgeProps, Node, BezierEdge } from 'react-flow-renderer'
 
 /**
@@ -15,15 +13,13 @@ import type { EdgeProps, Node, BezierEdge } from 'react-flow-renderer'
  */
 export type EdgeComponent = typeof BezierEdge
 
-export interface SmartEdgeOptions<EdgeDataType = unknown> {
+export interface SmartEdgeOptions {
 	debounceTime: number
 	nodePadding: number
 	gridRatio: number
-	customEdgeLabel?: JSXElementConstructor<CustomEdgeProps<EdgeDataType>>
 }
 
-export interface SmartEdgeAdvancedOptions<EdgeDataType = unknown>
-	extends SmartEdgeOptions<EdgeDataType> {
+export interface SmartEdgeAdvancedOptions extends SmartEdgeOptions {
 	fallback: EdgeComponent
 	drawEdge: SVGDrawFunction
 	generatePath: PathFindingFunction
@@ -34,7 +30,7 @@ export interface PathFindingEdgeProps<
 	NodeDataType = unknown
 > extends EdgeProps<EdgeDataType> {
 	storeNodes: Node<NodeDataType>[]
-	options: SmartEdgeAdvancedOptions<EdgeDataType>
+	options: SmartEdgeAdvancedOptions
 }
 
 export interface CustomEdgeProps<EdgeDataType = unknown>
@@ -72,8 +68,7 @@ function PathFindingEdgeComponent<
 		nodePadding,
 		drawEdge,
 		fallback: FallbackEdge,
-		generatePath,
-		customEdgeLabel: CustomEdgeLabel
+		generatePath
 	} = options
 
 	const roundCoordinatesTo = gridRatio
@@ -138,9 +133,8 @@ function PathFindingEdgeComponent<
 
 	let edgeLabel = null
 	const hasStringLabel = !!label && typeof label === 'string'
-	const hasCustomLabel = !!CustomEdgeLabel
 
-	if (hasStringLabel || hasCustomLabel) {
+	if (hasStringLabel) {
 		// The Label, if any, should be placed in the middle of the path
 		const [middleX, middleY] = fullPath[Math.floor(fullPath.length / 2)]
 		const { x: labelX, y: labelY } = gridToGraphPoint(
@@ -150,30 +144,18 @@ function PathFindingEdgeComponent<
 			gridRatio
 		)
 
-		if (hasCustomLabel) {
-			edgeLabel = (
-				<CustomEdgeLabel
-					{...omit(props, ['storeNodes', 'options'])}
-					edgeCenterX={labelX}
-					edgeCenterY={labelY}
-				/>
-			)
-		}
-
-		if (hasStringLabel && !hasCustomLabel) {
-			edgeLabel = (
-				<EdgeText
-					x={labelX}
-					y={labelY}
-					label={label}
-					labelStyle={labelStyle}
-					labelShowBg={labelShowBg}
-					labelBgStyle={labelBgStyle}
-					labelBgPadding={labelBgPadding}
-					labelBgBorderRadius={labelBgBorderRadius}
-				/>
-			)
-		}
+		edgeLabel = (
+			<EdgeText
+				x={labelX}
+				y={labelY}
+				label={label}
+				labelStyle={labelStyle}
+				labelShowBg={labelShowBg}
+				labelBgStyle={labelBgStyle}
+				labelBgPadding={labelBgPadding}
+				labelBgBorderRadius={labelBgBorderRadius}
+			/>
+		)
 	}
 
 	return (
