@@ -12,7 +12,7 @@ import type {
 } from '../functions'
 import type { Node, EdgeProps } from 'react-flow-renderer'
 
-type EdgeParams = Pick<
+export type EdgeParams = Pick<
 	EdgeProps,
 	| 'sourceX'
 	| 'sourceY'
@@ -99,7 +99,8 @@ export const getSmartEdge = <NodeDataType = unknown>({
 	// Finally, we can use the graph path to draw the edge
 	const svgPathString = drawEdge(source, target, graphPath)
 
-	// The Label, if any, should be placed in the middle of the path
+	// Compute the edge's middle point using the full path, so users can use
+	// it to position their custom labels
 	const [middleX, middleY] = fullPath[Math.floor(fullPath.length / 2)]
 	const { x: edgeCenterX, y: edgeCenterY } = gridToGraphPoint(
 		{ x: middleX, y: middleY },
@@ -110,3 +111,5 @@ export const getSmartEdge = <NodeDataType = unknown>({
 
 	return { svgPathString, edgeCenterX, edgeCenterY }
 }
+
+export type GetSmartEdgeFunction = typeof getSmartEdge

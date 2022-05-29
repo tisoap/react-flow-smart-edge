@@ -3,7 +3,7 @@ import {
 	svgDrawStraightLinePath,
 	pathfindingJumpPointNoDiagonal
 } from '../SmartEdge'
-import type { FactoryOptions } from '../SmartEdge'
+import type { GetSmartEdgeOptions } from '../getSmartEdge'
 
 const StepConfiguration = {
 	drawEdge: svgDrawStraightLinePath,
@@ -14,7 +14,7 @@ export const SmartStepEdge = smartEdgeFactory(StepConfiguration)
 SmartStepEdge.displayName = 'SmartStepEdge'
 
 export function stepEdgeFactory<EdgeDataType = unknown, NodeDataType = unknown>(
-	options: FactoryOptions
+	options: GetSmartEdgeOptions
 ) {
 	const SmartStepEdge = smartEdgeFactory<EdgeDataType, NodeDataType>({
 		...StepConfiguration,

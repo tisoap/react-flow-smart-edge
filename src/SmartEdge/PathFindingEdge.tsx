@@ -1,37 +1,15 @@
 import React from 'react'
 import { EdgeText } from 'react-flow-renderer'
 import { getSmartEdge } from '../getSmartEdge'
-import type { SVGDrawFunction, PathFindingFunction } from '../functions'
-import type { EdgeProps, Node, BezierEdge } from 'react-flow-renderer'
-
-/**
- * Any valid Edge component from react-flow-renderer
- */
-export type EdgeComponent = typeof BezierEdge
-
-export interface SmartEdgeOptions {
-	debounceTime: number
-	nodePadding: number
-	gridRatio: number
-}
-
-export interface SmartEdgeAdvancedOptions extends SmartEdgeOptions {
-	drawEdge: SVGDrawFunction
-	generatePath: PathFindingFunction
-}
+import type { GetSmartEdgeOptions } from '../getSmartEdge'
+import type { EdgeProps, Node } from 'react-flow-renderer'
 
 export interface PathFindingEdgeProps<
 	EdgeDataType = unknown,
 	NodeDataType = unknown
 > extends EdgeProps<EdgeDataType> {
 	storeNodes: Node<NodeDataType>[]
-	options: SmartEdgeAdvancedOptions
-}
-
-export interface CustomEdgeProps<EdgeDataType = unknown>
-	extends EdgeProps<EdgeDataType> {
-	edgeCenterX: number
-	edgeCenterY: number
+	options: GetSmartEdgeOptions
 }
 
 export function PathFindingEdge<EdgeDataType = unknown, NodeDataType = unknown>(
@@ -68,7 +46,7 @@ export function PathFindingEdge<EdgeDataType = unknown, NodeDataType = unknown>(
 		nodes: storeNodes
 	})
 
-	let edgeLabel = null
+	let edgeLabel: JSX.Element | null = null
 	const hasStringLabel = !!label && typeof label === 'string'
 
 	if (hasStringLabel) {

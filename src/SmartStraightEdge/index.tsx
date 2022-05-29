@@ -3,7 +3,7 @@ import {
 	svgDrawStraightLinePath,
 	pathfindingAStarNoDiagonal
 } from '../SmartEdge'
-import type { FactoryOptions } from '../SmartEdge'
+import type { GetSmartEdgeOptions } from '../getSmartEdge'
 
 const StraightConfiguration = {
 	drawEdge: svgDrawStraightLinePath,
@@ -16,7 +16,7 @@ SmartStraightEdge.displayName = 'SmartStraightEdge'
 export function straightEdgeFactory<
 	EdgeDataType = unknown,
 	NodeDataType = unknown
->(options: FactoryOptions) {
+>(options: GetSmartEdgeOptions) {
 	const SmartStraightEdge = smartEdgeFactory<EdgeDataType, NodeDataType>({
 		...StraightConfiguration,
 		...options

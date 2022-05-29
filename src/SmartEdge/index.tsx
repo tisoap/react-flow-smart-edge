@@ -7,17 +7,7 @@ import {
 } from '../functions'
 import { smartEdgeFactory } from './SmartEdgeFactory'
 import type { PathFindingFunction, SVGDrawFunction } from '../functions'
-import type {
-	CustomEdgeProps,
-	EdgeComponent,
-	PathFindingEdgeProps
-} from './PathFindingEdge'
-import type {
-	SmartEdgeOptions,
-	SmartEdgeAdvancedOptions,
-	AdvancedFactoryOptions,
-	FactoryOptions
-} from './SmartEdgeFactory'
+import type { PathFindingEdgeProps } from './PathFindingEdge'
 
 export {
 	smartEdgeFactory,
@@ -28,14 +18,4 @@ export {
 	pathfindingJumpPointNoDiagonal
 }
 
-export type {
-	AdvancedFactoryOptions,
-	CustomEdgeProps,
-	EdgeComponent,
-	FactoryOptions,
-	PathFindingEdgeProps,
-	PathFindingFunction,
-	SmartEdgeAdvancedOptions,
-	SmartEdgeOptions,
-	SVGDrawFunction
-}
+export type { PathFindingEdgeProps, PathFindingFunction, SVGDrawFunction }

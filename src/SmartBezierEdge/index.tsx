@@ -3,7 +3,7 @@ import {
 	svgDrawSmoothLinePath,
 	pathfindingAStarDiagonal
 } from '../SmartEdge'
-import type { FactoryOptions } from '../SmartEdge'
+import type { GetSmartEdgeOptions } from '../getSmartEdge'
 
 const BezierConfiguration = {
 	drawEdge: svgDrawSmoothLinePath,
@@ -16,7 +16,7 @@ SmartBezierEdge.displayName = 'SmartBezierEdge'
 export function bezierEdgeFactory<
 	EdgeDataType = unknown,
 	NodeDataType = unknown
->(options: FactoryOptions) {
+>(options: GetSmartEdgeOptions) {
 	const SmartBezierEdge = smartEdgeFactory<EdgeDataType, NodeDataType>({
 		...BezierConfiguration,
 		...options

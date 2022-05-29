@@ -1,8 +1,14 @@
 import React from 'react'
-import type { CustomEdgeProps } from '../index'
 import type { EdgeData } from './DummyData'
+import type { EdgeProps } from 'react-flow-renderer'
 
 const size = 20
+
+interface CustomEdgeProps<EdgeDataType = unknown>
+	extends EdgeProps<EdgeDataType> {
+	edgeCenterX: number
+	edgeCenterY: number
+}
 
 export function CustomLabel({
 	edgeCenterX,

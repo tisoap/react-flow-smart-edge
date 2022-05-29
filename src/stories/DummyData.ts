@@ -1,29 +1,13 @@
 import { MarkerType } from 'react-flow-renderer'
-import {
-	SmartBezierEdge,
-	SmartStraightEdge,
-	SmartStepEdge,
-	bezierEdgeFactory,
-	straightEdgeFactory
-} from '../index'
+import { SmartBezierEdge, SmartStraightEdge, SmartStepEdge } from '../index'
 import type { Node, Edge } from 'react-flow-renderer'
 
 const markerEndType = MarkerType.Arrow
 
-const SmartBezierEdgeNoDebounce = bezierEdgeFactory({
-	debounceTime: 0
-})
-
-const SmartStraightEdgeNoDebounce = straightEdgeFactory({
-	debounceTime: 0
-})
-
 export const edgeTypes = {
 	smartBezier: SmartBezierEdge,
 	smartStraight: SmartStraightEdge,
-	smartStep: SmartStepEdge,
-	customSmartBezier: SmartBezierEdgeNoDebounce,
-	customSmartStraight: SmartStraightEdgeNoDebounce
+	smartStep: SmartStepEdge
 }
 
 export type NodeData = {
@@ -184,15 +168,3 @@ export const edgesStep: Edge<EdgeData>[] = edgesBezier.map((edge) => ({
 	...edge,
 	type: 'smartStep'
 }))
-
-export const edgesCustomBezier: Edge<EdgeData>[] = edgesBezier.map((edge) => ({
-	...edge,
-	type: 'customSmartBezier'
-}))
-
-export const edgesCustomStraight: Edge<EdgeData>[] = edgesBezier.map(
-	(edge) => ({
-		...edge,
-		type: 'customSmartStraight'
-	})
-)
