@@ -25,34 +25,26 @@ export type PathFindingFunction = (
 	start: XYPosition,
 	end: XYPosition
 ) => {
-	fullPath: number[][] | null
-	smoothedPath: number[][] | null
-}
+	fullPath: number[][]
+	smoothedPath: number[][]
+} | null
 
 export const pathfindingAStarDiagonal: PathFindingFunction = (
 	grid,
 	start,
 	end
 ) => {
-	const finder = new AStarFinder({
-		diagonalMovement: DiagonalMovement.Always
-	})
-
-	let fullPath: number[][] | null = null
-	let smoothedPath: number[][] | null = null
-
 	try {
-		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
-		smoothedPath = Util.smoothenPath(grid, fullPath)
+		const finder = new AStarFinder({
+			diagonalMovement: DiagonalMovement.Always
+		})
+		const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
+		const smoothedPath = Util.smoothenPath(grid, fullPath)
+		if (fullPath.length === 0 || smoothedPath.length === 0) return null
+		return { fullPath, smoothedPath }
 	} catch {
-		// No path was found. This can happen if the end point is "surrounded"
-		// by other nodes, or if the starting and ending nodes are on top of
-		// each other.
-		fullPath = null
-		smoothedPath = null
+		return null
 	}
-
-	return { fullPath, smoothedPath }
 }
 
 export const pathfindingAStarNoDiagonal: PathFindingFunction = (
@@ -60,25 +52,17 @@ export const pathfindingAStarNoDiagonal: PathFindingFunction = (
 	start,
 	end
 ) => {
-	const finder = new AStarFinder({
-		diagonalMovement: DiagonalMovement.Never
-	})
-
-	let fullPath: number[][] | null = null
-	let smoothedPath: number[][] | null = null
-
 	try {
-		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
-		smoothedPath = Util.smoothenPath(grid, fullPath)
+		const finder = new AStarFinder({
+			diagonalMovement: DiagonalMovement.Never
+		})
+		const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
+		const smoothedPath = Util.smoothenPath(grid, fullPath)
+		if (fullPath.length === 0 || smoothedPath.length === 0) return null
+		return { fullPath, smoothedPath }
 	} catch {
-		// No path was found. This can happen if the end point is "surrounded"
-		// by other nodes, or if the starting and ending nodes are on top of
-		// each other.
-		fullPath = null
-		smoothedPath = null
+		return null
 	}
-
-	return { fullPath, smoothedPath }
 }
 
 export const pathfindingJumpPointNoDiagonal: PathFindingFunction = (
@@ -86,26 +70,17 @@ export const pathfindingJumpPointNoDiagonal: PathFindingFunction = (
 	start,
 	end
 ) => {
-	// FIXME: The "pathfinding" module doe not have proper typings.
-	// @ts-ignore
-	const finder = new JumpPointFinder({
-		diagonalMovement: DiagonalMovement.Never
-	})
-
-	let fullPath: number[][] | null = null
-	let smoothedPath: number[][] | null = null
-
 	try {
-		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
-		// Jump point works better using only the full path.
-		smoothedPath = fullPath
+		// FIXME: The "pathfinding" module doe not have proper typings.
+		// @ts-ignore
+		const finder = new JumpPointFinder({
+			diagonalMovement: DiagonalMovement.Never
+		})
+		const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
+		const smoothedPath = fullPath
+		if (fullPath.length === 0 || smoothedPath.length === 0) return null
+		return { fullPath, smoothedPath }
 	} catch {
-		// No path was found. This can happen if the end point is "surrounded"
-		// by other nodes, or if the starting and ending nodes are on top of
-		// each other.
-		fullPath = null
-		smoothedPath = null
+		return null
 	}
-
-	return { fullPath, smoothedPath }
 }
