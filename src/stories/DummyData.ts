@@ -149,8 +149,7 @@ export const edgesBezier: Edge<EdgeData>[] = [
 		source: '6',
 		target: '1',
 		type: 'smartBezier',
-		markerEnd: { type: markerEndType },
-		label: 'Node 6 to Node 1'
+		markerEnd: { type: markerEndType }
 	},
 	{
 		id: 'e3',
