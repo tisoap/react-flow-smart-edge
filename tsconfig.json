@@ -1,23 +1,23 @@
 {
 	"include": ["src", ".eslintrc.js", "jest.config.js"],
 	"compilerOptions": {
-		"module": "esnext",
-		"lib": ["dom", "esnext"],
-		"importHelpers": true,
+		"baseUrl": "./src",
 		"declaration": true,
-		"sourceMap": true,
-		"rootDir": "./src",
-		"strict": true,
-		"noImplicitReturns": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"importHelpers": true,
+		"jsx": "react",
+		"lib": ["dom", "esnext"],
+		"module": "esnext",
+		"moduleResolution": "node",
+		"noEmit": true,
 		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"moduleResolution": "node",
-		"jsx": "react",
-		"esModuleInterop": true,
+		"rootDir": "./src",
 		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"noEmit": true,
-		"baseUrl": "./src"
+		"sourceMap": true,
+		"strict": true
 	}
 }
