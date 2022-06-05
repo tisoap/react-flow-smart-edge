@@ -1,16 +1,17 @@
 import React from 'react'
-import { useNodes } from 'react-flow-renderer'
+import { useNodes, StepEdge } from 'react-flow-renderer'
 import { SmartEdge } from '../SmartEdge'
 import {
 	svgDrawStraightLinePath,
 	pathfindingJumpPointNoDiagonal
 } from '../functions'
-import type { GetSmartEdgeOptions } from '../getSmartEdge'
+import type { SmartEdgeOptions } from '../SmartEdge'
 import type { EdgeProps } from 'react-flow-renderer'
 
-const StepConfiguration: GetSmartEdgeOptions = {
+const StepConfiguration: SmartEdgeOptions = {
 	drawEdge: svgDrawStraightLinePath,
-	generatePath: pathfindingJumpPointNoDiagonal
+	generatePath: pathfindingJumpPointNoDiagonal,
+	fallback: StepEdge
 }
 
 export function SmartStepEdge<EdgeDataType = unknown, NodeDataType = unknown>(

@@ -35,6 +35,12 @@ export type GetSmartEdgeParams<NodeDataType = unknown> = EdgeParams & {
 	nodes: Node<NodeDataType>[]
 }
 
+export type GetSmartEdgeReturn = {
+	svgPathString: string
+	edgeCenterX: number
+	edgeCenterY: number
+}
+
 export const getSmartEdge = <NodeDataType = unknown>({
 	options = {},
 	nodes = [],
@@ -44,7 +50,7 @@ export const getSmartEdge = <NodeDataType = unknown>({
 	targetY,
 	sourcePosition,
 	targetPosition
-}: GetSmartEdgeParams<NodeDataType>) => {
+}: GetSmartEdgeParams<NodeDataType>): GetSmartEdgeReturn | null => {
 	const {
 		drawEdge = svgDrawSmoothLinePath,
 		generatePath = pathfindingAStarDiagonal
@@ -85,8 +91,11 @@ export const getSmartEdge = <NodeDataType = unknown>({
 	)
 
 	// We then can use the grid representation to do pathfinding
-	// TODO: Those can be empty arrays, how to deal with this?
 	const { fullPath, smoothedPath } = generatePath(grid, start, end)
+
+	if (fullPath === null || smoothedPath === null) {
+		return null
+	}
 
 	// Here we convert the grid path to a sequence of graph coordinates.
 	const graphPath = smoothedPath.map((gridPoint) => {

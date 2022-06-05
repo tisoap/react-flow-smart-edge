@@ -1,13 +1,14 @@
 import React from 'react'
-import { useNodes } from 'react-flow-renderer'
+import { useNodes, BezierEdge } from 'react-flow-renderer'
 import { SmartEdge } from '../SmartEdge'
 import { svgDrawSmoothLinePath, pathfindingAStarDiagonal } from '../functions'
-import type { GetSmartEdgeOptions } from '../getSmartEdge'
+import type { SmartEdgeOptions } from '../SmartEdge'
 import type { EdgeProps } from 'react-flow-renderer'
 
-const BezierConfiguration: GetSmartEdgeOptions = {
+const BezierConfiguration: SmartEdgeOptions = {
 	drawEdge: svgDrawSmoothLinePath,
-	generatePath: pathfindingAStarDiagonal
+	generatePath: pathfindingAStarDiagonal,
+	fallback: BezierEdge
 }
 
 export function SmartBezierEdge<EdgeDataType = unknown, NodeDataType = unknown>(

@@ -25,8 +25,8 @@ export type PathFindingFunction = (
 	start: XYPosition,
 	end: XYPosition
 ) => {
-	fullPath: number[][] | undefined[]
-	smoothedPath: number[][] | undefined[]
+	fullPath: number[][] | null
+	smoothedPath: number[][] | null
 }
 
 export const pathfindingAStarDiagonal: PathFindingFunction = (
@@ -38,8 +38,8 @@ export const pathfindingAStarDiagonal: PathFindingFunction = (
 		diagonalMovement: DiagonalMovement.Always
 	})
 
-	let fullPath: number[][] | undefined[] = []
-	let smoothedPath: number[][] | undefined[] = []
+	let fullPath: number[][] | null = null
+	let smoothedPath: number[][] | null = null
 
 	try {
 		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
@@ -48,6 +48,8 @@ export const pathfindingAStarDiagonal: PathFindingFunction = (
 		// No path was found. This can happen if the end point is "surrounded"
 		// by other nodes, or if the starting and ending nodes are on top of
 		// each other.
+		fullPath = null
+		smoothedPath = null
 	}
 
 	return { fullPath, smoothedPath }
@@ -62,8 +64,8 @@ export const pathfindingAStarNoDiagonal: PathFindingFunction = (
 		diagonalMovement: DiagonalMovement.Never
 	})
 
-	let fullPath: number[][] | undefined[] = []
-	let smoothedPath: number[][] | undefined[] = []
+	let fullPath: number[][] | null = null
+	let smoothedPath: number[][] | null = null
 
 	try {
 		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
@@ -72,6 +74,8 @@ export const pathfindingAStarNoDiagonal: PathFindingFunction = (
 		// No path was found. This can happen if the end point is "surrounded"
 		// by other nodes, or if the starting and ending nodes are on top of
 		// each other.
+		fullPath = null
+		smoothedPath = null
 	}
 
 	return { fullPath, smoothedPath }
@@ -88,8 +92,8 @@ export const pathfindingJumpPointNoDiagonal: PathFindingFunction = (
 		diagonalMovement: DiagonalMovement.Never
 	})
 
-	let fullPath: number[][] | undefined[] = []
-	let smoothedPath: number[][] | undefined[] = []
+	let fullPath: number[][] | null = null
+	let smoothedPath: number[][] | null = null
 
 	try {
 		fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
@@ -99,6 +103,8 @@ export const pathfindingJumpPointNoDiagonal: PathFindingFunction = (
 		// No path was found. This can happen if the end point is "surrounded"
 		// by other nodes, or if the starting and ending nodes are on top of
 		// each other.
+		fullPath = null
+		smoothedPath = null
 	}
 
 	return { fullPath, smoothedPath }
