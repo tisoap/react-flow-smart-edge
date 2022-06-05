@@ -1,26 +1,28 @@
 import React from 'react'
-import { useNodes } from 'react-flow-renderer'
+import { useNodes, BezierEdge } from 'react-flow-renderer'
 import { getSmartEdge } from '../getSmartEdge'
 import type { EdgeData, NodeData } from './DummyData'
 import type { EdgeProps } from 'react-flow-renderer'
 
 const size = 20
 
-export function SmartEdgeCustomLabel({
-	id,
-	sourcePosition,
-	targetPosition,
-	sourceX,
-	sourceY,
-	targetX,
-	targetY,
-	style,
-	markerStart,
-	markerEnd
-}: EdgeProps<EdgeData>) {
+export function SmartEdgeCustomLabel(props: EdgeProps<EdgeData>) {
+	const {
+		id,
+		sourcePosition,
+		targetPosition,
+		sourceX,
+		sourceY,
+		targetX,
+		targetY,
+		style,
+		markerStart,
+		markerEnd
+	} = props
+
 	const nodes = useNodes<NodeData>()
 
-	const { edgeCenterX, edgeCenterY, svgPathString } = getSmartEdge({
+	const getSmartEdgeResponse = getSmartEdge({
 		sourcePosition,
 		targetPosition,
 		sourceX,
@@ -29,6 +31,12 @@ export function SmartEdgeCustomLabel({
 		targetY,
 		nodes
 	})
+
+	if (getSmartEdgeResponse === null) {
+		return <BezierEdge {...props} />
+	}
+
+	const { edgeCenterX, edgeCenterY, svgPathString } = getSmartEdgeResponse
 
 	return (
 		<>

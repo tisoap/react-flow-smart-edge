@@ -116,6 +116,7 @@ export const getSmartEdge = <NodeDataType = unknown>({
 	// it to position their custom labels
 	const index = Math.floor(fullPath.length / 2)
 	const middlePoint = fullPath[index]
+	// FIXME: can fail here, middlePoint can be undefined for some reason
 	const [middleX, middleY] = middlePoint
 	const { x: edgeCenterX, y: edgeCenterY } = gridToGraphPoint(
 		{ x: middleX, y: middleY },
