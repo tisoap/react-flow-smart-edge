@@ -48,13 +48,11 @@ type Point = {
 type DragOptions = {
 	delta?: Point
 	to?: HTMLElement | Point
-	duration?: number
-	steps?: number
 }
 
-export const SimulateDragAndDrop = async (
+export const SimulateDragAndDrop = (
 	element: HTMLElement,
-	{ to: inTo, delta, steps = 10, duration = 200 }: DragOptions
+	{ to: inTo, delta }: DragOptions
 ) => {
 	const from = getElementClientCenter(element)
 	let to: Point
@@ -70,27 +68,22 @@ export const SimulateDragAndDrop = async (
 		throw new Error('drag requires either a delta or a to')
 	}
 
-	const step = {
-		x: (to.x - from.x) / steps,
-		y: (to.y - from.y) / steps
-	}
-
-	const current = {
+	const fromOptions = {
 		clientX: from.x,
-		clientY: from.y
+		clientY: from.y,
+		view: window
 	}
 
-	fireEvent.mouseEnter(element, current)
-	fireEvent.mouseOver(element, current)
-	fireEvent.mouseMove(element, current)
-	fireEvent.mouseDown(element, current)
-
-	for (let i = 0; i < steps; i++) {
-		current.clientX += step.x
-		current.clientY += step.y
-		await wait(duration / steps)
-		fireEvent.mouseMove(element, current)
+	const toOptions = {
+		clientX: to.x,
+		clientY: to.y,
+		view: window
 	}
 
-	fireEvent.mouseUp(element, current)
+	fireEvent.mouseEnter(element, fromOptions)
+	fireEvent.mouseOver(element, fromOptions)
+	fireEvent.mouseMove(element, fromOptions)
+	fireEvent.mouseDown(element, fromOptions)
+	fireEvent.mouseMove(element, toOptions)
+	fireEvent.mouseUp(element, toOptions)
 }

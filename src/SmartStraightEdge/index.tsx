@@ -1,31 +1,30 @@
-import { StraightEdge } from 'react-flow-renderer'
+import React from 'react'
+import { useNodes, StraightEdge } from 'react-flow-renderer'
+import { SmartEdge } from '../SmartEdge'
 import {
-	smartEdgeFactory,
 	svgDrawStraightLinePath,
 	pathfindingAStarNoDiagonal
-} from '../SmartEdge'
-import type { FactoryOptions } from '../SmartEdge'
+} from '../functions'
+import type { SmartEdgeOptions } from '../SmartEdge'
+import type { EdgeProps } from 'react-flow-renderer'
 
-const StraightConfiguration = {
+const StraightConfiguration: SmartEdgeOptions = {
 	drawEdge: svgDrawStraightLinePath,
-	fallback: StraightEdge,
-	generatePath: pathfindingAStarNoDiagonal
+	generatePath: pathfindingAStarNoDiagonal,
+	fallback: StraightEdge
 }
 
-export const SmartStraightEdge = smartEdgeFactory(StraightConfiguration)
-SmartStraightEdge.displayName = 'SmartStraightEdge'
+export function SmartStraightEdge<
+	EdgeDataType = unknown,
+	NodeDataType = unknown
+>(props: EdgeProps<EdgeDataType>) {
+	const nodes = useNodes<NodeDataType>()
 
-export const straightEdgeFactory = ({
-	debounceTime,
-	gridRatio,
-	nodePadding
-}: FactoryOptions) => {
-	const SmartStraightEdge = smartEdgeFactory({
-		...StraightConfiguration,
-		debounceTime,
-		gridRatio,
-		nodePadding
-	})
-	SmartStraightEdge.displayName = 'SmartStraightEdge'
-	return SmartStraightEdge
+	return (
+		<SmartEdge<EdgeDataType, NodeDataType>
+			{...props}
+			options={StraightConfiguration}
+			nodes={nodes}
+		/>
+	)
 }

@@ -1,31 +1,26 @@
-import { BezierEdge } from 'react-flow-renderer'
-import {
-	smartEdgeFactory,
-	svgDrawSmoothLinePath,
-	pathfindingAStarDiagonal
-} from '../SmartEdge'
-import type { FactoryOptions } from '../SmartEdge'
+import React from 'react'
+import { useNodes, BezierEdge } from 'react-flow-renderer'
+import { SmartEdge } from '../SmartEdge'
+import { svgDrawSmoothLinePath, pathfindingAStarDiagonal } from '../functions'
+import type { SmartEdgeOptions } from '../SmartEdge'
+import type { EdgeProps } from 'react-flow-renderer'
 
-const BezierConfiguration = {
+const BezierConfiguration: SmartEdgeOptions = {
 	drawEdge: svgDrawSmoothLinePath,
-	fallback: BezierEdge,
-	generatePath: pathfindingAStarDiagonal
+	generatePath: pathfindingAStarDiagonal,
+	fallback: BezierEdge
 }
 
-export const SmartBezierEdge = smartEdgeFactory(BezierConfiguration)
-SmartBezierEdge.displayName = 'SmartBezierEdge'
+export function SmartBezierEdge<EdgeDataType = unknown, NodeDataType = unknown>(
+	props: EdgeProps<EdgeDataType>
+) {
+	const nodes = useNodes<NodeDataType>()
 
-export const bezierEdgeFactory = ({
-	debounceTime,
-	gridRatio,
-	nodePadding
-}: FactoryOptions) => {
-	const SmartBezierEdge = smartEdgeFactory({
-		...BezierConfiguration,
-		debounceTime,
-		gridRatio,
-		nodePadding
-	})
-	SmartBezierEdge.displayName = 'SmartBezierEdge'
-	return SmartBezierEdge
+	return (
+		<SmartEdge<EdgeDataType, NodeDataType>
+			{...props}
+			options={BezierConfiguration}
+			nodes={nodes}
+		/>
+	)
 }

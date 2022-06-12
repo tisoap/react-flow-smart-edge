@@ -2,13 +2,7 @@ import { within } from '@storybook/testing-library'
 import React from 'react'
 import ReactFlow from 'react-flow-renderer'
 import { SimulateDragAndDrop, wait } from './SimulateDragAndDrop'
-import {
-	SmartBezier,
-	SmartStraight,
-	SmartStep,
-	CustomBezier,
-	CustomStraight
-} from './SmartEdge.stories'
+import { SmartBezier, SmartStraight, SmartStep } from './SmartEdge.stories'
 import type { Meta, Story } from '@storybook/react'
 import type { ReactFlowProps } from 'react-flow-renderer'
 
@@ -46,11 +40,3 @@ SmartStraightInteraction.play = SmartBezierInteraction.play
 export const SmartStepInteraction = Template.bind({})
 SmartStepInteraction.args = SmartStep.args
 SmartStepInteraction.play = SmartBezierInteraction.play
-
-export const CustomBezierInteraction = Template.bind({})
-CustomBezierInteraction.args = CustomBezier.args
-CustomBezierInteraction.play = SmartBezierInteraction.play
-
-export const CustomStraightInteraction = Template.bind({})
-CustomStraightInteraction.args = CustomStraight.args
-CustomStraightInteraction.play = SmartBezierInteraction.play

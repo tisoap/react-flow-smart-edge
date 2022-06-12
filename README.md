@@ -1,15 +1,13 @@
 # React Flow Smart Edge
 
+Custom Edges for React Flow that never intersect with other nodes, using pathfinding.
+
 ![CI](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/main.yml/badge.svg?branch=main)
 ![Code Quality](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)
 ![TypeScript](https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=white)
 ![Storybook](https://img.shields.io/badge/Storybook-FF4785?logo=storybook&logoColor=white)
 ![Testing Library](https://img.shields.io/badge/Testing_Library-DC3130?logo=testinglibrary&logoColor=white)
 ![ESLint](https://img.shields.io/badge/ESLint-3A33D1?logo=eslint&logoColor=white)
-![Github Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)
-![Yarn](https://img.shields.io/badge/Yarn-2C8EBB?logo=yarn&logoColor=white)
-
-Custom Edges for [React Flow](https://github.com/wbkd/react-flow#readme) that never intersect with other nodes.
 
 ![Smart Edge](https://raw.githubusercontent.com/tisoap/react-flow-smart-edge/main/.github/images/example.gif)
 
@@ -34,6 +32,10 @@ This package is only compatible with [**version 10 or newer** of React Flow Edge
 Like this project and want to show your support? Buy me a coffee:
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J472RAJ)
+
+_Really_ like this project? Sponsor me on GitHub:
+
+[![GitHub Sponsors](https://img.shields.io/static/v1?label=Sponsor%20Me&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/tisoap)
 
 ## Usage
 
@@ -100,77 +102,120 @@ export const Graph = (props) => {
 
 All smart edges will take the exact same options as a [React Flow Edge](https://reactflow.dev/docs/api/edges/edge-options/).
 
-## Configuring Smart Edges
+## Custom Smart Edges
 
-You can create your own Smart Edges with custom configurations by using _factory functions_. Each edge type will have an equivalent _factory function_:
+You can have more control over how the edge is rerendered by creating a [custom edge](https://reactflow.dev/docs/api/edges/custom-edges/) and using the provided `getSmartEdge` function. It takes an object with the following keys:
 
-- `bezierEdgeFactory`: Creates a custom `SmartBezierEdge`
-- `stepEdgeFactory`: Creates a custom `SmartStepEdge`
-- `straightEdgeFactory`: Creates a custom `SmartStraightEdge`
-
-All those functions take a configuration object as parameter. If an option is not passed it will assume it's default value. The available options for the configuration object are:
-
-- `debounceTime`: By How many milliseconds the Edge render is debounced. Default is `200`, pass `0` to disable debouncing.
-- `nodePadding`: How many pixels of padding is added around nodes, or by how much should the edge avoid the walls of a node. Default `10`, minimum `2`.
-- `gridRatio`: The size in pixels of each square grid cell used for path finding. Smaller values for a more accurate path, bigger for faster path finding. Default `10`, minimum `2`.
+- `sourcePosition`, `targetPosition`, `sourceX`, `sourceY`, `targetX` and `targetY`: The same values your [custom edge](https://reactflow.dev/docs/examples/edges/custom-edge/) will take as props
+- `nodes`: An array containing all graph nodes, you can get it from the [`useNodes` hook](https://reactflow.dev/docs/api/hooks/use-nodes/)
 
 ### Example
 
+Just like you can use `getBezierPath` and `getEdgeCenter` from `react-flow-renderer` to create a [custom edge with a button](https://reactflow.dev/docs/examples/edges/edge-with-button/), you can do the same with `getSmartEdge`:
+
 ```jsx
 import React from 'react'
-import ReactFlow from 'react-flow-renderer'
-import {
-	bezierEdgeFactory,
-	straightEdgeFactory
-} from '@tisoap/react-flow-smart-edge'
-import { nodes, edges } from './data'
+import { useNodes, BezierEdge } from 'react-flow-renderer'
+import { getSmartEdge } from '@tisoap/react-flow-smart-edge'
 
-const BezierNoDebounce = bezierEdgeFactory({ debounceTime: 0 })
-const StraightSmallPadding = straightEdgeFactory({ nodePadding: 5 })
+const foreignObjectSize = 200
 
-const edgeTypes = {
-	smartNoDebounce: BezierNoDebounce,
-	smartSmallPadding: StraightSmallPadding
-}
+export function SmartEdgeWithButtonLabel(props) {
+	const {
+		id,
+		sourcePosition,
+		targetPosition,
+		sourceX,
+		sourceY,
+		targetX,
+		targetY,
+		style,
+		markerStart,
+		markerEnd
+	} = props
 
-export const Graph = (props) => {
-	const { children, ...rest } = props
+	const nodes = useNodes()
+
+	const getSmartEdgeResponse = getSmartEdge({
+		sourcePosition,
+		targetPosition,
+		sourceX,
+		sourceY,
+		targetX,
+		targetY,
+		nodes
+	})
+
+	// If the value returned is null, it means "getSmartEdge" was unable to find
+	// a valid path, and you should do something else instead
+	if (getSmartEdgeResponse === null) {
+		return <BezierEdge {...props} />
+	}
+
+	const { edgeCenterX, edgeCenterY, svgPathString } = getSmartEdgeResponse
 
 	return (
-		<ReactFlow
-			defaultNodes={nodes}
-			defaultEdges={edges}
-			edgeTypes={edgeTypes}
-			{...rest}
-		>
-			{children}
-		</ReactFlow>
+		<>
+			<path
+				style={style}
+				className='react-flow__edge-path'
+				d={svgPathString}
+				markerEnd={markerEnd}
+				markerStart={markerStart}
+			/>
+			<foreignObject
+				width={foreignObjectSize}
+				height={foreignObjectSize}
+				x={edgeCenterX - foreignObjectSize / 2}
+				y={edgeCenterY - foreignObjectSize / 2}
+				requiredExtensions='http://www.w3.org/1999/xhtml'
+			>
+				<button
+					onClick={(event) => {
+						event.stopPropagation()
+						alert(`remove ${id}`)
+					}}
+				>
+					X
+				</button>
+			</foreignObject>
+		</>
 	)
 }
 ```
 
-## Storybook
+## Advanced Custom Smart Edges
 
-You can see Storybook examples by visiting this page: https://tisoap.github.io/react-flow-smart-edge/
+The `getSmartEdge` function also accepts an optional object `options`, which let's you configure aspects of the path-finding algorithm. You may use it like so:
 
-## Advanced Smart Edge Configuration
+```js
+const myOptions = {
+	// your configuration goes here
+	nodePadding: 20,
+	gridRatio: 15
+}
 
-**⚠️ATTENTION: Only use these if you know what you're doing!⚠️**
+// ...
 
-This package also provides a more generic `smartEdgeFactory` function. Besides the default options available to other factory functions, this one also accepts the following additional options:
-
-### `fallback`
-
-By default, if the path-finding algorithm of a Smart Edge can't find a valid path, it will fall-back to a regular edge. With the `fallback` option, you can change what Edge it will fallback to. By default it's the React Flow's `BezierEdge`, but you can change it to any component that takes the same props as a regular edge component.
-
-```jsx
-// Available edges from "react-flow-renderer":
-// https://reactflow.dev/docs/api/edges/edge-types/
-import { SimpleBezier } from 'react-flow-renderer'
-import { smartEdgeFactory } from '@tisoap/react-flow-smart-edge'
-
-const MyCustomSmartEdge = smartEdgeFactory({ fallback: SimpleBezier })
+const getSmartEdgeResponse = getSmartEdge({
+	sourcePosition,
+	targetPosition,
+	sourceX,
+	sourceY,
+	targetX,
+	targetY,
+	nodes,
+	// Pass down options in the getSmartEdge object
+	options: myOptions
+})
 ```
+
+The `options` object accepts the following keys (they're all optional):
+
+- `nodePadding`: How many pixels of padding is added around nodes, or by how much should the edge avoid the walls of a node. Default `10`, minimum `2`.
+- `gridRatio`: The size in pixels of each square grid cell used for path finding. Smaller values for a more accurate path, bigger for faster path finding. Default `10`, minimum `2`.
+- `drawEdge`: Let's you change the function responsible to draw the SVG line, by default it's the same used by `SmartBezierEdge` ([more bellow](#drawedge))
+- `generatePath`: Let's you change the function that does the path-finding, by default it's the same used by `SmartBezierEdge` ([more bellow](#generatepath))
 
 ### `drawEdge`
 
@@ -178,23 +223,29 @@ With the `drawEdge` option, you can change the function used to generate the fin
 
 ```jsx
 import {
-	smartEdgeFactory,
+	getSmartEdge,
 	// Available built-in SVG draw functions
 	svgDrawSmoothLinePath,
 	svgDrawStraightLinePath
 } from '@tisoap/react-flow-smart-edge'
 
 // Using provided SVG draw functions:
-const MyCustomStraightLine = smartEdgeFactory({
-	drawEdge: svgDrawStraightLinePath
+const result = getSmartEdge({
+	// ...
+	options: {
+		drawEdge: svgDrawSmoothLinePath
+	}
 })
 
-// Using your own custom function
-const MyCustomSVGEdge = smartEdgeFactory({
-	drawEdge: (source, target, path) => {
-		// your code goes here
-		// ...
-		return svgPath
+// ...or using your own custom function
+const result = getSmartEdge({
+	// ...
+	options: {
+		drawEdge: (source, target, path) => {
+			// your code goes here
+			// ...
+			return svgPath
+		}
 	}
 })
 ```
@@ -209,7 +260,7 @@ type SVGDrawFunction = (
 ) => string // A string to be used in the "d" property of the SVG line
 ```
 
-For inspiration on how to implement your own, you can check the [`drawSvgPath.ts` source code](./src/functions/drawSvgPath.ts).
+For inspiration on how to implement your own, you can check the [`drawSvgPath.ts` source code](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/functions/drawSvgPath.ts).
 
 ### `generatePath`
 
@@ -217,7 +268,7 @@ With the `generatePath` option, you can change the function used to do [Pathfind
 
 ```jsx
 import {
-	smartEdgeFactory,
+	getSmartEdge,
 	// Available built-in pathfinding functions
 	pathfindingAStarDiagonal,
 	pathfindingAStarNoDiagonal,
@@ -225,16 +276,22 @@ import {
 } from '@tisoap/react-flow-smart-edge'
 
 // Using provided pathfinding functions:
-const MyCustomJumpPoint = smartEdgeFactory({
-	generatePath: pathfindingJumpPointNoDiagonal
+const result = getSmartEdge({
+	// ...
+	options: {
+		generatePath: pathfindingJumpPointNoDiagonal
+	}
 })
 
-// Using your own custom function
-const MyCustomPathFindingEdge = smartEdgeFactory({
-	generatePath: (grid, start, end) => {
-		// your code goes here
-		// ...
-		return { fullPath, smoothedPath }
+// ...or using your own custom function
+const result = getSmartEdge({
+	// ...
+	options: {
+		generatePath: (grid, start, end) => {
+			// your code goes here
+			// ...
+			return { fullPath, smoothedPath }
+		}
 	}
 })
 ```
@@ -249,17 +306,16 @@ type PathFindingFunction = (
 ) => {
 	fullPath: number[][] // Array of points [x, y] representing the full path with all points
 	smoothedPath: number[][] // Array of points [x, y] representing a smaller, compressed path
-}
+} | null // The function should return null if it was unable to do pathfinding
 ```
 
-For inspiration on how to implement your own, you can check the [`generatePath.ts` source code](./src/functions/generatePath.ts) and the [`pathfinding` dependency](https://www.npmjs.com/package/pathfinding#advanced-usage) documentation.
+For inspiration on how to implement your own, you can check the [`generatePath.ts` source code](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/functions/generatePath.ts) and the [`pathfinding` dependency](https://www.npmjs.com/package/pathfinding#advanced-usage) documentation.
 
-### Advanced Example
+### Advanced Examples
 
 ```jsx
-import { BezierEdge, StepEdge, StraightEdge } from 'react-flow-renderer'
 import {
-	smartEdgeFactory,
+	getSmartEdge,
 	svgDrawSmoothLinePath,
 	svgDrawStraightLinePath
 	pathfindingAStarDiagonal,
@@ -267,36 +323,39 @@ import {
 	pathfindingJumpPointNoDiagonal
 } from '@tisoap/react-flow-smart-edge'
 
+// ...
+
 // Same as importing "SmartBezierEdge" directly
-export const SmartBezierEdge = smartEdgeFactory({
-	drawEdge: svgDrawSmoothLinePath,
-	fallback: BezierEdge,
-	generatePath: pathfindingAStarDiagonal,
-	debounceTime: 200,
-	nodePadding: 10,
-	gridRatio: 10,
+const bezierResult = getSmartEdge({
+	// ...
+	options: {
+		drawEdge: svgDrawSmoothLinePath,
+		generatePath: pathfindingAStarDiagonal,
+	}
 })
 
 // Same as importing "SmartStepEdge" directly
-export const SmartStepEdge = smartEdgeFactory({
-	drawEdge: svgDrawStraightLinePath,
-	fallback: StepEdge,
-	generatePath: pathfindingJumpPointNoDiagonal,
-	debounceTime: 200,
-	nodePadding: 10,
-	gridRatio: 10,
+const stepResult = getSmartEdge({
+	// ...
+	options: {
+		drawEdge: svgDrawStraightLinePath,
+		generatePath: pathfindingJumpPointNoDiagonal,
+	}
 })
 
 // Same as importing "SmartStraightEdge" directly
-export const SmartStraightEdge = smartEdgeFactory({
-	drawEdge: svgDrawStraightLinePath,
-	fallback: StraightEdge,
-	generatePath: pathfindingAStarNoDiagonal,
-	debounceTime: 200,
-	nodePadding: 10,
-	gridRatio: 10,
+const straightResult = getSmartEdge({
+	// ...
+	options: {
+		drawEdge: svgDrawStraightLinePath,
+		generatePath: pathfindingAStarNoDiagonal,
+	}
 })
 ```
+
+## Storybook
+
+You can see live Storybook examples by visiting [this page](https://tisoap.github.io/react-flow-smart-edge/), and see their source code [here](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/stories/SmartEdge.stories.tsx).
 
 ## License
 

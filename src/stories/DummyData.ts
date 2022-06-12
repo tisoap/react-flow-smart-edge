@@ -1,31 +1,24 @@
 import { MarkerType } from 'react-flow-renderer'
-import {
-	SmartBezierEdge,
-	SmartStraightEdge,
-	SmartStepEdge,
-	bezierEdgeFactory,
-	straightEdgeFactory
-} from '../index'
+import { SmartBezierEdge, SmartStraightEdge, SmartStepEdge } from '../index'
+import { SmartEdgeCustomLabel } from './CustomLabel'
+import type { Node, Edge } from 'react-flow-renderer'
 
 const markerEndType = MarkerType.Arrow
-
-const SmartBezierEdgeNoDebounce = bezierEdgeFactory({
-	debounceTime: 0
-})
-
-const SmartStraightEdgeNoDebounce = straightEdgeFactory({
-	debounceTime: 0
-})
 
 export const edgeTypes = {
 	smartBezier: SmartBezierEdge,
 	smartStraight: SmartStraightEdge,
 	smartStep: SmartStepEdge,
-	customSmartBezier: SmartBezierEdgeNoDebounce,
-	customSmartStraight: SmartStraightEdgeNoDebounce
+	smartBezierLabel: SmartEdgeCustomLabel
 }
 
-export const nodes1 = [
+export type NodeData = {
+	label: string
+}
+
+export type EdgeData = { customField: string } | undefined
+
+export const nodes: Node<NodeData>[] = [
 	{
 		id: '1',
 		data: {
@@ -98,7 +91,7 @@ export const nodes1 = [
 	}
 ]
 
-export const edges1Bezier = [
+export const edgesBezier: Edge<EdgeData>[] = [
 	{
 		id: 'e12',
 		source: '1',
@@ -139,7 +132,10 @@ export const edges1Bezier = [
 		source: '5',
 		target: '6',
 		type: 'smartBezier',
-		markerEnd: { type: markerEndType }
+		markerEnd: { type: markerEndType },
+		data: {
+			customField: 'custom data'
+		}
 	},
 	{
 		id: 'e65',
@@ -153,8 +149,7 @@ export const edges1Bezier = [
 		source: '6',
 		target: '1',
 		type: 'smartBezier',
-		markerEnd: { type: markerEndType },
-		label: 'Node 6 to Node 1'
+		markerEnd: { type: markerEndType }
 	},
 	{
 		id: 'e3',
@@ -165,22 +160,17 @@ export const edges1Bezier = [
 	}
 ]
 
-export const edges1Straight = edges1Bezier.map((edge) => ({
+export const edgesStraight: Edge<EdgeData>[] = edgesBezier.map((edge) => ({
 	...edge,
 	type: 'smartStraight'
 }))
 
-export const edges1Step = edges1Bezier.map((edge) => ({
+export const edgesStep: Edge<EdgeData>[] = edgesBezier.map((edge) => ({
 	...edge,
 	type: 'smartStep'
 }))
 
-export const edges1CustomBezier = edges1Bezier.map((edge) => ({
+export const edgesLabel: Edge<EdgeData>[] = edgesBezier.map((edge) => ({
 	...edge,
-	type: 'customSmartBezier'
-}))
-
-export const edges1CustomStraight = edges1Bezier.map((edge) => ({
-	...edge,
-	type: 'customSmartStraight'
+	type: 'smartBezierLabel'
 }))

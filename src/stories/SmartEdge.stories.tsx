@@ -1,12 +1,11 @@
 import React from 'react'
 import ReactFlow from 'react-flow-renderer'
 import {
-	edges1Bezier,
-	edges1Straight,
-	edges1Step,
-	edges1CustomBezier,
-	edges1CustomStraight,
-	nodes1,
+	edgesBezier,
+	edgesStraight,
+	edgesStep,
+	edgesLabel,
+	nodes,
 	edgeTypes
 } from './DummyData'
 import type { Meta, Story } from '@storybook/react'
@@ -29,30 +28,24 @@ export const SmartBezier = Template.bind({})
 SmartBezier.args = {
 	style,
 	edgeTypes,
-	defaultNodes: nodes1,
-	defaultEdges: edges1Bezier
+	defaultNodes: nodes,
+	defaultEdges: edgesBezier
 }
 
 export const SmartStraight = Template.bind({})
 SmartStraight.args = {
 	...SmartBezier.args,
-	defaultEdges: edges1Straight
+	defaultEdges: edgesStraight
 }
 
 export const SmartStep = Template.bind({})
 SmartStep.args = {
 	...SmartBezier.args,
-	defaultEdges: edges1Step
+	defaultEdges: edgesStep
 }
 
-export const CustomBezier = Template.bind({})
-CustomBezier.args = {
+export const SmartBezierWithCustomLabel = Template.bind({})
+SmartBezierWithCustomLabel.args = {
 	...SmartBezier.args,
-	defaultEdges: edges1CustomBezier
-}
-
-export const CustomStraight = Template.bind({})
-CustomStraight.args = {
-	...SmartBezier.args,
-	defaultEdges: edges1CustomStraight
+	defaultEdges: edgesLabel
 }
