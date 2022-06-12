@@ -1,15 +1,13 @@
 # React Flow Smart Edge
 
+Custom Edges for React Flow that never intersect with other nodes, using pathfinding.
+
 ![CI](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/main.yml/badge.svg?branch=main)
 ![Code Quality](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)
 ![TypeScript](https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=white)
 ![Storybook](https://img.shields.io/badge/Storybook-FF4785?logo=storybook&logoColor=white)
 ![Testing Library](https://img.shields.io/badge/Testing_Library-DC3130?logo=testinglibrary&logoColor=white)
 ![ESLint](https://img.shields.io/badge/ESLint-3A33D1?logo=eslint&logoColor=white)
-![Github Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)
-![Yarn](https://img.shields.io/badge/Yarn-2C8EBB?logo=yarn&logoColor=white)
-
-Custom Edges for [React Flow](https://github.com/wbkd/react-flow#readme) that never intersect with other nodes.
 
 ![Smart Edge](https://raw.githubusercontent.com/tisoap/react-flow-smart-edge/main/.github/images/example.gif)
 
@@ -34,6 +32,10 @@ This package is only compatible with [**version 10 or newer** of React Flow Edge
 Like this project and want to show your support? Buy me a coffee:
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J472RAJ)
+
+_Really_ like this project? Sponsor me on GitHub:
+
+[![GitHub Sponsors](https://img.shields.io/static/v1?label=Sponsor%20Me&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/tisoap)
 
 ## Usage
 
