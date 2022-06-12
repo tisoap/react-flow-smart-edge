@@ -116,7 +116,7 @@ import React from 'react'
 import { useNodes, BezierEdge } from 'react-flow-renderer'
 import { getSmartEdge } from '@tisoap/react-flow-smart-edge'
 
-const size = 200
+const foreignObjectSize = 200
 
 export function SmartEdgeWithButtonLabel(props) {
 	const {
@@ -309,7 +309,49 @@ type PathFindingFunction = (
 
 For inspiration on how to implement your own, you can check the [`generatePath.ts` source code](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/functions/generatePath.ts) and the [`pathfinding` dependency](https://www.npmjs.com/package/pathfinding#advanced-usage) documentation.
 
-### Storybook
+### Advanced Examples
+
+```jsx
+import {
+	getSmartEdge,
+	svgDrawSmoothLinePath,
+	svgDrawStraightLinePath
+	pathfindingAStarDiagonal,
+	pathfindingAStarNoDiagonal,
+	pathfindingJumpPointNoDiagonal
+} from '@tisoap/react-flow-smart-edge'
+
+// ...
+
+// Same as importing "SmartBezierEdge" directly
+const bezierResult = getSmartEdge({
+	// ...
+	options: {
+		drawEdge: svgDrawSmoothLinePath,
+		generatePath: pathfindingAStarDiagonal,
+	}
+})
+
+// Same as importing "SmartStepEdge" directly
+const stepResult = getSmartEdge({
+	// ...
+	options: {
+		drawEdge: svgDrawStraightLinePath,
+		generatePath: pathfindingJumpPointNoDiagonal,
+	}
+})
+
+// Same as importing "SmartStraightEdge" directly
+const straightResult = getSmartEdge({
+	// ...
+	options: {
+		drawEdge: svgDrawStraightLinePath,
+		generatePath: pathfindingAStarNoDiagonal,
+	}
+})
+```
+
+## Storybook
 
 You can see live Storybook examples by visiting [this page](https://tisoap.github.io/react-flow-smart-edge/), and see their source code [here](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/stories/SmartEdge.stories.tsx).
 
