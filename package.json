@@ -31,7 +31,7 @@
 		"build-storybook": "build-storybook",
 		"build": "yarn check-types && yarn lint && yarn build-storybook && yarn build-component",
 		"check-types": "tsc --noEmit",
-		"chromatic": "chromatic --exit-zero-on-changes",
+		"chromatic": "chromatic --exit-zero-on-changes --project-token f5598c842f1a",
 		"deploy-storybook": "gh-pages -d storybook-static",
 		"install-playwright": "playwright install --with-deps",
 		"lint-fix": "dts lint src --fix",
