@@ -186,7 +186,7 @@ export function SmartEdgeWithButtonLabel(props) {
 
 ## Advanced Custom Smart Edges
 
-The `getSmartEdge` function also accepts an optional object `options`, which allows you configure aspects of the path-finding algorithm. You may use it like so:
+The `getSmartEdge` function also accepts an optional object `options`, which allows you to configure aspects of the path-finding algorithm. You may use it like so:
 
 ```js
 const myOptions = {
@@ -212,7 +212,7 @@ const getSmartEdgeResponse = getSmartEdge({
 
 The `options` object accepts the following keys (they're all optional):
 
-- `nodePadding`: How many pixels of padding are added around nodes, or by how much should the edge isolated from the walls of a node. Default `10`, minimum `2`.
+- `nodePadding`: How many pixels of padding are added around nodes, or by how much should the edge avoid the walls of a node. Default `10`, minimum `2`.
 - `gridRatio`: The size in pixels of each square grid cell used for path-finding. Smaller values for a more accurate path, bigger for faster path-finding. Default `10`, minimum `2`.
 - `drawEdge`: Allows you to change the function responsible to draw the SVG line, by default it's the same used by `SmartBezierEdge` ([more below](#drawedge))
 - `generatePath`: Allows you to change the function for the path-finding, by default it's the same used by `SmartBezierEdge` ([more below](#generatepath))
