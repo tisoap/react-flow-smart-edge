@@ -1,8 +1,8 @@
 import React from 'react'
-import { useNodes, BezierEdge } from 'react-flow-renderer'
+import { useNodes, BezierEdge } from 'reactflow'
 import { getSmartEdge } from '../getSmartEdge'
 import type { EdgeData, NodeData } from './DummyData'
-import type { EdgeProps } from 'react-flow-renderer'
+import type { EdgeProps } from 'reactflow'
 
 const size = 20
 

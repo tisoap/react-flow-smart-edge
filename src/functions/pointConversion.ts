@@ -1,4 +1,4 @@
-import type { XYPosition } from 'react-flow-renderer'
+import type { XYPosition } from 'reactflow'
 
 /**
  * Each bounding box is a collection of X/Y points in a graph, and we

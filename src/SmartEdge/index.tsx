@@ -1,8 +1,8 @@
 import React from 'react'
-import { EdgeText, BezierEdge } from 'react-flow-renderer'
+import { EdgeText, BezierEdge } from 'reactflow'
 import { getSmartEdge } from '../getSmartEdge'
 import type { GetSmartEdgeOptions } from '../getSmartEdge'
-import type { EdgeProps, Node } from 'react-flow-renderer'
+import type { EdgeProps, Node } from 'reactflow'
 
 export type EdgeElement = typeof BezierEdge
 

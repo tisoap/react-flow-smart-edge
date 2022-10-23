@@ -1,7 +1,7 @@
-import { MarkerType } from 'react-flow-renderer'
+import { MarkerType } from 'reactflow'
 import { SmartBezierEdge, SmartStraightEdge, SmartStepEdge } from '../index'
 import { SmartEdgeCustomLabel } from './CustomLabel'
-import type { Node, Edge } from 'react-flow-renderer'
+import type { Node, Edge } from 'reactflow'
 
 const markerEndType = MarkerType.Arrow
 

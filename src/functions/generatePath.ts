@@ -12,7 +12,7 @@ import {
 	DiagonalMovement
 } from 'pathfinding'
 import type { Grid } from 'pathfinding'
-import type { XYPosition } from 'react-flow-renderer'
+import type { XYPosition } from 'reactflow'
 
 /**
  * Takes source and target {x, y} points, together with an grid representation

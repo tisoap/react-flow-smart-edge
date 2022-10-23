@@ -103,7 +103,7 @@
 		"prettier": "2.7.1",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
-		"react-flow-renderer": "10.3.17",
+		"reactflow": "11.1.2",
 		"require-from-string": "2.0.2",
 		"typescript": "4.8.4",
 		"wait-on": "6.0.1",
@@ -112,7 +112,7 @@
 	"peerDependencies": {
 		"react": ">=16",
 		"react-dom": ">=16",
-		"react-flow-renderer": ">=10.2",
+		"reactflow": ">=11",
 		"typescript": ">=4.6"
 	},
 	"engines": {

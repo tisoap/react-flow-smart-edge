@@ -25,7 +25,7 @@ With `yarn`:
 yarn add @tisoap/react-flow-smart-edge
 ```
 
-This package is only compatible with [**version 10 or newer** of React Flow Edge](https://reactflow.dev/docs/guides/migrate-to-v10/).
+This package is only compatible with [**version 11 or newer** of React Flow Edge](https://reactflow.dev/docs/guides/migrate-to-v11/).
 
 ## Support
 
@@ -51,8 +51,9 @@ Each one can be imported individually as a named export.
 
 ```jsx
 import React from 'react'
-import ReactFlow from 'react-flow-renderer'
+import { ReactFlow } from 'reactflow'
 import { SmartBezierEdge } from '@tisoap/react-flow-smart-edge'
+import 'reactflow/dist/style.css'
 
 const nodes = [
 	{
@@ -111,11 +112,11 @@ You can have more control over how the edge is rerendered by creating a [custom 
 
 ### Example
 
-Just like you can use `getBezierPath` and `getEdgeCenter` from `react-flow-renderer` to create a [custom edge with a button](https://reactflow.dev/docs/examples/edges/edge-with-button/), you can do the same with `getSmartEdge`:
+Just like you can use `getBezierPath` from `reactflow` to create a [custom edge with a button](https://reactflow.dev/docs/examples/edges/edge-with-button/), you can do the same with `getSmartEdge`:
 
 ```jsx
 import React from 'react'
-import { useNodes, BezierEdge } from 'react-flow-renderer'
+import { useNodes, BezierEdge } from 'reactflow'
 import { getSmartEdge } from '@tisoap/react-flow-smart-edge'
 
 const foreignObjectSize = 200

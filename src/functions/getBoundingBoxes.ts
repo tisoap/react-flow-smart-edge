@@ -1,5 +1,5 @@
 import { roundUp, roundDown } from './utils'
-import type { Node, XYPosition } from 'react-flow-renderer'
+import type { Node, XYPosition } from 'reactflow'
 
 export type NodeBoundingBox = {
 	id: string

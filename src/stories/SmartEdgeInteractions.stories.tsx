@@ -1,14 +1,14 @@
 import { within } from '@storybook/testing-library'
 import React from 'react'
-import ReactFlow from 'react-flow-renderer'
+import { GraphWrapper } from './GraphWrapper'
 import { SimulateDragAndDrop, wait } from './SimulateDragAndDrop'
 import { SmartBezier, SmartStraight, SmartStep } from './SmartEdge.stories'
 import type { Meta, Story } from '@storybook/react'
-import type { ReactFlowProps } from 'react-flow-renderer'
+import type { ReactFlowProps } from 'reactflow'
 
 export default {
 	title: 'Interactions',
-	component: ReactFlow,
+	component: GraphWrapper,
 	argTypes: {
 		edgeTypes: { table: { disable: true } },
 		defaultNodes: { table: { disable: true } },
@@ -16,7 +16,7 @@ export default {
 	}
 } as Meta
 
-const Template: Story<ReactFlowProps> = (args) => <ReactFlow {...args} />
+const Template: Story<ReactFlowProps> = (args) => <GraphWrapper {...args} />
 
 export const SmartBezierInteraction = Template.bind({})
 SmartBezierInteraction.args = SmartBezier.args
