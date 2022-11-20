@@ -1,4 +1,4 @@
-import type { XYPosition } from 'react-flow-renderer'
+import type { XYPosition } from 'reactflow'
 
 /**
  * Takes source and target {x, y} points, together with an array of number

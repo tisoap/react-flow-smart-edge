@@ -19,7 +19,9 @@
 		"generatepath",
 		"github",
 		"predeploy",
+		"reactflow",
 		"shopify",
+		"sonarjs",
 		"tisoap",
 		"tsdx",
 		"wontfix"

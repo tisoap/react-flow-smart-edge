@@ -6,7 +6,7 @@ import {
 import { graphToGridPoint } from './pointConversion'
 import { round, roundUp } from './utils'
 import type { NodeBoundingBox, GraphBoundingBox } from './getBoundingBoxes'
-import type { Position } from 'react-flow-renderer'
+import type { Position } from 'reactflow'
 
 export type PointInfo = {
 	x: number

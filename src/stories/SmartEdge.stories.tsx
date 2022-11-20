@@ -1,5 +1,4 @@
 import React from 'react'
-import ReactFlow from 'react-flow-renderer'
 import {
 	edgesBezier,
 	edgesStraight,
@@ -8,25 +7,19 @@ import {
 	nodes,
 	edgeTypes
 } from './DummyData'
+import { GraphWrapper } from './GraphWrapper'
 import type { Meta, Story } from '@storybook/react'
-import type { ReactFlowProps } from 'react-flow-renderer'
+import type { ReactFlowProps } from 'reactflow'
 
 export default {
 	title: 'Smart Edge',
-	component: ReactFlow
+	component: GraphWrapper
 } as Meta
 
-const style = {
-	background: '#fafafa',
-	width: '100%',
-	height: 500
-}
-
-const Template: Story<ReactFlowProps> = (args) => <ReactFlow {...args} />
+const Template: Story<ReactFlowProps> = (args) => <GraphWrapper {...args} />
 
 export const SmartBezier = Template.bind({})
 SmartBezier.args = {
-	style,
 	edgeTypes,
 	defaultNodes: nodes,
 	defaultEdges: edgesBezier

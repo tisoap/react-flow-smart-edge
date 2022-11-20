@@ -1,12 +1,12 @@
 import React from 'react'
-import { useNodes, StraightEdge } from 'react-flow-renderer'
+import { useNodes, StraightEdge } from 'reactflow'
 import { SmartEdge } from '../SmartEdge'
 import {
 	svgDrawStraightLinePath,
 	pathfindingAStarNoDiagonal
 } from '../functions'
 import type { SmartEdgeOptions } from '../SmartEdge'
-import type { EdgeProps } from 'react-flow-renderer'
+import type { EdgeProps } from 'reactflow'
 
 const StraightConfiguration: SmartEdgeOptions = {
 	drawEdge: svgDrawStraightLinePath,

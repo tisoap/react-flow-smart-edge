@@ -1,8 +1,8 @@
 import React from 'react'
-import { EdgeText, BezierEdge } from 'react-flow-renderer'
+import { BezierEdge, BaseEdge } from 'reactflow'
 import { getSmartEdge } from '../getSmartEdge'
 import type { GetSmartEdgeOptions } from '../getSmartEdge'
-import type { EdgeProps, Node } from 'react-flow-renderer'
+import type { EdgeProps, Node } from 'reactflow'
 
 export type EdgeElement = typeof BezierEdge
 
@@ -36,7 +36,8 @@ export function SmartEdge<EdgeDataType = unknown, NodeDataType = unknown>({
 		labelBgPadding,
 		labelBgBorderRadius,
 		markerEnd,
-		markerStart
+		markerStart,
+		interactionWidth
 	} = edgeProps
 
 	const smartResponse = getSmartEdge({
@@ -58,35 +59,22 @@ export function SmartEdge<EdgeDataType = unknown, NodeDataType = unknown>({
 
 	const { edgeCenterX, edgeCenterY, svgPathString } = smartResponse
 
-	let edgeLabel: JSX.Element | null = null
-	const hasStringLabel = !!label && typeof label === 'string'
-
-	if (hasStringLabel) {
-		edgeLabel = (
-			<EdgeText
-				x={edgeCenterX}
-				y={edgeCenterY}
-				label={label}
-				labelStyle={labelStyle}
-				labelShowBg={labelShowBg}
-				labelBgStyle={labelBgStyle}
-				labelBgPadding={labelBgPadding}
-				labelBgBorderRadius={labelBgBorderRadius}
-			/>
-		)
-	}
-
 	return (
-		<>
-			<path
-				style={style}
-				className='react-flow__edge-path'
-				d={svgPathString}
-				markerEnd={markerEnd}
-				markerStart={markerStart}
-			/>
-			{edgeLabel}
-		</>
+		<BaseEdge
+			path={svgPathString}
+			labelX={edgeCenterX}
+			labelY={edgeCenterY}
+			label={label}
+			labelStyle={labelStyle}
+			labelShowBg={labelShowBg}
+			labelBgStyle={labelBgStyle}
+			labelBgPadding={labelBgPadding}
+			labelBgBorderRadius={labelBgBorderRadius}
+			style={style}
+			markerStart={markerStart}
+			markerEnd={markerEnd}
+			interactionWidth={interactionWidth}
+		/>
 	)
 }
 

@@ -11,7 +11,7 @@ import type {
 	PathFindingFunction,
 	SVGDrawFunction
 } from '../functions'
-import type { Node, EdgeProps } from 'react-flow-renderer'
+import type { Node, EdgeProps } from 'reactflow'
 
 export type EdgeParams = Pick<
 	EdgeProps,
