@@ -27,21 +27,23 @@
 		"src"
 	],
 	"scripts": {
+		"build": "yarn build-storybook && yarn build-component",
 		"build-component": "dts build",
 		"build-storybook": "build-storybook",
-		"build": "yarn check-types && yarn lint && yarn build-storybook && yarn build-component",
 		"check-types": "tsc --noEmit",
 		"chromatic": "chromatic --exit-zero-on-changes --project-token f5598c842f1a",
+		"deploy-component": "np --any-branch",
 		"deploy-storybook": "gh-pages -d storybook-static",
 		"install-playwright": "playwright install --with-deps",
-		"lint-fix": "dts lint src --fix",
 		"lint": "dts lint src",
+		"lint-fix": "dts lint src --fix",
 		"predeploy": "yarn build",
 		"prepare": "dts build",
 		"start": "dts watch",
 		"storybook": "start-storybook -p 6006 --ci",
-		"test-storybook-ci": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"yarn build-storybook --quiet && http-server storybook-static --port 6006 --silent\" \"wait-on tcp:6006 && yarn test-storybook\"",
+		"test": "yarn check-types && yarn lint && yarn test-storybook-ci",
 		"test-storybook": "test-storybook",
+		"test-storybook-ci": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"yarn build-storybook --quiet && http-server storybook-static --port 6006 --silent\" \"wait-on tcp:6006 && yarn test-storybook\"",
 		"ui": "yarn upgrade-interactive --latest"
 	},
 	"husky": {
@@ -100,6 +102,7 @@
 		"jest": "29.3.1",
 		"jest-circus": "29.3.1",
 		"jest-environment-node": "29.3.1",
+		"np": "7.6.2",
 		"playwright": "1.28.0",
 		"prettier": "2.7.1",
 		"react": "18.2.0",
@@ -117,6 +120,7 @@
 		"typescript": ">=4.6"
 	},
 	"engines": {
-		"node": ">=16"
+		"node": ">=16",
+		"npm": "^8.0.0"
 	}
 }
