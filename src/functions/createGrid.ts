@@ -19,7 +19,7 @@ export const createGrid = (
 	nodes: NodeBoundingBox[],
 	source: PointInfo,
 	target: PointInfo,
-	gridRatio = 2
+	gridRatio = 10
 ) => {
 	const { xMin, yMin, width, height } = graph
 
