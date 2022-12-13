@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest an idea for this project
+description: Suggest a new feature for the smart edge
 labels: [enhancement]
 body:
   - type: textarea
