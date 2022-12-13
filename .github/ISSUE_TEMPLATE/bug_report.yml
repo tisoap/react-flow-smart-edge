@@ -1,5 +1,5 @@
 name: Bug Report
-description: Create a report to help the project improve
+description: Report a bug or issue on the smart edge
 labels: [bug]
 body:
   - type: textarea
