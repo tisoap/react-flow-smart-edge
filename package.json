@@ -53,7 +53,8 @@
 		}
 	},
 	"resolutions": {
-		"strip-ansi": "^v6.0.1"
+		"string-width": "^4.2.3",
+		"strip-ansi": "^6.0.1"
 	},
 	"dependencies": {
 		"pathfinding": "^0.4.18"
@@ -116,6 +117,8 @@
 		"reactflow": "^11.2.0",
 		"require-from-string": "^2.0.2",
 		"storybook": "^7.4.0",
+		"string-width": "^4.2.3",
+		"strip-ansi": "^6.0.1",
 		"typescript": "^5.2.2",
 		"wait-on": "^7.0.1",
 		"webpack": "^5.75.0"
