@@ -44,7 +44,7 @@
 		"storybook": "storybook dev -p 6006 --ci",
 		"test": "yarn check-types && yarn lint && yarn test-storybook-ci",
 		"test-storybook": "test-storybook",
-		"test-storybook-ci": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"yarn build-storybook --quiet && http-server storybook-static --port 6006 --silent\" \"wait-on tcp:6006 && yarn test-storybook\"",
+		"test-storybook-ci": "concurrently -k -s first -n 'SB,TEST' -c 'magenta,blue' 'http-server storybook-static --port 6006 --silent' 'wait-on tcp:6006 && yarn test-storybook --maxWorkers=2'",
 		"ui": "yarn upgrade-interactive --latest"
 	},
 	"husky": {
