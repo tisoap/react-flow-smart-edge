@@ -28,6 +28,7 @@ export type GetSmartEdgeOptions = {
 	nodePadding?: number
 	drawEdge?: SVGDrawFunction
 	generatePath?: PathFindingFunction
+	propagateError?: boolean
 }
 
 export type GetSmartEdgeParams<NodeDataType = unknown> = EdgeParams & {
@@ -128,7 +129,10 @@ export const getSmartEdge = <NodeDataType = unknown>({
 		)
 
 		return { svgPathString, edgeCenterX, edgeCenterY }
-	} catch {
+	} catch (e) {
+		if (options.propagateError) {
+			throw e;
+		}
 		return null
 	}
 }
