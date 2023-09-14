@@ -1,0 +1,9 @@
+{
+	"version": "0.2",
+	"language": "en,lorem",
+	"dictionaries": ["en_US", "en-gb", "fonts", "npm", "html", "css"],
+	"ignorePaths": [".cspell.json", ".eslintrc.js", "package.json", "yarn.lock"],
+	"allowCompoundWords": true,
+	"words": [],
+	"flagWords": []
+}

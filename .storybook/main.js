@@ -4,7 +4,14 @@ module.exports = {
 	typescript: {
 		check: true
 	},
+	docs: {
+		autodocs: true
+	},
+	framework: {
+		name: "@storybook/react-webpack5",
+		options: {}
+	},
 	core: {
-		builder: 'webpack5'
+		disableWhatsNewNotifications: true
 	}
 }
