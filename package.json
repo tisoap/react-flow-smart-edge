@@ -1,6 +1,6 @@
 {
-	"name": "@tisoap/react-flow-smart-edge",
-	"version": "3.0.0",
+	"name": "@krhsiung/react-flow-smart-edge",
+	"version": "3.0.1",
 	"keywords": [
 		"react",
 		"typescript",
