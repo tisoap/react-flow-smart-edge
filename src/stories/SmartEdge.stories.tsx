@@ -1,4 +1,3 @@
-import React from 'react'
 import {
 	edgesBezier,
 	edgesStraight,
@@ -8,37 +7,41 @@ import {
 	edgeTypes
 } from './DummyData'
 import { GraphWrapper } from './GraphWrapper'
-import type { Meta, Story } from '@storybook/react'
-import type { ReactFlowProps } from 'reactflow'
+import type { Meta, StoryObj } from '@storybook/react'
 
-export default {
-	title: 'Smart Edge',
+const meta = {
 	component: GraphWrapper
-} as Meta
+} satisfies Meta<typeof GraphWrapper>
 
-const Template: Story<ReactFlowProps> = (args) => <GraphWrapper {...args} />
+type Story = StoryObj<typeof GraphWrapper>
 
-export const SmartBezier = Template.bind({})
-SmartBezier.args = {
-	edgeTypes,
-	defaultNodes: nodes,
-	defaultEdges: edgesBezier
-}
+export const SmartBezier = {
+	args: {
+		edgeTypes,
+		defaultNodes: nodes,
+		defaultEdges: edgesBezier
+	}
+} satisfies Story
 
-export const SmartStraight = Template.bind({})
-SmartStraight.args = {
-	...SmartBezier.args,
-	defaultEdges: edgesStraight
-}
+export const SmartStraight = {
+	args: {
+		...SmartBezier.args,
+		defaultEdges: edgesStraight
+	}
+} satisfies Story
 
-export const SmartStep = Template.bind({})
-SmartStep.args = {
-	...SmartBezier.args,
-	defaultEdges: edgesStep
-}
+export const SmartStep = {
+	args: {
+		...SmartBezier.args,
+		defaultEdges: edgesStep
+	}
+} satisfies Story
 
-export const SmartBezierWithCustomLabel = Template.bind({})
-SmartBezierWithCustomLabel.args = {
-	...SmartBezier.args,
-	defaultEdges: edgesLabel
-}
+export const SmartBezierWithCustomLabel = {
+	args: {
+		...SmartBezier.args,
+		defaultEdges: edgesLabel
+	}
+} satisfies Story
+
+export default meta

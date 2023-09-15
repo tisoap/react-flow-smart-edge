@@ -6,7 +6,9 @@
 	"extends": [
 		"@tisoap/eslint-config-ts-react",
 		"plugin:prettier/recommended",
-		"plugin:storybook/recommended"
+		"plugin:storybook/recommended",
+		"plugin:storybook/csf",
+		"plugin:storybook/csf-strict"
 	],
 	"rules": {
 		"react/no-multi-comp": "off",

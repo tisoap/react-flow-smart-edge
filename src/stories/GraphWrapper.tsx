@@ -8,7 +8,12 @@ const style = {
 	height: '500px'
 }
 
-export const GraphWrapper = (args: ReactFlowProps) => (
+export type GraphWrapperProps = Pick<
+	ReactFlowProps,
+	'edgeTypes' | 'defaultNodes' | 'defaultEdges'
+>
+
+export const GraphWrapper = (args: GraphWrapperProps) => (
 	<div style={style}>
 		<ReactFlow {...args} />
 	</div>
