@@ -51,8 +51,7 @@ const quadraticBezierCurve = (points: number[][]) => {
 	const first = points[0]
 	let svgPath = `M${first[X]},${first[Y]}M`
 
-	for (let i = 0; i < points.length; i++) {
-		const next = points[i]
+	for (const next of points) {
 		const midPoint = getMidPoint(point[X], point[Y], next[X], next[Y])
 
 		svgPath += ` ${midPoint[X]},${midPoint[Y]}`
