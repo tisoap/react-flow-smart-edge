@@ -30,7 +30,7 @@
 	"scripts": {
 		"build": "yarn build-storybook && yarn build-component",
 		"build-component": "dts build",
-		"build-storybook": "storybook build",
+		"build-storybook": "storybook build --quiet",
 		"check-types": "tsc --noEmit",
 		"chromatic": "chromatic --exit-zero-on-changes --project-token f5598c842f1a",
 		"deploy-component": "np --any-branch",
