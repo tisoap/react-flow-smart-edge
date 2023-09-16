@@ -27,24 +27,19 @@ export type PathFindingFunction = (
 ) => {
 	fullPath: number[][]
 	smoothedPath: number[][]
-} | null
+}
 
 export const pathfindingAStarDiagonal: PathFindingFunction = (
 	grid,
 	start,
 	end
 ) => {
-	try {
-		const finder = new AStarFinder({
-			diagonalMovement: DiagonalMovement.Always
-		})
-		const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
-		const smoothedPath = Util.smoothenPath(grid, fullPath)
-		if (fullPath.length === 0 || smoothedPath.length === 0) return null
-		return { fullPath, smoothedPath }
-	} catch {
-		return null
-	}
+	const finder = new AStarFinder({
+		diagonalMovement: DiagonalMovement.Always
+	})
+	const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
+	const smoothedPath = Util.smoothenPath(grid, fullPath)
+	return { fullPath, smoothedPath }
 }
 
 export const pathfindingAStarNoDiagonal: PathFindingFunction = (
@@ -52,17 +47,12 @@ export const pathfindingAStarNoDiagonal: PathFindingFunction = (
 	start,
 	end
 ) => {
-	try {
-		const finder = new AStarFinder({
-			diagonalMovement: DiagonalMovement.Never
-		})
-		const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
-		const smoothedPath = Util.smoothenPath(grid, fullPath)
-		if (fullPath.length === 0 || smoothedPath.length === 0) return null
-		return { fullPath, smoothedPath }
-	} catch {
-		return null
-	}
+	const finder = new AStarFinder({
+		diagonalMovement: DiagonalMovement.Never
+	})
+	const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
+	const smoothedPath = Util.smoothenPath(grid, fullPath)
+	return { fullPath, smoothedPath }
 }
 
 export const pathfindingJumpPointNoDiagonal: PathFindingFunction = (
@@ -70,17 +60,12 @@ export const pathfindingJumpPointNoDiagonal: PathFindingFunction = (
 	start,
 	end
 ) => {
-	try {
-		// FIXME: The "pathfinding" module doe not have proper typings.
-		// @ts-ignore
-		const finder = new JumpPointFinder({
-			diagonalMovement: DiagonalMovement.Never
-		})
-		const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
-		const smoothedPath = fullPath
-		if (fullPath.length === 0 || smoothedPath.length === 0) return null
-		return { fullPath, smoothedPath }
-	} catch {
-		return null
-	}
+	// FIXME: The "pathfinding" module doe not have proper typings.
+	// @ts-ignore
+	const finder = new JumpPointFinder({
+		diagonalMovement: DiagonalMovement.Never
+	})
+	const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
+	const smoothedPath = fullPath
+	return { fullPath, smoothedPath }
 }

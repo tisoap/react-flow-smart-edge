@@ -1,19 +1,13 @@
 import React from 'react'
-import { BezierEdge, BaseEdge } from 'reactflow'
+import { BaseEdge } from 'reactflow'
 import { getSmartEdge } from '../getSmartEdge'
 import type { GetSmartEdgeOptions } from '../getSmartEdge'
 import type { EdgeProps, Node } from 'reactflow'
 
-export type EdgeElement = typeof BezierEdge
-
-export type SmartEdgeOptions = GetSmartEdgeOptions & {
-	fallback?: EdgeElement
-}
-
 export interface SmartEdgeProps<EdgeDataType = unknown, NodeDataType = unknown>
 	extends EdgeProps<EdgeDataType> {
 	nodes: Node<NodeDataType>[]
-	options: SmartEdgeOptions
+	options: GetSmartEdgeOptions
 }
 
 export function SmartEdge<EdgeDataType = unknown, NodeDataType = unknown>({
@@ -50,12 +44,6 @@ export function SmartEdge<EdgeDataType = unknown, NodeDataType = unknown>({
 		options,
 		nodes
 	})
-
-	const FallbackEdge = options.fallback || BezierEdge
-
-	if (smartResponse === null) {
-		return <FallbackEdge {...edgeProps} />
-	}
 
 	const { edgeCenterX, edgeCenterY, svgPathString } = smartResponse
 

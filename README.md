@@ -137,51 +137,51 @@ export function SmartEdgeWithButtonLabel(props) {
 
 	const nodes = useNodes()
 
-	const getSmartEdgeResponse = getSmartEdge({
-		sourcePosition,
-		targetPosition,
-		sourceX,
-		sourceY,
-		targetX,
-		targetY,
-		nodes
-	})
+	try {
+		const getSmartEdgeResponse = getSmartEdge({
+			sourcePosition,
+			targetPosition,
+			sourceX,
+			sourceY,
+			targetX,
+			targetY,
+			nodes
+		})
 
-	// If the value returned is null, it means "getSmartEdge" was unable to find
-	// a valid path, and you should do something else instead
-	if (getSmartEdgeResponse === null) {
+		const { edgeCenterX, edgeCenterY, svgPathString } = getSmartEdgeResponse
+
+		return (
+			<>
+				<path
+					style={style}
+					className='react-flow__edge-path'
+					d={svgPathString}
+					markerEnd={markerEnd}
+					markerStart={markerStart}
+				/>
+				<foreignObject
+					width={foreignObjectSize}
+					height={foreignObjectSize}
+					x={edgeCenterX - foreignObjectSize / 2}
+					y={edgeCenterY - foreignObjectSize / 2}
+					requiredExtensions='http://www.w3.org/1999/xhtml'
+				>
+					<button
+						onClick={(event) => {
+							event.stopPropagation()
+							alert(`remove ${id}`)
+						}}
+					>
+						X
+					</button>
+				</foreignObject>
+			</>
+		)
+	} catch (error) {
+		// "getSmartEdge" may throw an error if it can't find a
+		// a valid path, and you should do something else instead
 		return <BezierEdge {...props} />
 	}
-
-	const { edgeCenterX, edgeCenterY, svgPathString } = getSmartEdgeResponse
-
-	return (
-		<>
-			<path
-				style={style}
-				className='react-flow__edge-path'
-				d={svgPathString}
-				markerEnd={markerEnd}
-				markerStart={markerStart}
-			/>
-			<foreignObject
-				width={foreignObjectSize}
-				height={foreignObjectSize}
-				x={edgeCenterX - foreignObjectSize / 2}
-				y={edgeCenterY - foreignObjectSize / 2}
-				requiredExtensions='http://www.w3.org/1999/xhtml'
-			>
-				<button
-					onClick={(event) => {
-						event.stopPropagation()
-						alert(`remove ${id}`)
-					}}
-				>
-					X
-				</button>
-			</foreignObject>
-		</>
-	)
 }
 ```
 
@@ -307,7 +307,7 @@ type PathFindingFunction = (
 ) => {
 	fullPath: number[][] // Array of points [x, y] representing the full path with all points
 	smoothedPath: number[][] // Array of points [x, y] representing a smaller, compressed path
-} | null // The function should return null if it was unable to do pathfinding
+}
 ```
 
 For inspiration on how to implement your own, you can check the [`generatePath.ts` source code](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/functions/generatePath.ts) and the [`pathfinding` dependency](https://www.npmjs.com/package/pathfinding#advanced-usage) documentation.
