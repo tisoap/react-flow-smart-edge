@@ -29,6 +29,12 @@ export type PathFindingFunction = (
 	smoothedPath: number[][]
 }
 
+const getSmoothPath = (grid: Grid, path: number[][]) => {
+	const hasPath = path.length > 0
+	if (!hasPath) return []
+	return Util.smoothenPath(grid, path)
+}
+
 export const pathfindingAStarDiagonal: PathFindingFunction = (
 	grid,
 	start,
@@ -38,7 +44,7 @@ export const pathfindingAStarDiagonal: PathFindingFunction = (
 		diagonalMovement: DiagonalMovement.Always
 	})
 	const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
-	const smoothedPath = Util.smoothenPath(grid, fullPath)
+	const smoothedPath = getSmoothPath(grid, fullPath)
 	return { fullPath, smoothedPath }
 }
 
@@ -51,7 +57,7 @@ export const pathfindingAStarNoDiagonal: PathFindingFunction = (
 		diagonalMovement: DiagonalMovement.Never
 	})
 	const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid)
-	const smoothedPath = Util.smoothenPath(grid, fullPath)
+	const smoothedPath = getSmoothPath(grid, fullPath)
 	return { fullPath, smoothedPath }
 }
 
