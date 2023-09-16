@@ -1,17 +1,17 @@
 import React from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { useNodes, StraightEdge } from 'reactflow'
 import { SmartEdge } from '../SmartEdge'
 import {
 	svgDrawStraightLinePath,
 	pathfindingAStarNoDiagonal
 } from '../functions'
-import type { SmartEdgeOptions } from '../SmartEdge'
+import type { GetSmartEdgeOptions } from '../getSmartEdge'
 import type { EdgeProps } from 'reactflow'
 
-const StraightConfiguration: SmartEdgeOptions = {
+const StraightConfiguration: GetSmartEdgeOptions = {
 	drawEdge: svgDrawStraightLinePath,
-	generatePath: pathfindingAStarNoDiagonal,
-	fallback: StraightEdge
+	generatePath: pathfindingAStarNoDiagonal
 }
 
 export function SmartStraightEdge<
@@ -21,10 +21,12 @@ export function SmartStraightEdge<
 	const nodes = useNodes<NodeDataType>()
 
 	return (
-		<SmartEdge<EdgeDataType, NodeDataType>
-			{...props}
-			options={StraightConfiguration}
-			nodes={nodes}
-		/>
+		<ErrorBoundary fallback={<StraightEdge {...props} />}>
+			<SmartEdge<EdgeDataType, NodeDataType>
+				{...props}
+				options={StraightConfiguration}
+				nodes={nodes}
+			/>
+		</ErrorBoundary>
 	)
 }

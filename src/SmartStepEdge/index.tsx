@@ -1,17 +1,17 @@
 import React from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { useNodes, StepEdge } from 'reactflow'
 import { SmartEdge } from '../SmartEdge'
 import {
 	svgDrawStraightLinePath,
 	pathfindingJumpPointNoDiagonal
 } from '../functions'
-import type { SmartEdgeOptions } from '../SmartEdge'
+import type { GetSmartEdgeOptions } from '../getSmartEdge'
 import type { EdgeProps } from 'reactflow'
 
-const StepConfiguration: SmartEdgeOptions = {
+const StepConfiguration: GetSmartEdgeOptions = {
 	drawEdge: svgDrawStraightLinePath,
-	generatePath: pathfindingJumpPointNoDiagonal,
-	fallback: StepEdge
+	generatePath: pathfindingJumpPointNoDiagonal
 }
 
 export function SmartStepEdge<EdgeDataType = unknown, NodeDataType = unknown>(
@@ -20,10 +20,12 @@ export function SmartStepEdge<EdgeDataType = unknown, NodeDataType = unknown>(
 	const nodes = useNodes<NodeDataType>()
 
 	return (
-		<SmartEdge<EdgeDataType, NodeDataType>
-			{...props}
-			options={StepConfiguration}
-			nodes={nodes}
-		/>
+		<ErrorBoundary fallback={<StepEdge {...props} />}>
+			<SmartEdge<EdgeDataType, NodeDataType>
+				{...props}
+				options={StepConfiguration}
+				nodes={nodes}
+			/>
+		</ErrorBoundary>
 	)
 }
