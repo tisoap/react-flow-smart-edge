@@ -4,14 +4,14 @@ import { SimulateDragAndDrop, wait } from './SimulateDragAndDrop'
 import { SmartBezier, SmartStraight, SmartStep } from './SmartEdge.stories'
 import type { Meta, StoryObj } from '@storybook/react'
 
-export default {
+const meta = {
 	component: GraphWrapper,
 	argTypes: {
 		edgeTypes: { table: { disable: true } },
 		defaultNodes: { table: { disable: true } },
 		defaultEdges: { table: { disable: true } }
 	}
-} as Meta
+} satisfies Meta<typeof GraphWrapper>
 
 type Story = StoryObj<typeof GraphWrapper>
 
@@ -46,3 +46,5 @@ export const SmartStepInteraction = {
 	},
 	play: SmartBezierInteraction.play
 } satisfies Story
+
+export default meta
