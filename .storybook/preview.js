@@ -1,4 +1,4 @@
-import 'reactflow/dist/style.css'
+import '@xyflow/react/dist/style.css'
 
 // https://storybook.js.org/docs/react/writing-stories/parameters#global-parameters
 export const parameters = {

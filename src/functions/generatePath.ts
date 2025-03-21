@@ -7,12 +7,12 @@
 */
 import {
 	AStarFinder,
+	DiagonalMovement,
 	JumpPointFinder,
-	Util,
-	DiagonalMovement
+	Util
 } from 'pathfinding'
+import type { XYPosition } from '@xyflow/react'
 import type { Grid } from 'pathfinding'
-import type { XYPosition } from 'reactflow'
 
 /**
  * Takes source and target {x, y} points, together with an grid representation

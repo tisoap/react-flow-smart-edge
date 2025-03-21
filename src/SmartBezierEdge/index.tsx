@@ -1,9 +1,9 @@
+import { BezierEdge, useNodes } from '@xyflow/react'
 import React from 'react'
-import { useNodes, BezierEdge } from 'reactflow'
 import { SmartEdge } from '../SmartEdge'
-import { svgDrawSmoothLinePath, pathfindingAStarDiagonal } from '../functions'
+import { pathfindingAStarDiagonal, svgDrawSmoothLinePath } from '../functions'
 import type { SmartEdgeOptions } from '../SmartEdge'
-import type { EdgeProps } from 'reactflow'
+import type { Edge, EdgeProps, Node } from '@xyflow/react'
 
 const BezierConfiguration: SmartEdgeOptions = {
 	drawEdge: svgDrawSmoothLinePath,
@@ -11,9 +11,10 @@ const BezierConfiguration: SmartEdgeOptions = {
 	fallback: BezierEdge
 }
 
-export function SmartBezierEdge<EdgeDataType = unknown, NodeDataType = unknown>(
-	props: EdgeProps<EdgeDataType>
-) {
+export function SmartBezierEdge<
+	EdgeDataType extends Edge = Edge,
+	NodeDataType extends Node = Node
+>(props: EdgeProps<EdgeDataType>): React.JSX.Element {
 	const nodes = useNodes<NodeDataType>()
 
 	return (

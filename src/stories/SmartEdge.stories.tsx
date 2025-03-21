@@ -1,15 +1,15 @@
 import React from 'react'
 import {
 	edgesBezier,
-	edgesStraight,
-	edgesStep,
 	edgesLabel,
-	nodes,
-	edgeTypes
+	edgesStep,
+	edgesStraight,
+	edgeTypes,
+	nodes
 } from './DummyData'
 import { GraphWrapper } from './GraphWrapper'
 import type { Meta, Story } from '@storybook/react'
-import type { ReactFlowProps } from 'reactflow'
+import type { ReactFlowProps } from '@xyflow/react'
 
 export default {
 	title: 'Smart Edge',

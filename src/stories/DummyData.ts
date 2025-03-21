@@ -1,7 +1,7 @@
-import { MarkerType } from 'reactflow'
-import { SmartBezierEdge, SmartStraightEdge, SmartStepEdge } from '../index'
+import { MarkerType } from '@xyflow/react'
+import { SmartBezierEdge, SmartStepEdge, SmartStraightEdge } from '../index'
 import { SmartEdgeCustomLabel } from './CustomLabel'
-import type { Node, Edge } from 'reactflow'
+import type { Edge, Node } from '@xyflow/react'
 
 const markerEndType = MarkerType.Arrow
 
@@ -16,7 +16,7 @@ export type NodeData = {
 	label: string
 }
 
-export type EdgeData = { customField: string } | undefined
+export type EdgeData = { customField: string }
 
 export const nodes: Node<NodeData>[] = [
 	{

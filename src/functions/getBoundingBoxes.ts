@@ -1,5 +1,5 @@
-import { roundUp, roundDown } from './utils'
-import type { Node, XYPosition } from 'reactflow'
+import { roundDown, roundUp } from './utils'
+import type { Node, XYPosition } from '@xyflow/react'
 
 export type NodeBoundingBox = {
 	id: string
@@ -33,8 +33,8 @@ export type GraphBoundingBox = {
  * @param roundTo Everything will be rounded to this nearest integer
  * @returns Graph and nodes bounding boxes.
  */
-export const getBoundingBoxes = <NodeDataType = unknown>(
-	nodes: Node<NodeDataType>[],
+export const getBoundingBoxes = <NodeDataType extends Node = Node>(
+	nodes: NodeDataType[],
 	nodePadding = 2,
 	roundTo = 2
 ) => {
@@ -48,8 +48,8 @@ export const getBoundingBoxes = <NodeDataType = unknown>(
 		const height = Math.max(node.height || 0, 1)
 
 		const position: XYPosition = {
-			x: node.positionAbsolute?.x || 0,
-			y: node.positionAbsolute?.y || 0
+			x: node.position.x || 0,
+			y: node.position.y || 0
 		}
 
 		const topLeft: XYPosition = {

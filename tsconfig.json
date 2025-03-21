@@ -2,7 +2,7 @@
 	"include": ["src", ".eslintrc.js", "jest.config.js"],
 	"compilerOptions": {
 		"baseUrl": "./src",
-		"declaration": true,
+		"declaration": false,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"importHelpers": true,

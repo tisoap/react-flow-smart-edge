@@ -1,4 +1,4 @@
-import type { XYPosition } from 'reactflow'
+import type { XYPosition } from '@xyflow/react'
 
 /**
  * Each bounding box is a collection of X/Y points in a graph, and we

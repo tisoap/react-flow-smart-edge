@@ -1,12 +1,12 @@
 import { Grid } from 'pathfinding'
 import {
-	guaranteeWalkablePath,
-	getNextPointFromPosition
+	getNextPointFromPosition,
+	guaranteeWalkablePath
 } from './guaranteeWalkablePath'
 import { graphToGridPoint } from './pointConversion'
 import { round, roundUp } from './utils'
-import type { NodeBoundingBox, GraphBoundingBox } from './getBoundingBoxes'
-import type { Position } from 'reactflow'
+import type { GraphBoundingBox, NodeBoundingBox } from './getBoundingBoxes'
+import type { Position } from '@xyflow/react'
 
 export type PointInfo = {
 	x: number
