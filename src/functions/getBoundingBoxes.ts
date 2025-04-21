@@ -1,5 +1,5 @@
-import { roundDown, roundUp } from './utils'
 import type { Node, XYPosition } from '@xyflow/react'
+import { roundDown, roundUp } from './utils'
 
 export type NodeBoundingBox = {
 	id: string
@@ -44,8 +44,8 @@ export const getBoundingBoxes = <NodeDataType extends Node = Node>(
 	let yMin = Number.MAX_SAFE_INTEGER
 
 	const nodeBoxes: NodeBoundingBox[] = nodes.map((node) => {
-		const width = Math.max(node.width || 0, 1)
-		const height = Math.max(node.height || 0, 1)
+		const width = Math.max(node.width ?? node.measured?.width ?? 0, 1)
+		const height = Math.max(node.height ?? node.measured?.height ?? 0, 1)
 
 		const position: XYPosition = {
 			x: node.position.x || 0,
