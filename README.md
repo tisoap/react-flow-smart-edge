@@ -11,6 +11,10 @@ Custom Edges for React Flow that never intersect with other nodes, using pathfin
 
 ![Smart Edge](https://raw.githubusercontent.com/tisoap/react-flow-smart-edge/main/.github/images/example.gif)
 
+# Important Note
+
+This project is archived and won't receive any new updates in the future.
+
 ## Install
 
 With `npm`:
