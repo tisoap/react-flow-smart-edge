@@ -5,11 +5,14 @@ import dts from "vite-plugin-dts";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
+import { playwright } from "@vitest/browser-playwright";
 
 const dirname =
   typeof __dirname !== "undefined"
     ? __dirname
     : path.dirname(fileURLToPath(import.meta.url));
+
+const storybookBrowserProvider = playwright({});
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
@@ -17,7 +20,7 @@ export default defineConfig({
     react(),
     dts({
       entryRoot: "src",
-      outDir: "dist",
+      outDirs: "dist",
       include: ["src"],
       exclude: [
         "vite.config.ts",
@@ -27,7 +30,7 @@ export default defineConfig({
       ],
       tsconfigPath: "tsconfig.app.json",
       insertTypesEntry: true,
-      rollupTypes: true,
+      bundleTypes: true,
     }),
   ],
   build: {
@@ -67,7 +70,7 @@ export default defineConfig({
           browser: {
             enabled: true,
             headless: true,
-            provider: "playwright",
+            provider: storybookBrowserProvider,
             instances: [
               {
                 browser: "chromium",
