@@ -4,7 +4,7 @@ Guidance for AI agents working in this repository.
 
 ## What this project is
 
-**`@tisoap/react-flow-smart-edge`** is a published npm library (MIT) that provides custom [React Flow](https://reactflow.dev) edges which route around nodes using grid-based A* pathfinding.
+**`@tisoap/react-flow-smart-edge`** is a published npm library (MIT) that provides custom [React Flow](https://reactflow.dev) edges which route around nodes using grid-based A\* pathfinding.
 
 - **Consumers**: React apps using `@xyflow/react` v12+ (peer dependency).
 - **This repo**: Library source, Vite library build, Storybook demos/docs, and browser-based Storybook tests.
@@ -27,20 +27,20 @@ nodes + edge endpoints
   → drawEdge()             // point sequence → SVG `d` string
 ```
 
-| Layer | Location | Role |
-|-------|----------|------|
-| React components | `src/Smart*Edge/`, `src/SmartEdge/` | Wire `useNodes()` + `getSmartEdge()` into `@xyflow/react` `BaseEdge` |
-| Core API | `src/getSmartEdge/index.ts` | Pure(ish) path computation; returns `{ svgPathString, edgeCenterX, edgeCenterY }` or `Error` |
-| Geometry / grid | `src/functions/` | Bounding boxes, grid creation, coordinate conversion, SVG drawing |
-| Pathfinding | `src/pathfinding/` | Grid type + A* (based on [PathFinding.js](https://github.com/qiao/PathFinding.js)) |
+| Layer            | Location                            | Role                                                                                         |
+| ---------------- | ----------------------------------- | -------------------------------------------------------------------------------------------- |
+| React components | `src/Smart*Edge/`, `src/SmartEdge/` | Wire `useNodes()` + `getSmartEdge()` into `@xyflow/react` `BaseEdge`                         |
+| Core API         | `src/getSmartEdge/index.ts`         | Pure(ish) path computation; returns `{ svgPathString, edgeCenterX, edgeCenterY }` or `Error` |
+| Geometry / grid  | `src/functions/`                    | Bounding boxes, grid creation, coordinate conversion, SVG drawing                            |
+| Pathfinding      | `src/pathfinding/`                  | Grid type + A\* (based on [PathFinding.js](https://github.com/qiao/PathFinding.js))          |
 
 ### Edge presets (do not duplicate logic—compose via options)
 
-| Export | `drawEdge` | `generatePath` | Fallback (on failure) |
-|--------|------------|----------------|------------------------|
-| `SmartBezierEdge` | `svgDrawSmoothLinePath` | `pathfindingAStarDiagonal` | `BezierEdge` |
-| `SmartStraightEdge` | `svgDrawStraightLinePath` | `pathfindingAStarNoDiagonal` | `StraightEdge` |
-| `SmartStepEdge` | `svgDrawStraightLinePath` | `pathfindingAStarNoDiagonal` | `StepEdge` |
+| Export              | `drawEdge`                | `generatePath`               | Fallback (on failure) |
+| ------------------- | ------------------------- | ---------------------------- | --------------------- |
+| `SmartBezierEdge`   | `svgDrawSmoothLinePath`   | `pathfindingAStarDiagonal`   | `BezierEdge`          |
+| `SmartStraightEdge` | `svgDrawStraightLinePath` | `pathfindingAStarNoDiagonal` | `StraightEdge`        |
+| `SmartStepEdge`     | `svgDrawStraightLinePath` | `pathfindingAStarNoDiagonal` | `StepEdge`            |
 
 Custom edges should call `getSmartEdge({ ...edgeProps, nodes, options })` and handle `instanceof Error` (see README).
 
@@ -70,17 +70,17 @@ dist/                    # Build output (gitignored in dev; published to npm)
 
 ## Commands
 
-| Task | Command |
-|------|---------|
-| Install | `npm ci` |
-| Storybook dev | `npm run storybook` (port 6006) |
-| Library build | `npm run build-component` |
-| Full build (lib + static Storybook) | `npm run build` |
-| All checks (CI-equivalent lint/type/spell) | `npm run check` |
-| Auto-fix lint + format | `npm run fix` |
-| Tests (Playwright + Vitest, Storybook stories) | `npm run test` |
-| Install browser for tests | `npm run install-chromium` |
-| Release (maintainer) | `npm run release` (uses `release-it` + `.env` via `dotenv-cli`) |
+| Task                                           | Command                                                         |
+| ---------------------------------------------- | --------------------------------------------------------------- |
+| Install                                        | `npm ci`                                                        |
+| Storybook dev                                  | `npm run storybook` (port 6006)                                 |
+| Library build                                  | `npm run build-component`                                       |
+| Full build (lib + static Storybook)            | `npm run build`                                                 |
+| All checks (CI-equivalent lint/type/spell)     | `npm run check`                                                 |
+| Auto-fix lint + format                         | `npm run fix`                                                   |
+| Tests (Playwright + Vitest, Storybook stories) | `npm run test`                                                  |
+| Install browser for tests                      | `npm run install-chromium`                                      |
+| Release (maintainer)                           | `npm run release` (uses `release-it` + `.env` via `dotenv-cli`) |
 
 **Before opening a PR**, run at minimum: `npm run check` and `npm run test`.
 
@@ -121,7 +121,7 @@ When adding behavior, prefer extending existing stories or adding a focused stor
 ### Fix routing / path quality
 
 1. Reproduce in Storybook (`npm run storybook`) with `smartEdgeDebug: true` if needed.
-2. Trace: `getBoundingBoxes` → `createGrid` → `guaranteeWalkablePath` → A* → `drawSvgPath`.
+2. Trace: `getBoundingBoxes` → `createGrid` → `guaranteeWalkablePath` → A\* → `drawSvgPath`.
 3. Tune `gridRatio` / `nodePadding` in stories before changing defaults.
 
 ### Add or change a public export
@@ -145,16 +145,16 @@ Prefer a thin wrapper like `SmartBezierEdge`: static `SmartEdgeOptions` + `useNo
 
 ## Key files (quick reference)
 
-| File | Why it matters |
-|------|----------------|
-| `src/getSmartEdge/index.ts` | Central algorithm orchestration |
-| `src/SmartEdge/index.tsx` | React integration + fallback behavior |
-| `src/functions/createGrid.ts` | Grid dimensions and obstacle marking |
-| `src/functions/guaranteeWalkablePath.ts` | Start/end walkability fixes |
-| `src/pathfinding/aStar.ts` | A* implementation |
-| `src/functions/drawSvgPath.ts` | SVG path string generation |
-| `vite.config.ts` | Lib build + Vitest/Storybook test project |
-| `package.json` | Scripts, peers, exports map |
+| File                                     | Why it matters                            |
+| ---------------------------------------- | ----------------------------------------- |
+| `src/getSmartEdge/index.ts`              | Central algorithm orchestration           |
+| `src/SmartEdge/index.tsx`                | React integration + fallback behavior     |
+| `src/functions/createGrid.ts`            | Grid dimensions and obstacle marking      |
+| `src/functions/guaranteeWalkablePath.ts` | Start/end walkability fixes               |
+| `src/pathfinding/aStar.ts`               | A\* implementation                        |
+| `src/functions/drawSvgPath.ts`           | SVG path string generation                |
+| `vite.config.ts`                         | Lib build + Vitest/Storybook test project |
+| `package.json`                           | Scripts, peers, exports map               |
 
 ## What not to do unless asked
 
