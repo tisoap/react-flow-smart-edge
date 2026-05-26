@@ -54,6 +54,7 @@
     "prettier": "prettier --check .",
     "prettier-write": "prettier --write .",
     "preview": "vite preview",
+    "prepublishOnly": "npm run build-component",
     "release": "dotenv release-it",
     "spellcheck": "cspell lint --no-progress .",
     "storybook": "storybook dev -p 6006",

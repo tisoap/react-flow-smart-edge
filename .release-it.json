@@ -3,5 +3,8 @@
   "github": {
     "release": true,
     "requireUpstream": false
+  },
+  "hooks": {
+    "before:npm": "npm run build-component"
   }
 }
