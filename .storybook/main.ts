@@ -11,5 +11,9 @@ const config: StorybookConfig = {
     name: "@storybook/react-vite",
     options: {},
   },
+  core: {
+    disableTelemetry: true, // 👈 Disables telemetry
+  },
 };
+
 export default config;
