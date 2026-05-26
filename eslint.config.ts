@@ -1,4 +1,3 @@
-// @ts-check
 import storybook from "eslint-plugin-storybook";
 import eslint from "@eslint/js";
 import eslintReact from "@eslint-react/eslint-plugin";
@@ -6,13 +5,9 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
-import { globalIgnores, defineConfig } from "eslint/config";
+import { globalIgnores, defineConfig, type Config } from "eslint/config";
 import { configs as sonarJsConfigs } from "eslint-plugin-sonarjs";
 import prettier from "eslint-plugin-prettier/recommended";
-
-const storybookRecommended = /** @type {import("eslint/config").Config[]} */ (
-  storybook.configs["flat/recommended"]
-);
 
 export default defineConfig(
   globalIgnores(["dist", "storybook-static"]),
@@ -54,6 +49,6 @@ export default defineConfig(
       },
     },
   },
-  storybookRecommended,
+  ...(storybook.configs["flat/recommended"] as Config[]),
   prettier,
 );
