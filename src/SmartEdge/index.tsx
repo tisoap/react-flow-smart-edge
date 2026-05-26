@@ -55,7 +55,7 @@ export function SmartEdge<
     options: {
       ...options,
       debug: { enabled: isDebugEnabled, setGraphBox },
-    } as GetSmartEdgeOptions,
+    },
     nodes,
   });
 

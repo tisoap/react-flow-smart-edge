@@ -32,7 +32,7 @@ export const pathfindingAStarDiagonal: PathFindingFunction = (
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error(`Unknown error: ${String(error)}`);
+    throw new Error(`Unknown error: ${String(error)}`, { cause: error });
   }
 };
 
@@ -55,6 +55,6 @@ export const pathfindingAStarNoDiagonal: PathFindingFunction = (
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error(`Unknown error: ${String(error)}`);
+    throw new Error(`Unknown error: ${String(error)}`, { cause: error });
   }
 };

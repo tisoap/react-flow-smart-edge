@@ -57,7 +57,7 @@ export const getSmartEdge = <
   NodeDataType extends Record<string, unknown> = Record<string, unknown>,
 >({
   options = {},
-  nodes = [],
+  nodes,
   sourceX,
   sourceY,
   targetX,

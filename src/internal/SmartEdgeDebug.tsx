@@ -14,10 +14,10 @@ export const SmartEdgeDebugProvider = ({
   value = true,
   children,
 }: PropsWithChildren<SmartEdgeDebugProviderProps>) => {
-  const [graphBox, setGraphBoxState] = useState<SmartEdgeGraphBox>(null);
+  const [graph, setGraph] = useState<SmartEdgeGraphBox>(null);
 
   const setGraphBox = (next: SmartEdgeGraphBox) => {
-    setGraphBoxState((prev) => {
+    setGraph((prev) => {
       if (
         prev?.x === next?.x &&
         prev?.y === next?.y &&
@@ -31,8 +31,8 @@ export const SmartEdgeDebugProvider = ({
   };
 
   const contextValue = useMemo<SmartEdgeDebugContextValue>(
-    () => ({ enabled: value, graphBox, setGraphBox }),
-    [value, graphBox],
+    () => ({ enabled: value, graphBox: graph, setGraphBox }),
+    [value, graph],
   );
 
   return (
