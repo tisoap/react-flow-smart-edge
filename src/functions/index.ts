@@ -1,3 +1,4 @@
+export * from "./alignEndpoints";
 export * from "./createGrid";
 export * from "./drawSvgPath";
 export * from "./generatePath";

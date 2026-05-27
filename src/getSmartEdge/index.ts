@@ -1,4 +1,5 @@
 import {
+  alignEndpoints,
   createGrid,
   getBoundingBoxes,
   gridToGraphPoint,
@@ -132,8 +133,14 @@ export const getSmartEdge = <
       return [graphPoint.x, graphPoint.y];
     });
 
+    // Insert orthogonal alignment waypoints between the actual handle
+    // coordinates and the grid-snapped path, so edges leave/enter their nodes
+    // perpendicular to the handle instead of taking a small diagonal toward
+    // the first/last grid cell.
+    const alignedPath = alignEndpoints(source, target, graphPath);
+
     // Finally, we can use the graph path to draw the edge
-    const svgPathString = drawEdge(source, target, graphPath);
+    const svgPathString = drawEdge(source, target, alignedPath);
 
     // Compute the edge's middle point using the full path, so users can use
     // it to position their custom labels

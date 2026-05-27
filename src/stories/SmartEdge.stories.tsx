@@ -7,6 +7,10 @@ import {
   edgeTypes,
   simpleNodes,
   simpleEdgesBezier,
+  unalignedNodes,
+  unalignedEdgesStep,
+  horizontalNodes,
+  horizontalEdgesStep,
 } from "./DummyData";
 import { GraphWrapper } from "./GraphWrapper";
 import type { Meta, StoryFn } from "@storybook/react-vite";
@@ -63,5 +67,21 @@ SmartBezierSimple.args = {
   edgeTypes,
   defaultNodes: simpleNodes,
   defaultEdges: simpleEdgesBezier,
+  smartEdgeDebug: false,
+};
+
+export const SmartStepUnaligned = Template.bind({});
+SmartStepUnaligned.args = {
+  edgeTypes,
+  defaultNodes: unalignedNodes,
+  defaultEdges: unalignedEdgesStep,
+  smartEdgeDebug: false,
+};
+
+export const SmartStepHorizontal = Template.bind({});
+SmartStepHorizontal.args = {
+  edgeTypes,
+  defaultNodes: horizontalNodes,
+  defaultEdges: horizontalEdgesStep,
   smartEdgeDebug: false,
 };
