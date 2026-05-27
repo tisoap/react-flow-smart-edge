@@ -95,16 +95,17 @@ When adding behavior, prefer extending existing stories or adding a focused stor
 
 ## Build & publish
 
-- **Bundler**: Vite 7 library mode (`vite.config.ts`).
+- **Bundler**: Vite library mode (`vite.config.ts`).
 - **Externals** (not bundled): `react`, `react-dom`, `react/jsx-runtime`, `@xyflow/react`.
 - **Types**: `vite-plugin-dts` with `entryRoot: src`, excludes `src/stories/**`.
 - **Published files** (`package.json` `"files"`): `dist`, `src` (source shipped for debugging/types convenience).
 - **Chromatic**: `.github/workflows/chromatic.yml` for visual regression on Storybook.
+- **Rebuild before publish**: `prepublishOnly` runs `build-component`; `.release-it.json` runs the same in `before:npm`. Never publish with an outdated `dist/`—npm does not use `src/` for runtime imports.
 
 ## Code conventions
 
 - **TypeScript**: strict, `verbatimModuleSyntax`, `erasableSyntaxOnly` (`tsconfig.app.json`).
-- **ESLint**: flat config; `strictTypeChecked` + `@eslint-react` + SonarJS + Prettier (`eslint.config.js`). Stories use `eslint-plugin-storybook`.
+- **ESLint**: flat config; `strictTypeChecked` + `@eslint-react` + SonarJS + Prettier (`eslint.config.ts`). Stories use `eslint-plugin-storybook`.
 - **Format**: Prettier (`.prettierrc`).
 - **Spellcheck**: cspell (`.cspell.json`); run via `npm run spellcheck`.
 - **React**: functional components; smart edges use `useNodes()` inside preset components, not in `getSmartEdge`.
@@ -128,7 +129,7 @@ When adding behavior, prefer extending existing stories or adding a focused stor
 
 1. Implement in appropriate `src/` module.
 2. Re-export from `src/index.tsx` (types + values).
-3. Run `npm run build-component` and confirm `dist/index.d.ts`.
+3. Run `npm run build-component` and confirm the symbol appears in `dist/index.d.ts` and `dist/index.mjs` (and `dist/index.cjs` for CJS).
 4. Update README if user-facing.
 
 ### Add a new smart edge variant
@@ -142,6 +143,7 @@ Prefer a thin wrapper like `SmartBezierEdge`: static `SmartEdgeOptions` + `useNo
 - Changing `getSmartEdge` return shape or option defaults is a **breaking change** for consumers—bump major version via release-it.
 - `src/stories/` and `src/internal/` must stay out of the dts entry surface (already excluded in Vite dts config).
 - Pathfinding runs on a **discrete grid**; very small `gridRatio` on large graphs can be slow.
+- **Stale `dist/` on npm**: editing `src/index.tsx` alone does not fix consumers; a release must include a fresh `npm run build-component` output.
 
 ## Key files (quick reference)
 
@@ -154,6 +156,7 @@ Prefer a thin wrapper like `SmartBezierEdge`: static `SmartEdgeOptions` + `useNo
 | `src/pathfinding/aStar.ts`               | A\* implementation                        |
 | `src/functions/drawSvgPath.ts`           | SVG path string generation                |
 | `vite.config.ts`                         | Lib build + Vitest/Storybook test project |
+| `.release-it.json`                       | Release hooks (`before:npm` → build lib)  |
 | `package.json`                           | Scripts, peers, exports map               |
 
 ## What not to do unless asked
