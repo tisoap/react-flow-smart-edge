@@ -9,6 +9,7 @@ export {
 export {
   pathfindingAStarDiagonal,
   pathfindingAStarNoDiagonal,
+  pathfindingJumpPointNoDiagonal,
 } from "./functions/generatePath";
 
 export type { GetSmartEdgeOptions } from "./getSmartEdge";

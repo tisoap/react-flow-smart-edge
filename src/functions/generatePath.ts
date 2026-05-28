@@ -1,4 +1,5 @@
 import { createAStarFinder } from "../pathfinding/aStar";
+import { createJumpPointFinder } from "../pathfinding/jumpPoint";
 import type { Grid } from "../pathfinding/grid";
 import type { XYPosition } from "@xyflow/react";
 
@@ -51,6 +52,27 @@ export const pathfindingAStarNoDiagonal: PathFindingFunction = (
       throw new Error("No path found");
     }
     return fullPath;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error(`Unknown error: ${String(error)}`, { cause: error });
+  }
+};
+
+export const pathfindingJumpPointNoDiagonal: PathFindingFunction = (
+  grid,
+  start,
+  end,
+) => {
+  try {
+    const finder = createJumpPointFinder();
+    const jumpPointPath = finder.findPath(start.x, start.y, end.x, end.y, grid);
+
+    if (jumpPointPath.length === 0) {
+      throw new Error("No path found");
+    }
+    return jumpPointPath;
   } catch (error) {
     if (error instanceof Error) {
       throw error;

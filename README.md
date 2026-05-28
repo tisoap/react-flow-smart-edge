@@ -262,7 +262,7 @@ For inspiration on how to implement your own, you can check the [`drawSvgPath.ts
 
 ### `generatePath`
 
-With the `generatePath` option, you can change the function used to do [Pathfinding](https://en.wikipedia.org/wiki/Pathfinding). By default, it's the `pathfindingAStarDiagonal` function (same as used by the `SmartBezierEdge`), but the package also includes `pathfindingAStarNoDiagonal` (used by `SmartStraightEdge` and `SmartStepEdge`), or your can provide your own.
+With the `generatePath` option, you can change the function used to do [Pathfinding](https://en.wikipedia.org/wiki/Pathfinding). By default, it's the `pathfindingAStarDiagonal` function (same as used by the `SmartBezierEdge`), but the package also includes `pathfindingAStarNoDiagonal` (used by `SmartStraightEdge`), `pathfindingJumpPointNoDiagonal` (used by `SmartStepEdge`), or your can provide your own.
 
 ```jsx
 import {
@@ -270,6 +270,7 @@ import {
   // Available built-in pathfinding functions
   pathfindingAStarDiagonal,
   pathfindingAStarNoDiagonal,
+  pathfindingJumpPointNoDiagonal,
 } from "@tisoap/react-flow-smart-edge";
 
 // Using provided pathfinding functions:
@@ -332,7 +333,7 @@ const stepResult = getSmartEdge({
 	// ...
 	options: {
 		drawEdge: svgDrawStraightLinePath,
-		generatePath: pathfindingAStarNoDiagonal,
+		generatePath: pathfindingJumpPointNoDiagonal,
 	}
 })
 

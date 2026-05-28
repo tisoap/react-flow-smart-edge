@@ -36,11 +36,11 @@ nodes + edge endpoints
 
 ### Edge presets (do not duplicate logic—compose via options)
 
-| Export              | `drawEdge`                | `generatePath`               | Fallback (on failure) |
-| ------------------- | ------------------------- | ---------------------------- | --------------------- |
-| `SmartBezierEdge`   | `svgDrawSmoothLinePath`   | `pathfindingAStarDiagonal`   | `BezierEdge`          |
-| `SmartStraightEdge` | `svgDrawStraightLinePath` | `pathfindingAStarNoDiagonal` | `StraightEdge`        |
-| `SmartStepEdge`     | `svgDrawStraightLinePath` | `pathfindingAStarNoDiagonal` | `StepEdge`            |
+| Export              | `drawEdge`                | `generatePath`                   | Fallback (on failure) |
+| ------------------- | ------------------------- | -------------------------------- | --------------------- |
+| `SmartBezierEdge`   | `svgDrawSmoothLinePath`   | `pathfindingAStarDiagonal`       | `BezierEdge`          |
+| `SmartStraightEdge` | `svgDrawStraightLinePath` | `pathfindingAStarNoDiagonal`     | `StraightEdge`        |
+| `SmartStepEdge`     | `svgDrawStraightLinePath` | `pathfindingJumpPointNoDiagonal` | `StepEdge`            |
 
 Custom edges should call `getSmartEdge({ ...edgeProps, nodes, options })` and handle `instanceof Error` (see README).
 
