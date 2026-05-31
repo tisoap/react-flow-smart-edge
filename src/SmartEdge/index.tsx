@@ -1,6 +1,7 @@
 import { BezierEdge, BaseEdge } from "@xyflow/react";
 import type { ComponentType } from "react";
 import { getSmartEdge } from "../getSmartEdge";
+import { getAbsoluteNodes, excludeEdgeAncestorNodes } from "../functions";
 import { useSmartEdgeDebug } from "../internal/useSmartEdgeDebug";
 import type { GetSmartEdgeOptions } from "../getSmartEdge";
 import type { EdgeProps, Node, Edge } from "@xyflow/react";
@@ -45,6 +46,15 @@ export function SmartEdge<
     interactionWidth,
   } = edgeProps;
 
+  // Resolve subflow child positions to absolute coordinates and drop the
+  // edge's own container nodes from the obstacle set, so routing works inside
+  // React Flow subflows (see issue #32).
+  const preparedNodes = excludeEdgeAncestorNodes(
+    getAbsoluteNodes(nodes),
+    edgeProps.source,
+    edgeProps.target,
+  );
+
   const smartResponse = getSmartEdge({
     sourcePosition,
     targetPosition,
@@ -56,7 +66,7 @@ export function SmartEdge<
       ...options,
       debug: { enabled: isDebugEnabled, setGraphBox },
     },
-    nodes,
+    nodes: preparedNodes,
   });
 
   const FallbackEdge = options.fallback ?? BezierEdge;

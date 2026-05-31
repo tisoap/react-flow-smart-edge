@@ -11,6 +11,12 @@ import {
   unalignedEdgesStep,
   horizontalNodes,
   horizontalEdgesStep,
+  subFlowNodes,
+  subFlowEdgesBezier,
+  subFlowEdgesStep,
+  subFlowGroupNodes,
+  subFlowGroupEdgesBezier,
+  subFlowGroupEdgesStep,
 } from "./DummyData";
 import { GraphWrapper } from "./GraphWrapper";
 import type { Meta, StoryFn } from "@storybook/react-vite";
@@ -83,5 +89,37 @@ SmartStepHorizontal.args = {
   edgeTypes,
   defaultNodes: horizontalNodes,
   defaultEdges: horizontalEdgesStep,
+  smartEdgeDebug: false,
+};
+
+export const SmartBezierSubFlow = Template.bind({});
+SmartBezierSubFlow.args = {
+  edgeTypes,
+  defaultNodes: subFlowNodes,
+  defaultEdges: subFlowEdgesBezier,
+  smartEdgeDebug: false,
+};
+
+export const SmartStepSubFlow = Template.bind({});
+SmartStepSubFlow.args = {
+  edgeTypes,
+  defaultNodes: subFlowNodes,
+  defaultEdges: subFlowEdgesStep,
+  smartEdgeDebug: false,
+};
+
+export const SmartBezierSubFlowGroup = Template.bind({});
+SmartBezierSubFlowGroup.args = {
+  edgeTypes,
+  defaultNodes: subFlowGroupNodes,
+  defaultEdges: subFlowGroupEdgesBezier,
+  smartEdgeDebug: false,
+};
+
+export const SmartStepSubFlowGroup = Template.bind({});
+SmartStepSubFlowGroup.args = {
+  edgeTypes,
+  defaultNodes: subFlowGroupNodes,
+  defaultEdges: subFlowGroupEdgesStep,
   smartEdgeDebug: false,
 };

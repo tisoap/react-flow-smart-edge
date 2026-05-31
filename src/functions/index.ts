@@ -5,4 +5,5 @@ export * from "./generatePath";
 export * from "./getBoundingBoxes";
 export * from "./guaranteeWalkablePath";
 export * from "./pointConversion";
+export * from "./subflow";
 export * from "./utils";
