@@ -27,22 +27,25 @@ nodes + edge endpoints
   → drawEdge()             // point sequence → SVG `d` string
 ```
 
-| Layer            | Location                            | Role                                                                                         |
-| ---------------- | ----------------------------------- | -------------------------------------------------------------------------------------------- |
-| React components | `src/Smart*Edge/`, `src/SmartEdge/` | Wire `useNodes()` + `getSmartEdge()` into `@xyflow/react` `BaseEdge`                         |
-| Core API         | `src/getSmartEdge/index.ts`         | Pure(ish) path computation; returns `{ svgPathString, edgeCenterX, edgeCenterY }` or `Error` |
-| Geometry / grid  | `src/functions/`                    | Bounding boxes, grid creation, coordinate conversion, SVG drawing                            |
-| Pathfinding      | `src/pathfinding/`                  | Grid type + A\* (based on [PathFinding.js](https://github.com/qiao/PathFinding.js))          |
+| Layer            | Location                                          | Role                                                                                         |
+| ---------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| React components | `src/Smart*Edge/`, `src/SmartEdge/`               | Wire `useNodes()` + `getSmartEdge()` into `@xyflow/react` `BaseEdge`                         |
+| Edge factory     | `src/createSmartEdge/`, `src/smartEdgePresets.ts` | `createSmartEdge(preset, options?)` and canonical preset configs                             |
+| Core API         | `src/getSmartEdge/index.ts`                       | Pure(ish) path computation; returns `{ svgPathString, edgeCenterX, edgeCenterY }` or `Error` |
+| Geometry / grid  | `src/functions/`                                  | Bounding boxes, grid creation, coordinate conversion, SVG drawing                            |
+| Pathfinding      | `src/pathfinding/`                                | Grid type + A\* (based on [PathFinding.js](https://github.com/qiao/PathFinding.js))          |
 
-### Edge presets (do not duplicate logic—compose via options)
+### Edge presets (canonical configs in `src/smartEdgePresets.ts`)
 
-| Export              | `drawEdge`                | `generatePath`                   | Fallback (on failure) |
+| Export / preset     | `drawEdge`                | `generatePath`                   | Fallback (on failure) |
 | ------------------- | ------------------------- | -------------------------------- | --------------------- |
 | `SmartBezierEdge`   | `svgDrawSmoothLinePath`   | `pathfindingAStarDiagonal`       | `BezierEdge`          |
-| `SmartStraightEdge` | `svgDrawStraightLinePath` | `pathfindingAStarNoDiagonal`     | `StraightEdge`        |
+| `SmartStraightEdge` | `svgDrawStraightLinePath` | `pathfindingAStarDiagonal`       | `StraightEdge`        |
 | `SmartStepEdge`     | `svgDrawStraightLinePath` | `pathfindingJumpPointNoDiagonal` | `StepEdge`            |
 
-Custom edges should call `getSmartEdge({ ...edgeProps, nodes, options })` and handle `instanceof Error` (see README).
+Preset components are `createSmartEdge(preset)` with default options. Consumers can call `createSmartEdge("step", { gridRatio: 5 })` at module scope, or use exported `SmartEdge` + `smartEdgePresets` for custom rendering.
+
+Custom edges that bypass presets should call `getSmartEdge({ ...edgeProps, nodes, options })` and handle `instanceof Error` (see README).
 
 ### Tunable options (`GetSmartEdgeOptions`)
 
@@ -55,9 +58,11 @@ Custom edges should call `getSmartEdge({ ...edgeProps, nodes, options })` and ha
 ```
 src/
   index.tsx              # Public exports only
-  getSmartEdge/           # Core algorithm entry
+  getSmartEdge/          # Core algorithm entry
+  createSmartEdge/       # createSmartEdge factory
+  smartEdgePresets.ts    # Canonical preset drawEdge/generatePath/fallback configs
   SmartEdge/             # Shared React wrapper (BaseEdge + fallback)
-  SmartBezierEdge/       # Preset components
+  SmartBezierEdge/       # Preset components (thin createSmartEdge wrappers)
   SmartStraightEdge/
   SmartStepEdge/
   functions/             # Grid, bounds, SVG path builders
@@ -132,9 +137,15 @@ When adding behavior, prefer extending existing stories or adding a focused stor
 3. Run `npm run build-component` and confirm the symbol appears in `dist/index.d.ts` and `dist/index.mjs` (and `dist/index.cjs` for CJS).
 4. Update README if user-facing.
 
+### Configure preset edge options (issue #58)
+
+- **Option-only changes:** `createSmartEdge("step", { gridRatio: 5 })` at module scope.
+- **Custom rendering + options:** exported `SmartEdge` + `smartEdgePresets.step` spread with overrides.
+- Do not fork `getSmartEdge` for simple tuning.
+
 ### Add a new smart edge variant
 
-Prefer a thin wrapper like `SmartBezierEdge`: static `SmartEdgeOptions` + `useNodes` + `<SmartEdge options={...} />`, rather than forking `getSmartEdge`.
+Add an entry to `smartEdgePresets.ts`, export via `createSmartEdge("newPreset")`, and add a thin `Smart*Edge` wrapper. Do not fork `getSmartEdge`.
 
 ## Pitfalls
 
@@ -149,6 +160,8 @@ Prefer a thin wrapper like `SmartBezierEdge`: static `SmartEdgeOptions` + `useNo
 
 | File                                     | Why it matters                            |
 | ---------------------------------------- | ----------------------------------------- |
+| `src/smartEdgePresets.ts`                | Canonical preset configs (single source)  |
+| `src/createSmartEdge/index.tsx`          | `createSmartEdge` factory for consumers   |
 | `src/getSmartEdge/index.ts`              | Central algorithm orchestration           |
 | `src/SmartEdge/index.tsx`                | React integration + fallback behavior     |
 | `src/functions/createGrid.ts`            | Grid dimensions and obstacle marking      |

@@ -1,3 +1,4 @@
+import { createSmartEdge } from "../index";
 import {
   edgesBezier,
   edgesStraight,
@@ -60,6 +61,18 @@ export const SmartStep = Template.bind({});
 SmartStep.args = {
   ...SmartBezier.args,
   defaultEdges: edgesStep,
+};
+
+const configuredEdgeTypes = {
+  smartStep: createSmartEdge("step", { gridRatio: 5 }),
+};
+
+export const SmartStepConfigured = Template.bind({});
+SmartStepConfigured.args = {
+  edgeTypes: configuredEdgeTypes,
+  defaultNodes: nodes,
+  defaultEdges: edgesStep,
+  smartEdgeDebug: true,
 };
 
 export const SmartBezierWithCustomLabel = Template.bind({});
