@@ -1,8 +1,9 @@
-import { createSmartEdge } from "../index";
+import { createSmartEdge, svgDrawSmoothStepLinePath } from "../index";
 import {
   edgesBezier,
   edgesStraight,
   edgesStep,
+  edgesSmoothStep,
   edgesLabel,
   nodes,
   edgeTypes,
@@ -72,6 +73,26 @@ SmartStepConfigured.args = {
   edgeTypes: configuredEdgeTypes,
   defaultNodes: nodes,
   defaultEdges: edgesStep,
+  smartEdgeDebug: true,
+};
+
+export const SmartSmoothStep = Template.bind({});
+SmartSmoothStep.args = {
+  ...SmartBezier.args,
+  defaultEdges: edgesSmoothStep,
+};
+
+const configuredSmoothStepEdgeTypes = {
+  smartSmoothStep: createSmartEdge("smoothstep", {
+    drawEdge: svgDrawSmoothStepLinePath({ borderRadius: 20 }),
+  }),
+};
+
+export const SmartSmoothStepConfigured = Template.bind({});
+SmartSmoothStepConfigured.args = {
+  edgeTypes: configuredSmoothStepEdgeTypes,
+  defaultNodes: nodes,
+  defaultEdges: edgesSmoothStep,
   smartEdgeDebug: true,
 };
 

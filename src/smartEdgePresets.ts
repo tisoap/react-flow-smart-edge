@@ -1,7 +1,13 @@
-import { BezierEdge, StraightEdge, StepEdge } from "@xyflow/react";
+import {
+  BezierEdge,
+  StraightEdge,
+  StepEdge,
+  SmoothStepEdge,
+} from "@xyflow/react";
 import {
   svgDrawSmoothLinePath,
   svgDrawStraightLinePath,
+  svgDrawSmoothStepLinePath,
   pathfindingAStarDiagonal,
   pathfindingJumpPointNoDiagonal,
 } from "./functions";
@@ -22,6 +28,11 @@ export const smartEdgePresets = {
     drawEdge: svgDrawStraightLinePath,
     generatePath: pathfindingJumpPointNoDiagonal,
     fallback: StepEdge,
+  },
+  smoothstep: {
+    drawEdge: svgDrawSmoothStepLinePath(),
+    generatePath: pathfindingJumpPointNoDiagonal,
+    fallback: SmoothStepEdge,
   },
 } as const satisfies Record<string, SmartEdgeOptions>;
 

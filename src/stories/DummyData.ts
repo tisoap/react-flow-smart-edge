@@ -1,5 +1,10 @@
 import { MarkerType, Position } from "@xyflow/react";
-import { SmartBezierEdge, SmartStraightEdge, SmartStepEdge } from "../index";
+import {
+  SmartBezierEdge,
+  SmartStraightEdge,
+  SmartStepEdge,
+  SmartSmoothStepEdge,
+} from "../index";
 import { SmartEdgeCustomLabel } from "./CustomLabel";
 import type { Node, Edge } from "@xyflow/react";
 
@@ -9,6 +14,7 @@ export const edgeTypes = {
   smartBezier: SmartBezierEdge,
   smartStraight: SmartStraightEdge,
   smartStep: SmartStepEdge,
+  smartSmoothStep: SmartSmoothStepEdge,
   smartBezierLabel: SmartEdgeCustomLabel,
 };
 
@@ -163,6 +169,11 @@ export const edgesStraight: Edge[] = edgesBezier.map((edge) => ({
 export const edgesStep: Edge[] = edgesBezier.map((edge) => ({
   ...edge,
   type: "smartStep",
+}));
+
+export const edgesSmoothStep: Edge[] = edgesBezier.map((edge) => ({
+  ...edge,
+  type: "smartSmoothStep",
 }));
 
 export const edgesLabel: Edge[] = edgesBezier.map((edge) => ({

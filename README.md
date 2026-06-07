@@ -41,6 +41,7 @@ This package ships with the following Smart Edges components:
 - `SmartBezierEdge`: A smart equivalent to React Flow's [BezierEdge](https://reactflow.dev/docs/api/edges/edge-types/)
 - `SmartStraightEdge`: A smart equivalent to React Flow's [StraightEdge](https://reactflow.dev/docs/api/edges/edge-types/)
 - `SmartStepEdge`: A smart equivalent to React Flow's [StepEdge](https://reactflow.dev/docs/api/edges/edge-types/)
+- `SmartSmoothStepEdge`: A smart equivalent to React Flow's [SmoothStepEdge](https://reactflow.dev/docs/api/edges/edge-types/)
 
 Each one can be imported individually as a named export.
 
@@ -269,12 +270,29 @@ The `options` object accepts the following keys (they're all optional):
 
 With the `drawEdge` option, you can change the function used to generate the final [SVG path string](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths), used to draw the line. By default it's the `svgDrawSmoothLinePath` function (same as used by the `SmartBezierEdge`), but the package also includes `svgDrawStraightLinePath` (same as used by the `SmartStraightEdge` and `SmartStepEdge`), or you can provide your own.
 
+The package also includes `svgDrawSmoothStepLinePath` (used by `SmartSmoothStepEdge`), which is a **factory** that returns an SVG draw function. It accepts a `borderRadius` option (default `5`, matching React Flow) to control how much each corner is rounded:
+
+```jsx
+import {
+  createSmartEdge,
+  svgDrawSmoothStepLinePath,
+} from "@tisoap/react-flow-smart-edge";
+
+// Configure the corner rounding of a smooth step edge:
+const edgeTypes = {
+  smartSmoothStep: createSmartEdge("smoothstep", {
+    drawEdge: svgDrawSmoothStepLinePath({ borderRadius: 12 }),
+  }),
+};
+```
+
 ```jsx
 import {
   getSmartEdge,
   // Available built-in SVG draw functions
   svgDrawSmoothLinePath,
   svgDrawStraightLinePath,
+  svgDrawSmoothStepLinePath,
 } from "@tisoap/react-flow-smart-edge";
 
 // Using provided SVG draw functions:

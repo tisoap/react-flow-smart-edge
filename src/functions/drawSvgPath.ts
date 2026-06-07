@@ -70,3 +70,87 @@ const getMidPoint = (Ax: number, Ay: number, Bx: number, By: number) => {
   const Zy = (Ay - By) / 2 + By;
   return [Zx, Zy];
 };
+
+export interface SmoothStepOptions {
+  borderRadius?: number;
+}
+
+/**
+ * Returns a {@link SVGDrawFunction} that draws an orthogonal ("step") path with
+ * rounded corners, mirroring React Flow's smooth step edge. The `borderRadius`
+ * controls how much each corner is rounded (default `5`, matching React Flow);
+ * it is clamped per-corner to half of the adjacent segment lengths so tight
+ * grid corners never overshoot.
+ *
+ * Adapted from https://gist.github.com/holgergp/b95396f8e81abb17add1809c404b163c
+ */
+export const svgDrawSmoothStepLinePath = (
+  options: SmoothStepOptions = {},
+): SVGDrawFunction => {
+  const { borderRadius = 5 } = options;
+
+  return (source, target, path) => {
+    const points: XYPosition[] = dedupePoints([
+      { x: source.x, y: source.y },
+      ...path.map(([x, y]) => ({ x, y })),
+      { x: target.x, y: target.y },
+    ]);
+
+    return points.reduce((svgPath, point, index) => {
+      const isInteriorPoint = index > 0 && index < points.length - 1;
+
+      if (isInteriorPoint) {
+        return (
+          svgPath +
+          getBend(points[index - 1], point, points[index + 1], borderRadius)
+        );
+      }
+
+      const command = index === 0 ? "M" : "L";
+      return svgPath + `${command} ${String(point.x)},${String(point.y)} `;
+    }, "");
+  };
+};
+
+const distance = (a: XYPosition, b: XYPosition) =>
+  Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+
+/**
+ * Drops consecutive duplicate points so corner rounding doesn't produce
+ * degenerate (zero-length) bends. The endpoint alignment step can repeat the
+ * source/target coordinate as the first/last path point.
+ */
+const dedupePoints = (points: XYPosition[]) =>
+  points.filter(
+    (point, index) =>
+      index === 0 ||
+      point.x !== points[index - 1].x ||
+      point.y !== points[index - 1].y,
+  );
+
+const getBend = (
+  a: XYPosition,
+  b: XYPosition,
+  c: XYPosition,
+  size: number,
+): string => {
+  const bendSize = Math.min(distance(a, b) / 2, distance(b, c) / 2, size);
+  const { x, y } = b;
+
+  // Collinear points: no corner to round.
+  if ((a.x === x && x === c.x) || (a.y === y && y === c.y)) {
+    return `L ${String(x)},${String(y)} `;
+  }
+
+  // First segment is horizontal.
+  if (a.y === y) {
+    const xDir = a.x < c.x ? -1 : 1;
+    const yDir = a.y < c.y ? 1 : -1;
+    return `L ${String(x + bendSize * xDir)},${String(y)}Q ${String(x)},${String(y)} ${String(x)},${String(y + bendSize * yDir)} `;
+  }
+
+  // First segment is vertical.
+  const xDir = a.x < c.x ? 1 : -1;
+  const yDir = a.y < c.y ? -1 : 1;
+  return `L ${String(x)},${String(y + bendSize * yDir)}Q ${String(x)},${String(y)} ${String(x + bendSize * xDir)},${String(y)} `;
+};
