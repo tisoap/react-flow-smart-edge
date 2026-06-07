@@ -28,5 +28,5 @@ export function createSmartEdge(
 
   ConfiguredSmartEdge.displayName = `SmartEdge(${preset})`;
 
-  return ConfiguredSmartEdge as SmartEdgeComponent;
+  return ConfiguredSmartEdge;
 }

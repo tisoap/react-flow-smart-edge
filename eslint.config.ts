@@ -38,6 +38,12 @@ export default defineConfig(
       "@eslint-react/no-use-context": "off",
       "@eslint-react/no-context-provider": "off",
       "react-refresh/only-export-components": "off",
+      "@typescript-eslint/consistent-type-assertions": [
+        "error",
+        {
+          assertionStyle: "never",
+        },
+      ],
     },
   },
   {
@@ -47,6 +53,12 @@ export default defineConfig(
         project: ["./tsconfig.node.json"],
         projectService: false,
       },
+    },
+  },
+  {
+    files: ["src/**/*.stories.tsx", "eslint.config.ts"],
+    rules: {
+      "@typescript-eslint/consistent-type-assertions": "off",
     },
   },
   ...(storybook.configs["flat/recommended"] as Config[]),
