@@ -3,6 +3,8 @@ export { SmartStraightEdge } from "./SmartStraightEdge";
 export { SmartStepEdge } from "./SmartStepEdge";
 export { SmartSmoothStepEdge } from "./SmartSmoothStepEdge";
 export { SmartEdge } from "./SmartEdge";
+export { SmartFloatingEdge } from "./SmartFloatingEdge";
+export { SmartFloatingConnectionLine } from "./SmartFloatingConnectionLine";
 export { createSmartEdge } from "./createSmartEdge";
 export { smartEdgePresets } from "./smartEdgePresets";
 export { getSmartEdge } from "./getSmartEdge";
@@ -16,8 +18,14 @@ export {
   pathfindingAStarNoDiagonal,
   pathfindingJumpPointNoDiagonal,
 } from "./functions/generatePath";
+export {
+  getFloatingEdgeParams,
+  getNodeIntersection,
+  getEdgePosition,
+} from "./functions/getFloatingEdgeParams";
 
 export type { SmartEdgeOptions } from "./SmartEdge";
+export type { SmartFloatingConnectionLineProps } from "./SmartFloatingConnectionLine";
 export type { SmartEdgePreset } from "./smartEdgePresets";
 export type { ConfigureSmartEdgeOptions } from "./createSmartEdge";
 export type { GetSmartEdgeOptions } from "./getSmartEdge";
@@ -26,5 +34,6 @@ export type {
   SmoothStepOptions,
 } from "./functions/drawSvgPath";
 export type { PathFindingFunction } from "./functions/generatePath";
+export type { FloatingEdgeParams } from "./functions/getFloatingEdgeParams";
 export type { Grid, GridNode } from "./pathfinding/grid";
 export type { XYPosition } from "@xyflow/react";

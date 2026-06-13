@@ -149,6 +149,58 @@ Register `MySmartStepEdge` in `edgeTypes` like any other custom edge.
 
 For option-only changes, prefer `createSmartEdge`. Use `SmartEdge` + `smartEdgePresets` when you also customize the rendered output.
 
+## Floating Edges
+
+A "smart" equivalent of React Flow's [Floating Edges](https://reactflow.dev/examples/edges/floating-edges). Instead of using the fixed handle positions, a floating edge computes its source/target connection points dynamically from node geometry, attaching to the nearest border facing the other node, and then routes around obstacles with the usual pathfinding.
+
+The quickest way is the ready-made `SmartFloatingEdge` component:
+
+```ts
+import { SmartFloatingEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  smartFloating: SmartFloatingEdge,
+};
+```
+
+`floating` is a regular option, so you can combine it with any preset and other settings via `createSmartEdge`:
+
+```ts
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  // Floating + step routing, with tuned options
+  floatingStep: createSmartEdge("step", { floating: true, gridRatio: 5 }),
+};
+```
+
+### Floating connection line
+
+To preview a smart floating line while dragging a new connection, pass the exported `SmartFloatingConnectionLine` to React Flow's `connectionLineComponent` prop:
+
+```tsx
+import {
+  SmartFloatingEdge,
+  SmartFloatingConnectionLine,
+} from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = { smartFloating: SmartFloatingEdge };
+
+function Flow() {
+  return (
+    <ReactFlow
+      edgeTypes={edgeTypes}
+      connectionLineComponent={SmartFloatingConnectionLine}
+      // ...
+    />
+  );
+}
+```
+
+### `getFloatingEdgeParams`
+
+When building a fully custom edge with `getSmartEdge`, you can compute the floating connection points yourself with the exported `getFloatingEdgeParams(sourceNode, targetNode)` helper. It returns `{ sx, sy, tx, ty, sourcePos, targetPos }` (intersection coordinates and the side of each node), ready to feed into `getSmartEdge`. Both nodes must carry absolute positions and `measured` dimensions.
+
 ## Custom Smart Edges
 
 You can have more control over how the edge is rerendered by creating a [custom edge](https://reactflow.dev/docs/api/edges/custom-edges/) and using the provided `getSmartEdge` function. It takes an object with the following keys:

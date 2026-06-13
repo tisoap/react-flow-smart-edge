@@ -1,4 +1,8 @@
-import { createSmartEdge, svgDrawSmoothStepLinePath } from "../index";
+import {
+  createSmartEdge,
+  svgDrawSmoothStepLinePath,
+  SmartFloatingConnectionLine,
+} from "../index";
 import {
   edgesBezier,
   edgesStraight,
@@ -19,6 +23,8 @@ import {
   subFlowGroupNodes,
   subFlowGroupEdgesBezier,
   subFlowGroupEdgesStep,
+  floatingNodes,
+  floatingEdges,
 } from "./DummyData";
 import { GraphWrapper } from "./GraphWrapper";
 import type { Meta, StoryFn } from "@storybook/react-vite";
@@ -155,5 +161,22 @@ SmartStepSubFlowGroup.args = {
   edgeTypes,
   defaultNodes: subFlowGroupNodes,
   defaultEdges: subFlowGroupEdgesStep,
+  smartEdgeDebug: false,
+};
+
+export const SmartFloating = Template.bind({});
+SmartFloating.args = {
+  edgeTypes,
+  defaultNodes: floatingNodes,
+  defaultEdges: floatingEdges,
+  smartEdgeDebug: false,
+};
+
+export const SmartFloatingWithConnectionLine = Template.bind({});
+SmartFloatingWithConnectionLine.args = {
+  edgeTypes,
+  defaultNodes: floatingNodes,
+  defaultEdges: floatingEdges,
+  connectionLineComponent: SmartFloatingConnectionLine,
   smartEdgeDebug: false,
 };
