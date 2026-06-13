@@ -37,3 +37,10 @@ export type { PathFindingFunction } from "./functions/generatePath";
 export type { FloatingEdgeParams } from "./functions/getFloatingEdgeParams";
 export type { Grid, GridNode } from "./pathfinding/grid";
 export type { XYPosition } from "@xyflow/react";
+
+/**
+ * A rectangular area (in graph coordinates) that smart edges should route
+ * around, in addition to the nodes. Used by the `avoidAreas` option, e.g. to
+ * keep edges clear of edge labels. Alias of React Flow's `Rect`.
+ */
+export type { Rect as AvoidArea } from "@xyflow/react";

@@ -12,7 +12,7 @@ import type {
   PathFindingFunction,
   SVGDrawFunction,
 } from "../functions";
-import type { Node, EdgeProps } from "@xyflow/react";
+import type { Node, EdgeProps, Rect } from "@xyflow/react";
 
 export type EdgeParams = Pick<
   EdgeProps,
@@ -29,6 +29,13 @@ export interface GetSmartEdgeOptions {
   nodePadding?: number;
   drawEdge?: SVGDrawFunction;
   generatePath?: PathFindingFunction;
+  /**
+   * Extra rectangular areas (in graph coordinates) the path should route
+   * around, in addition to the nodes. Useful for keeping edges clear of edge
+   * labels or any other arbitrary regions. Each area uses the same
+   * `nodePadding` clearance as nodes.
+   */
+  avoidAreas?: Rect[];
   // Internal-only debug hook. Not intended for public consumption.
   debug?: {
     enabled?: boolean;
@@ -38,6 +45,9 @@ export interface GetSmartEdgeOptions {
       width: number;
       height: number;
     }) => void;
+    setAvoidAreas?: (
+      areas: { x: number; y: number; width: number; height: number }[],
+    ) => void;
   };
 }
 
@@ -70,28 +80,38 @@ export const getSmartEdge = <
     const {
       drawEdge = svgDrawSmoothLinePath,
       generatePath = pathfindingAStarDiagonal,
+      avoidAreas = [],
     } = options;
 
     let { gridRatio = 10, nodePadding = 10 } = options;
     gridRatio = toInteger(gridRatio);
     nodePadding = toInteger(nodePadding);
 
-    // We use the node's information to generate bounding boxes for them
-    // and the graph
-    const { graphBox, nodeBoxes } = getBoundingBoxes(
+    // We use the node's information (plus any consumer-provided avoid areas) to
+    // generate bounding boxes for them and the graph
+    const { graphBox, nodeBoxes, avoidBoxes } = getBoundingBoxes(
       nodes,
       nodePadding,
       gridRatio,
+      avoidAreas,
     );
 
     // Internal: publish computed bounding box for debugging visualization
-    if (options.debug?.enabled && options.debug.setGraphBox) {
-      options.debug.setGraphBox({
+    if (options.debug?.enabled) {
+      options.debug.setGraphBox?.({
         x: graphBox.topLeft.x,
         y: graphBox.topLeft.y,
         width: graphBox.width,
         height: graphBox.height,
       });
+      options.debug.setAvoidAreas?.(
+        avoidBoxes.map((box) => ({
+          x: box.topLeft.x,
+          y: box.topLeft.y,
+          width: Math.abs(box.bottomRight.x - box.topLeft.x),
+          height: Math.abs(box.bottomRight.y - box.topLeft.y),
+        })),
+      );
     }
 
     const source: PointInfo = {
@@ -110,7 +130,7 @@ export const getSmartEdge = <
     // our graph, that tells us where in the graph there is a "free" space or not
     const { grid, start, end } = createGrid(
       graphBox,
-      nodeBoxes,
+      [...nodeBoxes, ...avoidBoxes],
       source,
       target,
       gridRatio,

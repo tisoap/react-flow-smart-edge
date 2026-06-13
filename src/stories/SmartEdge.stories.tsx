@@ -1,3 +1,4 @@
+import { expect, waitFor, within } from "storybook/test";
 import {
   createSmartEdge,
   svgDrawSmoothStepLinePath,
@@ -25,6 +26,9 @@ import {
   subFlowGroupEdgesStep,
   floatingNodes,
   floatingEdges,
+  avoidAreaNodes,
+  avoidAreaEdgesBezier,
+  demoAvoidAreas,
 } from "./DummyData";
 import { GraphWrapper } from "./GraphWrapper";
 import type { Meta, StoryFn } from "@storybook/react-vite";
@@ -179,4 +183,35 @@ SmartFloatingWithConnectionLine.args = {
   defaultEdges: floatingEdges,
   connectionLineComponent: SmartFloatingConnectionLine,
   smartEdgeDebug: false,
+};
+
+const avoidAreaEdgeTypes = {
+  smartBezierAvoid: createSmartEdge("bezier", { avoidAreas: demoAvoidAreas }),
+};
+
+export const SmartBezierWithAvoidArea = Template.bind({});
+SmartBezierWithAvoidArea.args = {
+  edgeTypes: avoidAreaEdgeTypes,
+  defaultNodes: avoidAreaNodes,
+  defaultEdges: avoidAreaEdgesBezier,
+  smartEdgeDebug: true,
+};
+SmartBezierWithAvoidArea.play = async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+
+  // The consumer-provided avoid area is visualized by the debug overlay.
+  const areas = await waitFor(() =>
+    canvas.getAllByTestId("smart-edge-avoid-area"),
+  );
+  await expect(areas).toHaveLength(demoAvoidAreas.length);
+
+  // The smart edge renders an SVG path (i.e. it did not fall back on error).
+  const edgePath = await waitFor(() => {
+    const path = canvasElement.querySelector<SVGPathElement>(
+      ".react-flow__edge-path",
+    );
+    if (!path) throw new Error("edge path not rendered yet");
+    return path;
+  });
+  await expect(edgePath.getAttribute("d")).toBeTruthy();
 };

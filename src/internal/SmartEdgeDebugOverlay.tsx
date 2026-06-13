@@ -3,11 +3,11 @@ import type { CSSProperties } from "react";
 import { useSmartEdgeDebug } from "./useSmartEdgeDebug";
 
 export const SmartEdgeDebugOverlay = memo(() => {
-  const { enabled, graphBox } = useSmartEdgeDebug();
+  const { enabled, graphBox, avoidAreas } = useSmartEdgeDebug();
 
-  if (!enabled || !graphBox) return null;
+  if (!enabled || (!graphBox && avoidAreas.length === 0)) return null;
 
-  const style: CSSProperties = {
+  const graphStyle: CSSProperties | null = graphBox && {
     position: "absolute",
     left: graphBox.x,
     top: graphBox.y,
@@ -20,5 +20,32 @@ export const SmartEdgeDebugOverlay = memo(() => {
     zIndex: 1,
   };
 
-  return <div style={style} data-testid="smart-edge-debug-overlay" />;
+  return (
+    <>
+      {graphStyle && (
+        <div style={graphStyle} data-testid="smart-edge-debug-overlay" />
+      )}
+      {avoidAreas.map((area, index) => {
+        const style: CSSProperties = {
+          position: "absolute",
+          left: area.x,
+          top: area.y,
+          width: area.width,
+          height: area.height,
+          pointerEvents: "none",
+          border: "1px dashed #2563eb",
+          backgroundColor: "rgba(37, 99, 235, 0.1)",
+          boxSizing: "border-box",
+          zIndex: 1,
+        };
+        return (
+          <div
+            key={`avoid-area-${String(index)}`}
+            style={style}
+            data-testid="smart-edge-avoid-area"
+          />
+        );
+      })}
+    </>
+  );
 });

@@ -37,7 +37,11 @@ export function SmartEdge<
   options,
   ...edgeProps
 }: Readonly<SmartEdgeProps<EdgeType, NodeType>>) {
-  const { enabled: isDebugEnabled, setGraphBox } = useSmartEdgeDebug();
+  const {
+    enabled: isDebugEnabled,
+    setGraphBox,
+    setAvoidAreas,
+  } = useSmartEdgeDebug();
   let { sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition } =
     edgeProps;
   const {
@@ -98,7 +102,7 @@ export function SmartEdge<
     targetY,
     options: {
       ...options,
-      debug: { enabled: isDebugEnabled, setGraphBox },
+      debug: { enabled: isDebugEnabled, setGraphBox, setAvoidAreas },
     },
     nodes: preparedNodes,
   });

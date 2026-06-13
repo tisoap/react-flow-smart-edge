@@ -201,6 +201,50 @@ function Flow() {
 
 When building a fully custom edge with `getSmartEdge`, you can compute the floating connection points yourself with the exported `getFloatingEdgeParams(sourceNode, targetNode)` helper. It returns `{ sx, sy, tx, ty, sourcePos, targetPos }` (intersection coordinates and the side of each node), ready to feed into `getSmartEdge`. Both nodes must carry absolute positions and `measured` dimensions.
 
+## Avoiding Custom Areas
+
+Besides nodes, you can tell smart edges to route around arbitrary rectangular regions using the `avoidAreas` option. Each area is a rectangle in graph coordinates (`{ x, y, width, height }`, the `AvoidArea` type, an alias of React Flow's `Rect`) and is treated as an obstacle just like a node, using the same `nodePadding` clearance.
+
+```ts
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+import type { AvoidArea } from "@tisoap/react-flow-smart-edge";
+
+const avoidAreas: AvoidArea[] = [{ x: 260, y: 120, width: 150, height: 170 }];
+
+const edgeTypes = {
+  smartBezier: createSmartEdge("bezier", { avoidAreas }),
+};
+```
+
+### Dynamic areas
+
+Because `createSmartEdge(preset, options)` bakes its options at module scope, it is best for areas that do not change. When the areas move at runtime (e.g. you track label positions as nodes are dragged), give the edge a **dynamic** `options` prop instead, by either:
+
+- Rendering the exported `SmartEdge` component directly with `options={{ ...smartEdgePresets.bezier, avoidAreas }}`, where `avoidAreas` comes from your own state, or
+- Reading the areas from a store/context inside a thin custom edge that forwards them to `SmartEdge` or `getSmartEdge`.
+
+```tsx
+import { useNodes } from "@xyflow/react";
+import { SmartEdge, smartEdgePresets } from "@tisoap/react-flow-smart-edge";
+import type { EdgeProps } from "@xyflow/react";
+import { useAvoidAreas } from "./your-store";
+
+function MySmartEdge(props: EdgeProps) {
+  const nodes = useNodes();
+  const avoidAreas = useAvoidAreas();
+
+  return (
+    <SmartEdge
+      {...props}
+      nodes={nodes}
+      options={{ ...smartEdgePresets.bezier, avoidAreas }}
+    />
+  );
+}
+```
+
+You can pair this with `getSmartEdge`'s returned `edgeCenterX` / `edgeCenterY` to position a label and register its bounding box as an avoid area for the other edges.
+
 ## Custom Smart Edges
 
 You can have more control over how the edge is rerendered by creating a [custom edge](https://reactflow.dev/docs/api/edges/custom-edges/) and using the provided `getSmartEdge` function. It takes an object with the following keys:
@@ -315,6 +359,7 @@ The `options` object accepts the following keys (they're all optional):
 
 - `nodePadding`: How many pixels of padding are added around nodes, or by how much should the edge avoid the walls of a node. Default `10`, minimum `2`.
 - `gridRatio`: The size in pixels of each square grid cell used for path-finding. Smaller values for a more accurate path, bigger for faster path-finding. Default `10`, minimum `2`.
+- `avoidAreas`: An array of extra rectangular areas the edge should route around, in addition to the nodes ([more below](#avoiding-custom-areas))
 - `drawEdge`: Allows you to change the function responsible to draw the SVG line, by default it's the same used by `SmartBezierEdge` ([more below](#drawedge))
 - `generatePath`: Allows you to change the function for the path-finding, by default it's the same used by `SmartBezierEdge` ([more below](#generatepath))
 
