@@ -6,7 +6,7 @@ import type * as Preset from "@docusaurus/preset-classic";
 /** Storybook builds published by Chromatic CI (`.github/workflows/chromatic.yml`). */
 const chromaticStorybookUrl =
   process.env.CHROMATIC_STORYBOOK_URL ??
-  "https://www.chromatic.com/library?appId=625ade28911b53003a921739";
+  "https://main--625ade28911b53003a921739.chromatic.com/?path=/story/smart-edge--smart-bezier";
 
 function includeParentSrcPlugin() {
   return {
