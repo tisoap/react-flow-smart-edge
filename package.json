@@ -14,7 +14,7 @@
     "pathfinding",
     "react-flow-smart-edge"
   ],
-  "homepage": "https://tisoap.github.io/react-flow-smart-edge/",
+  "homepage": "https://tisoap.github.io/react-flow-smart-edge/docs",
   "bugs": {
     "url": "https://github.com/tisoap/react-flow-smart-edge/issues"
   },

@@ -8,7 +8,7 @@ Guidance for AI agents working in this repository.
 
 - **Consumers**: React apps using `@xyflow/react` v12+ (peer dependency).
 - **This repo**: Library source, Vite library build, Docusaurus docs site, Storybook demos/tests, and browser-based Storybook tests.
-- **Documentation**: https://tisoap.github.io/react-flow-smart-edge/ (Docusaurus, deployed to gh-pages on release)
+- **Documentation**: https://tisoap.github.io/react-flow-smart-edge/docs (Docusaurus, deployed to gh-pages on release)
 - **Storybook demos**: Chromatic (`.github/workflows/chromatic.yml`); local dev via `npm run storybook`
 - **Package entry**: `src/index.tsx` → `dist/index.{mjs,cjs}` + `dist/index.d.ts`
 

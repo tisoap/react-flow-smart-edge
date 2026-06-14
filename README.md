@@ -10,7 +10,7 @@ Custom edges for [React Flow](https://reactflow.dev) that never intersect with o
 
 ## Documentation
 
-**Full documentation:** [tisoap.github.io/react-flow-smart-edge](https://tisoap.github.io/react-flow-smart-edge/)
+**Full documentation:** [tisoap.github.io/react-flow-smart-edge/docs](https://tisoap.github.io/react-flow-smart-edge/docs)
 
 Interactive Storybook examples are published on [Chromatic](https://main--625ade28911b53003a921739.chromatic.com/?path=/story/smart-edge--smart-bezier). Source: [`src/stories/SmartEdge.stories.tsx`](./src/stories/SmartEdge.stories.tsx).
 
@@ -61,7 +61,7 @@ export function Graph() {
 | `SmartFloatingEdge`   | Floating edges example |
 | `SmartEditableEdge`   | Editable edge example  |
 
-Configure options with `createSmartEdge("step", { gridRatio: 5 })` or build custom edges with `getSmartEdge`. See the [docs](https://tisoap.github.io/react-flow-smart-edge/) for guides, API reference, and live examples.
+Configure options with `createSmartEdge("step", { gridRatio: 5 })` or build custom edges with `getSmartEdge`. See the [docs](https://tisoap.github.io/react-flow-smart-edge/docs) for guides, API reference, and live examples.
 
 ## Support
 
