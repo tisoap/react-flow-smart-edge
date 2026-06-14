@@ -62,6 +62,12 @@ export interface GetSmartEdgeReturn {
   svgPathString: string;
   edgeCenterX: number;
   edgeCenterY: number;
+  /**
+   * The sequence of graph-coordinate points that make up the routed path
+   * (after endpoint alignment), excluding the source/target handle points.
+   * Used by waypoint routing to stitch multiple segments into a single edge.
+   */
+  points: number[][];
 }
 
 export const getSmartEdge = <
@@ -88,12 +94,18 @@ export const getSmartEdge = <
     nodePadding = toInteger(nodePadding);
 
     // We use the node's information (plus any consumer-provided avoid areas) to
-    // generate bounding boxes for them and the graph
+    // generate bounding boxes for them and the graph. The source/target points
+    // are included so the grid always covers them, even when an endpoint (e.g.
+    // a dragged waypoint) sits beyond every node.
     const { graphBox, nodeBoxes, avoidBoxes } = getBoundingBoxes(
       nodes,
       nodePadding,
       gridRatio,
       avoidAreas,
+      [
+        { x: sourceX, y: sourceY },
+        { x: targetX, y: targetY },
+      ],
     );
 
     // Internal: publish computed bounding box for debugging visualization
@@ -174,7 +186,7 @@ export const getSmartEdge = <
       gridRatio,
     );
 
-    return { svgPathString, edgeCenterX, edgeCenterY };
+    return { svgPathString, edgeCenterX, edgeCenterY, points: alignedPath };
   } catch (error) {
     if (error instanceof Error) {
       return error;

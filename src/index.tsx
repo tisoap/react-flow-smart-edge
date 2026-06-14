@@ -4,10 +4,12 @@ export { SmartStepEdge } from "./SmartStepEdge";
 export { SmartSmoothStepEdge } from "./SmartSmoothStepEdge";
 export { SmartEdge } from "./SmartEdge";
 export { SmartFloatingEdge } from "./SmartFloatingEdge";
+export { SmartEditableEdge } from "./SmartEditableEdge";
 export { SmartFloatingConnectionLine } from "./SmartFloatingConnectionLine";
 export { createSmartEdge } from "./createSmartEdge";
 export { smartEdgePresets } from "./smartEdgePresets";
 export { getSmartEdge } from "./getSmartEdge";
+export { getSmartEdgeWaypoints } from "./getSmartEdge/getSmartEdgeWaypoints";
 export {
   svgDrawSmoothLinePath,
   svgDrawStraightLinePath,
@@ -24,7 +26,9 @@ export {
   getEdgePosition,
 } from "./functions/getFloatingEdgeParams";
 
-export type { SmartEdgeOptions } from "./SmartEdge";
+export type { SmartEdgeOptions, SmartEditableEdgeData } from "./SmartEdge";
+export type { ControlPointData } from "./SmartEdge/ControlPoint";
+export type { GetSmartEdgeWaypointsParams } from "./getSmartEdge/getSmartEdgeWaypoints";
 export type { SmartFloatingConnectionLineProps } from "./SmartFloatingConnectionLine";
 export type { SmartEdgePreset } from "./smartEdgePresets";
 export type { ConfigureSmartEdgeOptions } from "./createSmartEdge";

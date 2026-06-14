@@ -201,6 +201,65 @@ function Flow() {
 
 When building a fully custom edge with `getSmartEdge`, you can compute the floating connection points yourself with the exported `getFloatingEdgeParams(sourceNode, targetNode)` helper. It returns `{ sx, sy, tx, ty, sourcePos, targetPos }` (intersection coordinates and the side of each node), ready to feed into `getSmartEdge`. Both nodes must carry absolute positions and `measured` dimensions.
 
+## Editable Edges
+
+A "smart" take on React Flow's [Editable Edge](https://reactflow.dev/examples/edges/editable-edge) Pro example. An editable edge renders draggable **waypoints** (control points) that the path is routed _through_, while each segment between consecutive waypoints still avoids nodes with the usual pathfinding.
+
+The quickest way is the ready-made `SmartEditableEdge` component:
+
+```ts
+import { SmartEditableEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  smartEditable: SmartEditableEdge,
+};
+```
+
+`editable` is a regular option, so you can combine it with any preset and other settings via `createSmartEdge`:
+
+```ts
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  // Editable + step routing, with tuned options
+  editableStep: createSmartEdge("step", { editable: true, gridRatio: 5 }),
+};
+```
+
+### Interactions
+
+Select the edge (or one of its connected nodes) to reveal the control points:
+
+- **Add** a waypoint by clicking an inactive (hollow) point at a segment midpoint.
+- **Move** a waypoint by dragging it, or nudge it with the arrow keys when focused.
+- **Delete** a waypoint by right-clicking it or pressing `Delete`/`Backspace` while focused.
+
+### Persisting waypoints (`edge.data.points`)
+
+Waypoints are stored on the edge's `data.points` as an array of `ControlPointData` (`{ id, x, y, active }`). The edge updates this list through React Flow's edge state as you edit, so your flow must let React Flow own the edges (e.g. `useEdgesState`, `defaultEdges`, or a controlled `edges`/`onEdgesChange` pair). Persist `data.points` wherever you persist the rest of your graph; passing it back in restores the routed shape:
+
+```ts
+import type { SmartEditableEdgeData } from "@tisoap/react-flow-smart-edge";
+
+const initialEdges = [
+  {
+    id: "e1-2",
+    source: "1",
+    target: "2",
+    type: "smartEditable",
+    data: {
+      points: [{ id: "wp-1", x: 320, y: 90, active: true }],
+    } satisfies SmartEditableEdgeData,
+  },
+];
+```
+
+By default the control points render in blue; override with the `controlPointColor` option (`createSmartEdge("bezier", { editable: true, controlPointColor: "#e11d48" })`).
+
+### `getSmartEdgeWaypoints`
+
+When building a fully custom edge, the exported `getSmartEdgeWaypoints({ ...edgeProps, nodes, waypoints, options })` helper performs the waypoint routing: it runs `getSmartEdge` per `[source, ...waypoints, target]` segment and stitches the results into a single path. It returns the same `{ svgPathString, edgeCenterX, edgeCenterY, points }` shape as `getSmartEdge` (or an `Error`). With an empty `waypoints` array it behaves exactly like `getSmartEdge`.
+
 ## Avoiding Custom Areas
 
 Besides nodes, you can tell smart edges to route around arbitrary rectangular regions using the `avoidAreas` option. Each area is a rectangle in graph coordinates (`{ x, y, width, height }`, the `AvoidArea` type, an alias of React Flow's `Rect`) and is treated as an obstacle just like a node, using the same `nodePadding` clearance.

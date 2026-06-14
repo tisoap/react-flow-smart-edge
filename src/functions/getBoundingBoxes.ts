@@ -72,12 +72,17 @@ const buildBox = (
  * Get the bounding box of all nodes and the graph itself, as X/Y coordinates
  * of all corner points. Consumer-provided `avoidAreas` are treated as extra
  * obstacles with the same `nodePadding` clearance as nodes.
+ *
+ * `extraPoints` are coordinates (e.g. the edge's source/target or any
+ * waypoints) that must fall inside the graph box even when they sit beyond the
+ * nodes, so the path-finding grid always covers them.
  */
 export const getBoundingBoxes = (
   nodes: Node[],
   nodePadding = 2,
   roundTo = 2,
   avoidAreas: Rect[] = [],
+  extraPoints: XYPosition[] = [],
 ) => {
   let xMax = Number.MIN_SAFE_INTEGER;
   let yMax = Number.MIN_SAFE_INTEGER;
@@ -141,6 +146,12 @@ export const getBoundingBoxes = (
       topRight,
       bottomRight,
     };
+  });
+
+  // Make sure the graph box also contains any explicit points (edge endpoints
+  // and waypoints), even when they sit outside every node.
+  extraPoints.forEach((point) => {
+    expandBounds(point, point);
   });
 
   const graphPadding = nodePadding * 2;

@@ -1,4 +1,4 @@
-import { expect, waitFor, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import {
   createSmartEdge,
   svgDrawSmoothStepLinePath,
@@ -29,6 +29,8 @@ import {
   avoidAreaNodes,
   avoidAreaEdgesBezier,
   demoAvoidAreas,
+  editableNodes,
+  editableEdges,
 } from "./DummyData";
 import { GraphWrapper } from "./GraphWrapper";
 import type { Meta, StoryFn } from "@storybook/react-vite";
@@ -214,4 +216,51 @@ SmartBezierWithAvoidArea.play = async ({ canvasElement }) => {
     return path;
   });
   await expect(edgePath.getAttribute("d")).toBeTruthy();
+};
+
+export const SmartEditable = Template.bind({});
+SmartEditable.args = {
+  edgeTypes,
+  defaultNodes: editableNodes,
+  defaultEdges: editableEdges,
+  smartEdgeDebug: false,
+};
+SmartEditable.play = async ({ canvasElement }) => {
+  // The edge is seeded as selected, so its control points render immediately.
+  const controlPoints = await waitFor(() => {
+    const circles = canvasElement.querySelectorAll<SVGCircleElement>(
+      "[data-testid='smart-edge-control-point']",
+    );
+    if (circles.length === 0) throw new Error("control points not rendered");
+    return circles;
+  });
+
+  // One active waypoint plus an inactive insert point on each side.
+  await expect(controlPoints.length).toBeGreaterThanOrEqual(3);
+
+  const activePoint = canvasElement.querySelector<SVGCircleElement>(
+    "circle.active[data-testid='smart-edge-control-point']",
+  );
+  if (!activePoint) throw new Error("active control point not found");
+
+  const edgePath = canvasElement.querySelector<SVGPathElement>(
+    ".react-flow__edge-path",
+  );
+  if (!edgePath) throw new Error("edge path not rendered");
+  const initialPath = edgePath.getAttribute("d");
+
+  // Nudging the active waypoint with the keyboard re-routes the edge, so the
+  // rendered path changes.
+  await userEvent.click(activePoint);
+  await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
+
+  await waitFor(() => {
+    const path = canvasElement.querySelector<SVGPathElement>(
+      ".react-flow__edge-path",
+    );
+    if (!path) throw new Error("edge path not rendered");
+    if (path.getAttribute("d") === initialPath) {
+      throw new Error("edge path did not change after moving the waypoint");
+    }
+  });
 };
