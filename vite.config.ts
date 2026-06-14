@@ -29,6 +29,9 @@ export default defineConfig({
         "src/stories/**",
       ],
       tsconfigPath: "tsconfig.app.json",
+      compilerOptions: {
+        rootDir: "src",
+      },
       insertTypesEntry: true,
       bundleTypes: true,
     }),
