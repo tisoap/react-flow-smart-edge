@@ -41,12 +41,17 @@ function includeParentSrcPlugin() {
   };
 }
 
+/** GitHub Pages project site path; use `/` in development so `localhost:3000/docs` works. */
+const baseUrl =
+  process.env.DOCUSAURUS_BASE_URL ??
+  (process.env.NODE_ENV === "development" ? "/" : "/react-flow-smart-edge/");
+
 const config: Config = {
   title: "React Flow Smart Edge",
   tagline: "Custom edges for React Flow that route around nodes",
   favicon: "img/logo.svg",
   url: "https://tisoap.github.io",
-  baseUrl: "/react-flow-smart-edge/",
+  baseUrl,
   organizationName: "tisoap",
   projectName: "react-flow-smart-edge",
   onBrokenLinks: "throw",
@@ -62,6 +67,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: "./sidebars.ts",
+          routeBasePath: "docs",
           editUrl:
             "https://github.com/tisoap/react-flow-smart-edge/tree/main/website/",
         },
@@ -109,7 +115,7 @@ const config: Config = {
           items: [
             {
               label: "Introduction",
-              to: "/docs/intro",
+              to: "/docs",
             },
             {
               label: "Quick start",

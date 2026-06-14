@@ -81,7 +81,7 @@ dist/                    # Build output (gitignored in dev; published to npm)
 | Task                                           | Command                                                         |
 | ---------------------------------------------- | --------------------------------------------------------------- |
 | Install                                        | `npm ci`                                                        |
-| Docs dev (Docusaurus)                          | `npm run docs`                                                  |
+| Docs dev (Docusaurus)                          | `npm run docs` → http://localhost:3000/docs                     |
 | Docs build                                     | `npm run build-docs` → `website/build`                          |
 | Storybook dev                                  | `npm run storybook` (port 6006)                                 |
 | Library build                                  | `npm run build-component`                                       |

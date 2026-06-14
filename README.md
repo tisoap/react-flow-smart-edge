@@ -74,7 +74,7 @@ Configure options with `createSmartEdge("step", { gridRatio: 5 })` or build cust
 ```bash
 npm ci
 npm run storybook    # demos + tests (port 6006)
-npm run docs         # Docusaurus dev server
+npm run docs         # Docusaurus dev server → http://localhost:3000/docs
 npm run check        # lint, types, spellcheck
 npm run test         # Storybook interaction tests
 npm run build-docs   # static docs site → website/build
