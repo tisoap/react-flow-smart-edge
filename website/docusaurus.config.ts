@@ -55,7 +55,11 @@ const config: Config = {
   organizationName: "tisoap",
   projectName: "react-flow-smart-edge",
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
+  },
   i18n: {
     defaultLocale: "en",
     locales: ["en"],
