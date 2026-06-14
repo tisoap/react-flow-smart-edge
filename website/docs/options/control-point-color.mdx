@@ -1,0 +1,21 @@
+---
+sidebar_position: 6
+---
+
+# `controlPointColor`
+
+Stroke/fill color for editable edge control points.
+
+|             |                      |
+| ----------- | -------------------- |
+| **Type**    | `string` (CSS color) |
+| **Default** | `"#3b82f6"` (blue)   |
+
+```ts
+createSmartEdge("bezier", {
+  editable: true,
+  controlPointColor: "#e11d48",
+});
+```
+
+Only applies when [`editable`](./editable) is `true`.

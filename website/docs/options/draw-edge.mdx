@@ -1,0 +1,45 @@
+---
+sidebar_position: 7
+---
+
+# `drawEdge`
+
+Function that converts a point sequence into an SVG path `d` attribute string.
+
+|             |                                         |
+| ----------- | --------------------------------------- |
+| **Type**    | `SVGDrawFunction`                       |
+| **Default** | `svgDrawSmoothLinePath` (bezier preset) |
+
+## Built-in functions
+
+| Export                                        | Used by                              |
+| --------------------------------------------- | ------------------------------------ |
+| `svgDrawSmoothLinePath`                       | `SmartBezierEdge`                    |
+| `svgDrawStraightLinePath`                     | `SmartStraightEdge`, `SmartStepEdge` |
+| `svgDrawSmoothStepLinePath({ borderRadius })` | `SmartSmoothStepEdge` (factory)      |
+
+```tsx
+import {
+  createSmartEdge,
+  svgDrawSmoothStepLinePath,
+} from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  smartSmoothStep: createSmartEdge("smoothstep", {
+    drawEdge: svgDrawSmoothStepLinePath({ borderRadius: 12 }),
+  }),
+};
+```
+
+## Signature
+
+```ts
+type SVGDrawFunction = (
+  source: XYPosition,
+  target: XYPosition,
+  path: number[][],
+) => string;
+```
+
+See [`drawSvgPath.ts` source](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/functions/drawSvgPath.ts) for implementation examples.

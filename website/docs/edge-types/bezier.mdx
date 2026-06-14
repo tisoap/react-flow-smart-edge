@@ -1,0 +1,21 @@
+---
+sidebar_position: 1
+---
+
+# SmartBezierEdge
+
+`SmartBezierEdge` is the default smart edge. It uses diagonal A\* pathfinding and draws a smooth SVG curve through the computed path — the smart equivalent of React Flow's [`BezierEdge`](https://reactflow.dev/api-reference/components/edges/bezier-edge).
+
+```tsx
+import { SmartBezierEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = { smartBezier: SmartBezierEdge };
+```
+
+<FlowDemo name="smartBezier" />
+
+## Related
+
+- [Configuring options](../guides/configuring-options)
+- [`drawEdge`](../options/draw-edge) — change how the path is drawn
+- [`generatePath`](../options/generate-path) — change the pathfinding algorithm

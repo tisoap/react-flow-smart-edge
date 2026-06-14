@@ -1,0 +1,57 @@
+---
+sidebar_position: 1
+---
+
+# Exported types
+
+Public TypeScript types from `@tisoap/react-flow-smart-edge`:
+
+## Options and configuration
+
+| Type                        | Description                                         |
+| --------------------------- | --------------------------------------------------- |
+| `GetSmartEdgeOptions`       | Options object for `getSmartEdge`                   |
+| `ConfigureSmartEdgeOptions` | Options for `createSmartEdge`                       |
+| `SmartEdgeOptions`          | Options passed to `SmartEdge`                       |
+| `SmartEdgePreset`           | Preset name union (`"bezier"` \| `"straight"` \| …) |
+
+## Editable edges
+
+| Type                          | Description                             |
+| ----------------------------- | --------------------------------------- |
+| `SmartEditableEdgeData`       | Shape of `edge.data` for editable edges |
+| `ControlPointData`            | Single waypoint: `{ id, x, y, active }` |
+| `GetSmartEdgeWaypointsParams` | Params for `getSmartEdgeWaypoints`      |
+
+## Pluggable functions
+
+| Type                  | Description                             |
+| --------------------- | --------------------------------------- |
+| `SVGDrawFunction`     | Custom SVG path drawer                  |
+| `SmoothStepOptions`   | Options for `svgDrawSmoothStepLinePath` |
+| `PathFindingFunction` | Custom pathfinding                      |
+| `FloatingEdgeParams`  | Return type of `getFloatingEdgeParams`  |
+
+## Geometry
+
+| Type               | Description                                 |
+| ------------------ | ------------------------------------------- |
+| `AvoidArea`        | Alias of React Flow `Rect` for `avoidAreas` |
+| `Grid`, `GridNode` | Pathfinding grid types                      |
+| `XYPosition`       | Re-exported from `@xyflow/react`            |
+
+## Components
+
+| Type                               | Description                             |
+| ---------------------------------- | --------------------------------------- |
+| `SmartFloatingConnectionLineProps` | Props for `SmartFloatingConnectionLine` |
+
+Import types with `import type`:
+
+```ts
+import type {
+  GetSmartEdgeOptions,
+  AvoidArea,
+  ControlPointData,
+} from "@tisoap/react-flow-smart-edge";
+```

@@ -1,0 +1,47 @@
+---
+sidebar_position: 1
+slug: /intro
+---
+
+# Introduction
+
+Custom edges for [React Flow](https://reactflow.dev) that never intersect with other nodes, using grid-based A\* pathfinding.
+
+![Smart edge example](/img/example.gif)
+
+## Install
+
+With npm:
+
+```bash
+npm install @tisoap/react-flow-smart-edge
+```
+
+With yarn:
+
+```bash
+yarn add @tisoap/react-flow-smart-edge
+```
+
+This package requires [**React Flow v12+**](https://reactflow.dev/learn/troubleshooting/migrate-to-v12) (`@xyflow/react`).
+
+## What you get
+
+- **`SmartBezierEdge`** — smart equivalent to React Flow's `BezierEdge`
+- **`SmartStraightEdge`** — smart equivalent to `StraightEdge`
+- **`SmartStepEdge`** — smart equivalent to `StepEdge`
+- **`SmartSmoothStepEdge`** — smart equivalent to `SmoothStepEdge`
+- **`SmartFloatingEdge`** — floating connection points (like React Flow's floating edges example)
+- **`SmartEditableEdge`** — draggable waypoints with pathfinding between segments
+- **`createSmartEdge`** — configure presets at module scope
+- **`getSmartEdge`** — build fully custom smart edges
+
+## Support
+
+Like this project? [Buy me a coffee](https://ko-fi.com/J3J472RAJ) or [sponsor on GitHub](https://github.com/sponsors/tisoap).
+
+## Next steps
+
+- [Quick start](./getting-started/quick-start) — wire up your first smart edge
+- [Edge types](./edge-types/bezier) — compare presets with live demos
+- [Storybook on Chromatic](https://www.chromatic.com/library?appId=625ade28911b53003a921739) — full interactive story catalog

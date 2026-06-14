@@ -7,8 +7,9 @@ Guidance for AI agents working in this repository.
 **`@tisoap/react-flow-smart-edge`** is a published npm library (MIT) that provides custom [React Flow](https://reactflow.dev) edges which route around nodes using grid-based A\* pathfinding.
 
 - **Consumers**: React apps using `@xyflow/react` v12+ (peer dependency).
-- **This repo**: Library source, Vite library build, Storybook demos/docs, and browser-based Storybook tests.
-- **Live demos**: https://tisoap.github.io/react-flow-smart-edge/
+- **This repo**: Library source, Vite library build, Docusaurus docs site, Storybook demos/tests, and browser-based Storybook tests.
+- **Documentation**: https://tisoap.github.io/react-flow-smart-edge/ (Docusaurus, deployed to gh-pages on release)
+- **Storybook demos**: Chromatic (`.github/workflows/chromatic.yml`); local dev via `npm run storybook`
 - **Package entry**: `src/index.tsx` → `dist/index.{mjs,cjs}` + `dist/index.d.ts`
 
 Do not treat Storybook stories or `src/internal/` as part of the public API unless explicitly exporting them.
@@ -68,7 +69,9 @@ src/
   functions/             # Grid, bounds, SVG path builders
   pathfinding/           # Grid + A*
   internal/              # Debug overlay/context (NOT in package exports)
+  demos/                 # Shared GraphWrapper, fixtures, demoRegistry (Storybook + docs)
   stories/               # Storybook only (excluded from dts build)
+website/                 # Docusaurus documentation site (npm workspace)
 .storybook/              # Storybook + Vitest browser setup
 dist/                    # Build output (gitignored in dev; published to npm)
 ```
@@ -78,9 +81,12 @@ dist/                    # Build output (gitignored in dev; published to npm)
 | Task                                           | Command                                                         |
 | ---------------------------------------------- | --------------------------------------------------------------- |
 | Install                                        | `npm ci`                                                        |
+| Docs dev (Docusaurus)                          | `npm run docs`                                                  |
+| Docs build                                     | `npm run build-docs` → `website/build`                          |
 | Storybook dev                                  | `npm run storybook` (port 6006)                                 |
 | Library build                                  | `npm run build-component`                                       |
-| Full build (lib + static Storybook)            | `npm run build`                                                 |
+| Full build (lib only)                          | `npm run build`                                                 |
+| Deploy docs to gh-pages                        | `npm run deploy-docs` (also runs on `npm run release`)          |
 | All checks (CI-equivalent lint/type/spell)     | `npm run check`                                                 |
 | Auto-fix lint + format                         | `npm run fix`                                                   |
 | Tests (Playwright + Vitest, Storybook stories) | `npm run test`                                                  |
@@ -93,6 +99,7 @@ dist/                    # Build output (gitignored in dev; published to npm)
 
 - **No unit test files** in `src/**/*.test.*`; tests are **Storybook interaction tests** run in **headless Chromium** via Vitest (`vite.config.ts` → `storybook` project).
 - Stories live in `src/stories/`; primary file: `SmartEdge.stories.tsx`.
+- Demo fixtures and `demoRegistry` live in `src/demos/` and are shared with the Docusaurus `<FlowDemo />` component.
 - `GraphWrapper` wraps flows with optional `smartEdgeDebug` and `data-testid="graph-wrapper"`.
 - CI (`.github/workflows/test-ui.yml`): Node 24.4.1 → `install-chromium` → `npm ci` → `npm run test-storybook`.
 
@@ -104,7 +111,8 @@ When adding behavior, prefer extending existing stories or adding a focused stor
 - **Externals** (not bundled): `react`, `react-dom`, `react/jsx-runtime`, `@xyflow/react`.
 - **Types**: `vite-plugin-dts` with `entryRoot: src`, excludes `src/stories/**`.
 - **Published files** (`package.json` `"files"`): `dist`, `src` (source shipped for debugging/types convenience).
-- **Chromatic**: `.github/workflows/chromatic.yml` for visual regression on Storybook.
+- **Chromatic**: `.github/workflows/chromatic.yml` publishes Storybook on every push (public demo host).
+- **Docs site**: Docusaurus in `website/`; `npm run deploy-docs` publishes to gh-pages via `release-it` `after:release` hook.
 - **Rebuild before publish**: `prepublishOnly` runs `build-component`; `.release-it.json` runs the same in `before:npm`. Never publish with an outdated `dist/`—npm does not use `src/` for runtime imports.
 
 ## Code conventions
@@ -176,6 +184,6 @@ Add an entry to `smartEdgePresets.ts`, export via `createSmartEdge("newPreset")`
 
 - Commit secrets (`.env` is for release tokens; see `.env.example`).
 - Add unrelated dependencies or restructure the monolith pipeline without cause.
-- Commit to `dist/` or `storybook-static/` (build artifacts).
+- Commit to `dist/`, `storybook-static/`, or `website/build/` (build artifacts).
 - Force-push `main` or skip git hooks.
 - Expand scope into a full app—this is a **library**, not an application repo.

@@ -1,0 +1,63 @@
+---
+sidebar_position: 3
+---
+
+# Editable edges
+
+A smart take on React Flow's [editable edge](https://reactflow.dev/examples/edges/editable-edge) example. An editable edge renders draggable **waypoints** (control points) that the path is routed _through_; each segment between consecutive waypoints still avoids nodes with pathfinding.
+
+## `SmartEditableEdge`
+
+```ts
+import { SmartEditableEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  smartEditable: SmartEditableEdge,
+};
+```
+
+<FlowDemo name="smartEditable" height={480} />
+
+## With `createSmartEdge`
+
+```ts
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  editableStep: createSmartEdge("step", { editable: true, gridRatio: 5 }),
+};
+```
+
+See also: [`editable`](../options/editable) and [`controlPointColor`](../options/control-point-color).
+
+## Interactions
+
+Select the edge (or one of its connected nodes) to reveal control points:
+
+- **Add** a waypoint by clicking an inactive (hollow) point at a segment midpoint.
+- **Move** a waypoint by dragging it, or nudge it with arrow keys when focused.
+- **Delete** a waypoint by right-clicking it or pressing `Delete`/`Backspace` while focused.
+
+## Persisting waypoints (`edge.data.points`)
+
+Waypoints are stored on `edge.data.points` as `ControlPointData` (`{ id, x, y, active }`). Your flow must let React Flow own the edges (`useEdgesState`, `defaultEdges`, or controlled `edges`/`onEdgesChange`). Persist `data.points` with the rest of your graph:
+
+```ts
+import type { SmartEditableEdgeData } from "@tisoap/react-flow-smart-edge";
+
+const initialEdges = [
+  {
+    id: "e1-2",
+    source: "1",
+    target: "2",
+    type: "smartEditable",
+    data: {
+      points: [{ id: "wp-1", x: 320, y: 90, active: true }],
+    } satisfies SmartEditableEdgeData,
+  },
+];
+```
+
+## `getSmartEdgeWaypoints`
+
+For fully custom edges, see [`getSmartEdgeWaypoints`](../api/get-smart-edge-waypoints).

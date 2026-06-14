@@ -1,0 +1,44 @@
+---
+sidebar_position: 8
+---
+
+# `generatePath`
+
+Pathfinding function that computes a grid path between start and end cells.
+
+|             |                                                      |
+| ----------- | ---------------------------------------------------- |
+| **Type**    | `PathFindingFunction`                                |
+| **Default** | `pathfindingAStarDiagonal` (bezier/straight presets) |
+
+## Built-in functions
+
+| Export                           | Behavior                                                         |
+| -------------------------------- | ---------------------------------------------------------------- |
+| `pathfindingAStarDiagonal`       | A\* with diagonal moves (`SmartBezierEdge`, `SmartStraightEdge`) |
+| `pathfindingAStarNoDiagonal`     | Orthogonal-only A\* (custom edges)                               |
+| `pathfindingJumpPointNoDiagonal` | Jump-point search, no diagonals (`SmartStepEdge`)                |
+
+```tsx
+import {
+  getSmartEdge,
+  pathfindingJumpPointNoDiagonal,
+} from "@tisoap/react-flow-smart-edge";
+
+const result = getSmartEdge({
+  /* ... */
+  options: { generatePath: pathfindingJumpPointNoDiagonal },
+});
+```
+
+## Signature
+
+```ts
+type PathFindingFunction = (
+  grid: Grid,
+  start: XYPosition,
+  end: XYPosition,
+) => number[][];
+```
+
+See [`generatePath.ts` source](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/functions/generatePath.ts).

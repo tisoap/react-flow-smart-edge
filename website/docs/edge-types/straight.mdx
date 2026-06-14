@@ -1,0 +1,19 @@
+---
+sidebar_position: 2
+---
+
+# SmartStraightEdge
+
+`SmartStraightEdge` uses the same diagonal A\* pathfinder as `SmartBezierEdge`, but draws straight SVG segments between grid points — the smart equivalent of React Flow's [`StraightEdge`](https://reactflow.dev/api-reference/components/edges/straight-edge).
+
+```tsx
+import { SmartStraightEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = { smartStraight: SmartStraightEdge };
+```
+
+<FlowDemo name="smartStraight" />
+
+## Note
+
+Paths may still use diagonal grid shortcuts internally; only the rendered stroke is straight between path points.

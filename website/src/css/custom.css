@@ -1,0 +1,7 @@
+.flow-demo {
+  margin-bottom: 1.5rem;
+}
+
+.flow-demo .react-flow__panel {
+  display: none;
+}

@@ -1,0 +1,52 @@
+---
+sidebar_position: 1
+---
+
+# `getSmartEdge`
+
+Central path computation API. Returns `{ svgPathString, edgeCenterX, edgeCenterY }` on success, or an `Error` if no valid path was found.
+
+```ts
+import { getSmartEdge } from "@tisoap/react-flow-smart-edge";
+
+const result = getSmartEdge({
+  sourcePosition,
+  targetPosition,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  nodes,
+  options: {
+    nodePadding: 10,
+    gridRatio: 10,
+  },
+});
+
+if (result instanceof Error) {
+  // fall back to a default edge
+} else {
+  const { svgPathString, edgeCenterX, edgeCenterY } = result;
+}
+```
+
+## Parameters
+
+| Key                                        | Description                            |
+| ------------------------------------------ | -------------------------------------- |
+| `sourceX`, `sourceY`, `targetX`, `targetY` | Handle coordinates                     |
+| `sourcePosition`, `targetPosition`         | Handle sides (`Position` enum)         |
+| `nodes`                                    | All graph nodes (from `useNodes`)      |
+| `options?`                                 | See [Options](../options/node-padding) |
+
+## Pipeline
+
+```
+nodes + endpoints → bounding boxes → grid → walkability → A* → SVG path
+```
+
+## Related
+
+- [`createSmartEdge`](./create-smart-edge) — preset wrapper
+- [`smartEdgePresets`](./smart-edge-presets) — canonical preset configs
+- [`getSmartEdgeWaypoints`](./get-smart-edge-waypoints) — multi-segment routing through waypoints

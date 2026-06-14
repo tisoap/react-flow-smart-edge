@@ -1,0 +1,46 @@
+---
+sidebar_position: 4
+---
+
+# Avoiding custom areas
+
+Besides nodes, smart edges can route around arbitrary rectangular regions with the [`avoidAreas`](../options/avoid-areas) option. Each area is `{ x, y, width, height }` in graph coordinates (`AvoidArea`, an alias of React Flow's `Rect`) and uses the same `nodePadding` clearance as nodes.
+
+```ts
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+import type { AvoidArea } from "@tisoap/react-flow-smart-edge";
+
+const avoidAreas: AvoidArea[] = [{ x: 260, y: 120, width: 150, height: 170 }];
+
+const edgeTypes = {
+  smartBezier: createSmartEdge("bezier", { avoidAreas }),
+};
+```
+
+<FlowDemo name="smartBezierWithAvoidArea" height={360} />
+
+## Dynamic areas
+
+`createSmartEdge(preset, options)` bakes options at module scope — best for static areas. When areas move at runtime, pass a dynamic `options` prop via `SmartEdge`:
+
+```tsx
+import { useNodes } from "@xyflow/react";
+import { SmartEdge, smartEdgePresets } from "@tisoap/react-flow-smart-edge";
+import type { EdgeProps } from "@xyflow/react";
+import { useAvoidAreas } from "./your-store";
+
+function MySmartEdge(props: EdgeProps) {
+  const nodes = useNodes();
+  const avoidAreas = useAvoidAreas();
+
+  return (
+    <SmartEdge
+      {...props}
+      nodes={nodes}
+      options={{ ...smartEdgePresets.bezier, avoidAreas }}
+    />
+  );
+}
+```
+
+Pair with `getSmartEdge`'s returned `edgeCenterX` / `edgeCenterY` to position a label and register its bounding box as an avoid area for other edges.

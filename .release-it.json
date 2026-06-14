@@ -6,6 +6,6 @@
   },
   "hooks": {
     "before:npm": "npm run build-component",
-    "after:release": "npm run deploy-storybook"
+    "after:release": "npm run deploy-docs"
   }
 }

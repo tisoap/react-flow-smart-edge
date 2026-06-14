@@ -14,6 +14,7 @@
     "typescript"
   ],
   "words": [
+    "docusaurus",
     "Alvarez",
     "Bresenham's",
     "chromaui",
@@ -29,5 +30,5 @@
     "xyflow"
   ],
   "flagWords": [],
-  "ignorePaths": ["dist", "storybook-static", "node_modules"]
+  "ignorePaths": ["dist", "storybook-static", "website/build", "node_modules"]
 }

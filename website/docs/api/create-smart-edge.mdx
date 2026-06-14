@@ -1,0 +1,32 @@
+---
+sidebar_position: 3
+---
+
+# `createSmartEdge`
+
+Factory that returns a React Flow edge component for a preset with baked-in options.
+
+```ts
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  smartStep: createSmartEdge("step", { gridRatio: 5, nodePadding: 20 }),
+  floatingBezier: createSmartEdge("bezier", { floating: true }),
+  editableBezier: createSmartEdge("bezier", { editable: true }),
+};
+```
+
+## Presets
+
+| Preset         | Equivalent component  |
+| -------------- | --------------------- |
+| `"bezier"`     | `SmartBezierEdge`     |
+| `"straight"`   | `SmartStraightEdge`   |
+| `"step"`       | `SmartStepEdge`       |
+| `"smoothstep"` | `SmartSmoothStepEdge` |
+
+## Important
+
+Define `edgeTypes` at **module scope**. React Flow compares edge type components by reference; creating them during render remounts edges.
+
+See [Configuring edge options](../guides/configuring-options).

@@ -1,0 +1,26 @@
+---
+sidebar_position: 3
+---
+
+# `avoidAreas`
+
+Extra rectangular obstacles (in graph coordinates) the edge routes around, in addition to nodes.
+
+|             |                                             |
+| ----------- | ------------------------------------------- |
+| **Type**    | `AvoidArea[]` (`Rect` from `@xyflow/react`) |
+| **Default** | `undefined`                                 |
+
+Each entry: `{ x, y, width, height }`. Uses the same [`nodePadding`](./node-padding) clearance as nodes.
+
+```ts
+import type { AvoidArea } from "@tisoap/react-flow-smart-edge";
+
+const avoidAreas: AvoidArea[] = [{ x: 260, y: 120, width: 150, height: 170 }];
+
+createSmartEdge("bezier", { avoidAreas });
+```
+
+<FlowDemo name="smartBezierWithAvoidArea" height={360} />
+
+See [Avoiding custom areas](../guides/avoid-areas) for static vs dynamic usage.

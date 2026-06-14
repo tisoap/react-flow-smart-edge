@@ -1,0 +1,33 @@
+---
+sidebar_position: 2
+---
+
+# `getSmartEdgeWaypoints`
+
+Routes an edge through explicit waypoints. Runs `getSmartEdge` per `[source, ...waypoints, target]` segment and stitches results into a single path.
+
+```ts
+import { getSmartEdgeWaypoints } from "@tisoap/react-flow-smart-edge";
+
+const result = getSmartEdgeWaypoints({
+  sourcePosition,
+  targetPosition,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  nodes,
+  waypoints: [{ x: 320, y: 90 }],
+  options: smartEdgePresets.step,
+});
+```
+
+## Return value
+
+Same shape as `getSmartEdge`, plus `points` (updated waypoint data). Returns `Error` on failure.
+
+With an empty `waypoints` array, behavior matches `getSmartEdge` exactly.
+
+## Use case
+
+Build fully custom editable edges when `SmartEditableEdge` does not fit your UI. See [Editable edges](../guides/editable-edges).

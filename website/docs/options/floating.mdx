@@ -1,0 +1,22 @@
+---
+sidebar_position: 4
+---
+
+# `floating`
+
+When `true`, connection points are computed dynamically from node geometry instead of using fixed handle positions.
+
+|             |           |
+| ----------- | --------- |
+| **Type**    | `boolean` |
+| **Default** | `false`   |
+
+```ts
+createSmartEdge("bezier", { floating: true });
+```
+
+Or use the ready-made `SmartFloatingEdge` component.
+
+<FlowDemo name="smartFloating" />
+
+See [Floating edges](../guides/floating-edges).

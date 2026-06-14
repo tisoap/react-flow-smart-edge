@@ -1,0 +1,33 @@
+---
+sidebar_position: 4
+---
+
+# `smartEdgePresets`
+
+Canonical `drawEdge`, `generatePath`, and `fallback` configs for each preset. Spread into `getSmartEdge` options or `SmartEdge`'s `options` prop.
+
+```ts
+import { getSmartEdge, smartEdgePresets } from "@tisoap/react-flow-smart-edge";
+
+// Same as SmartBezierEdge
+getSmartEdge({ /* ... */, options: smartEdgePresets.bezier });
+
+// Same as SmartStepEdge
+getSmartEdge({ /* ... */, options: smartEdgePresets.step });
+
+// Same as SmartStraightEdge
+getSmartEdge({ /* ... */, options: smartEdgePresets.straight });
+```
+
+## Preset keys
+
+- `bezier` — `svgDrawSmoothLinePath` + `pathfindingAStarDiagonal`
+- `straight` — `svgDrawStraightLinePath` + `pathfindingAStarDiagonal`
+- `step` — `svgDrawStraightLinePath` + `pathfindingJumpPointNoDiagonal`
+- `smoothstep` — smooth-step draw + jump-point pathfinding
+
+Override individual fields when spreading:
+
+```ts
+options: { ...smartEdgePresets.step, gridRatio: 5 }
+```

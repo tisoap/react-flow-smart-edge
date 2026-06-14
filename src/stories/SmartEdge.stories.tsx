@@ -1,40 +1,9 @@
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import {
-  createSmartEdge,
-  svgDrawSmoothStepLinePath,
-  SmartFloatingConnectionLine,
-} from "../index";
-import {
-  edgesBezier,
-  edgesStraight,
-  edgesStep,
-  edgesSmoothStep,
-  edgesLabel,
-  nodes,
-  edgeTypes,
-  simpleNodes,
-  simpleEdgesBezier,
-  unalignedNodes,
-  unalignedEdgesStep,
-  horizontalNodes,
-  horizontalEdgesStep,
-  subFlowNodes,
-  subFlowEdgesBezier,
-  subFlowEdgesStep,
-  subFlowGroupNodes,
-  subFlowGroupEdgesBezier,
-  subFlowGroupEdgesStep,
-  floatingNodes,
-  floatingEdges,
-  avoidAreaNodes,
-  avoidAreaEdgesBezier,
-  demoAvoidAreas,
-  editableNodes,
-  editableEdges,
-} from "./DummyData";
-import { GraphWrapper } from "./GraphWrapper";
+import { demoAvoidAreas } from "../demos/DummyData";
+import { demoRegistry } from "../demos/registry";
+import { GraphWrapper } from "../demos/GraphWrapper";
 import type { Meta, StoryFn } from "@storybook/react-vite";
-import type { ReactFlowProps } from "@xyflow/react";
+import type { DemoGraphProps } from "../demos/registry";
 
 export default {
   title: "Smart Edge",
@@ -52,162 +21,67 @@ export default {
   },
 } as Meta;
 
-const Template: StoryFn<ReactFlowProps & { smartEdgeDebug?: boolean }> = (
-  args,
-) => <GraphWrapper {...args} />;
+const Template: StoryFn<DemoGraphProps> = (args) => <GraphWrapper {...args} />;
 
 export const SmartBezier = Template.bind({});
-SmartBezier.args = {
-  edgeTypes,
-  defaultNodes: nodes,
-  defaultEdges: edgesBezier,
-  smartEdgeDebug: false,
-};
+SmartBezier.args = demoRegistry.smartBezier;
 
 export const SmartStraight = Template.bind({});
-SmartStraight.args = {
-  ...SmartBezier.args,
-  defaultEdges: edgesStraight,
-};
+SmartStraight.args = demoRegistry.smartStraight;
 
 export const SmartStep = Template.bind({});
-SmartStep.args = {
-  ...SmartBezier.args,
-  defaultEdges: edgesStep,
-};
-
-const configuredEdgeTypes = {
-  smartStep: createSmartEdge("step", { gridRatio: 5 }),
-};
+SmartStep.args = demoRegistry.smartStep;
 
 export const SmartStepConfigured = Template.bind({});
-SmartStepConfigured.args = {
-  edgeTypes: configuredEdgeTypes,
-  defaultNodes: nodes,
-  defaultEdges: edgesStep,
-  smartEdgeDebug: true,
-};
+SmartStepConfigured.args = demoRegistry.smartStepConfigured;
 
 export const SmartSmoothStep = Template.bind({});
-SmartSmoothStep.args = {
-  ...SmartBezier.args,
-  defaultEdges: edgesSmoothStep,
-};
-
-const configuredSmoothStepEdgeTypes = {
-  smartSmoothStep: createSmartEdge("smoothstep", {
-    drawEdge: svgDrawSmoothStepLinePath({ borderRadius: 20 }),
-  }),
-};
+SmartSmoothStep.args = demoRegistry.smartSmoothStep;
 
 export const SmartSmoothStepConfigured = Template.bind({});
-SmartSmoothStepConfigured.args = {
-  edgeTypes: configuredSmoothStepEdgeTypes,
-  defaultNodes: nodes,
-  defaultEdges: edgesSmoothStep,
-  smartEdgeDebug: true,
-};
+SmartSmoothStepConfigured.args = demoRegistry.smartSmoothStepConfigured;
 
 export const SmartBezierWithCustomLabel = Template.bind({});
-SmartBezierWithCustomLabel.args = {
-  ...SmartBezier.args,
-  defaultEdges: edgesLabel,
-};
+SmartBezierWithCustomLabel.args = demoRegistry.smartBezierWithCustomLabel;
 
 export const SmartBezierSimple = Template.bind({});
-SmartBezierSimple.args = {
-  edgeTypes,
-  defaultNodes: simpleNodes,
-  defaultEdges: simpleEdgesBezier,
-  smartEdgeDebug: false,
-};
+SmartBezierSimple.args = demoRegistry.smartBezierSimple;
 
 export const SmartStepUnaligned = Template.bind({});
-SmartStepUnaligned.args = {
-  edgeTypes,
-  defaultNodes: unalignedNodes,
-  defaultEdges: unalignedEdgesStep,
-  smartEdgeDebug: false,
-};
+SmartStepUnaligned.args = demoRegistry.smartStepUnaligned;
 
 export const SmartStepHorizontal = Template.bind({});
-SmartStepHorizontal.args = {
-  edgeTypes,
-  defaultNodes: horizontalNodes,
-  defaultEdges: horizontalEdgesStep,
-  smartEdgeDebug: false,
-};
+SmartStepHorizontal.args = demoRegistry.smartStepHorizontal;
 
 export const SmartBezierSubFlow = Template.bind({});
-SmartBezierSubFlow.args = {
-  edgeTypes,
-  defaultNodes: subFlowNodes,
-  defaultEdges: subFlowEdgesBezier,
-  smartEdgeDebug: false,
-};
+SmartBezierSubFlow.args = demoRegistry.smartBezierSubFlow;
 
 export const SmartStepSubFlow = Template.bind({});
-SmartStepSubFlow.args = {
-  edgeTypes,
-  defaultNodes: subFlowNodes,
-  defaultEdges: subFlowEdgesStep,
-  smartEdgeDebug: false,
-};
+SmartStepSubFlow.args = demoRegistry.smartStepSubFlow;
 
 export const SmartBezierSubFlowGroup = Template.bind({});
-SmartBezierSubFlowGroup.args = {
-  edgeTypes,
-  defaultNodes: subFlowGroupNodes,
-  defaultEdges: subFlowGroupEdgesBezier,
-  smartEdgeDebug: false,
-};
+SmartBezierSubFlowGroup.args = demoRegistry.smartBezierSubFlowGroup;
 
 export const SmartStepSubFlowGroup = Template.bind({});
-SmartStepSubFlowGroup.args = {
-  edgeTypes,
-  defaultNodes: subFlowGroupNodes,
-  defaultEdges: subFlowGroupEdgesStep,
-  smartEdgeDebug: false,
-};
+SmartStepSubFlowGroup.args = demoRegistry.smartStepSubFlowGroup;
 
 export const SmartFloating = Template.bind({});
-SmartFloating.args = {
-  edgeTypes,
-  defaultNodes: floatingNodes,
-  defaultEdges: floatingEdges,
-  smartEdgeDebug: false,
-};
+SmartFloating.args = demoRegistry.smartFloating;
 
 export const SmartFloatingWithConnectionLine = Template.bind({});
-SmartFloatingWithConnectionLine.args = {
-  edgeTypes,
-  defaultNodes: floatingNodes,
-  defaultEdges: floatingEdges,
-  connectionLineComponent: SmartFloatingConnectionLine,
-  smartEdgeDebug: false,
-};
-
-const avoidAreaEdgeTypes = {
-  smartBezierAvoid: createSmartEdge("bezier", { avoidAreas: demoAvoidAreas }),
-};
+SmartFloatingWithConnectionLine.args =
+  demoRegistry.smartFloatingWithConnectionLine;
 
 export const SmartBezierWithAvoidArea = Template.bind({});
-SmartBezierWithAvoidArea.args = {
-  edgeTypes: avoidAreaEdgeTypes,
-  defaultNodes: avoidAreaNodes,
-  defaultEdges: avoidAreaEdgesBezier,
-  smartEdgeDebug: true,
-};
+SmartBezierWithAvoidArea.args = demoRegistry.smartBezierWithAvoidArea;
 SmartBezierWithAvoidArea.play = async ({ canvasElement }) => {
   const canvas = within(canvasElement);
 
-  // The consumer-provided avoid area is visualized by the debug overlay.
   const areas = await waitFor(() =>
     canvas.getAllByTestId("smart-edge-avoid-area"),
   );
   await expect(areas).toHaveLength(demoAvoidAreas.length);
 
-  // The smart edge renders an SVG path (i.e. it did not fall back on error).
   const edgePath = await waitFor(() => {
     const path = canvasElement.querySelector<SVGPathElement>(
       ".react-flow__edge-path",
@@ -219,14 +93,8 @@ SmartBezierWithAvoidArea.play = async ({ canvasElement }) => {
 };
 
 export const SmartEditable = Template.bind({});
-SmartEditable.args = {
-  edgeTypes,
-  defaultNodes: editableNodes,
-  defaultEdges: editableEdges,
-  smartEdgeDebug: false,
-};
+SmartEditable.args = demoRegistry.smartEditable;
 SmartEditable.play = async ({ canvasElement }) => {
-  // The edge is seeded as selected, so its control points render immediately.
   const controlPoints = await waitFor(() => {
     const circles = canvasElement.querySelectorAll<SVGCircleElement>(
       "[data-testid='smart-edge-control-point']",
@@ -235,7 +103,6 @@ SmartEditable.play = async ({ canvasElement }) => {
     return circles;
   });
 
-  // One active waypoint plus an inactive insert point on each side.
   await expect(controlPoints.length).toBeGreaterThanOrEqual(3);
 
   const activePoint = canvasElement.querySelector<SVGCircleElement>(
@@ -249,8 +116,6 @@ SmartEditable.play = async ({ canvasElement }) => {
   if (!edgePath) throw new Error("edge path not rendered");
   const initialPath = edgePath.getAttribute("d");
 
-  // Nudging the active waypoint with the keyboard re-routes the edge, so the
-  // rendered path changes.
   await userEvent.click(activePoint);
   await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
 

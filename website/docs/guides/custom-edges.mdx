@@ -1,0 +1,117 @@
+---
+sidebar_position: 5
+---
+
+# Custom smart edges
+
+Create a [custom edge](https://reactflow.dev/learn/customization/custom-edges) and call `getSmartEdge` for path computation.
+
+## Required inputs
+
+- `sourcePosition`, `targetPosition`, `sourceX`, `sourceY`, `targetX`, `targetY` — same as custom edge props
+- `nodes` — from [`useNodes`](https://reactflow.dev/api-reference/hooks/use-nodes)
+
+## Example with a button label
+
+Like React Flow's [edge with button](https://reactflow.dev/examples/edges/edge-with-button) example:
+
+```tsx
+import { useNodes, BezierEdge } from "@xyflow/react";
+import { getSmartEdge } from "@tisoap/react-flow-smart-edge";
+import type { EdgeProps } from "@xyflow/react";
+
+const foreignObjectSize = 200;
+
+export function SmartEdgeWithButtonLabel(props: EdgeProps) {
+  const {
+    id,
+    sourcePosition,
+    targetPosition,
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    style,
+    markerStart,
+    markerEnd,
+  } = props;
+
+  const nodes = useNodes();
+
+  const smartResponse = getSmartEdge({
+    sourcePosition,
+    targetPosition,
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    nodes,
+  });
+
+  if (smartResponse instanceof Error) {
+    return <BezierEdge {...props} />;
+  }
+
+  const { edgeCenterX, edgeCenterY, svgPathString } = smartResponse;
+
+  return (
+    <>
+      <path
+        style={style}
+        className="react-flow__edge-path"
+        d={svgPathString}
+        markerEnd={markerEnd}
+        markerStart={markerStart}
+      />
+      <foreignObject
+        width={foreignObjectSize}
+        height={foreignObjectSize}
+        x={edgeCenterX - foreignObjectSize / 2}
+        y={edgeCenterY - foreignObjectSize / 2}
+        requiredExtensions="http://www.w3.org/1999/xhtml"
+      >
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            alert(`remove ${id}`);
+          }}
+        >
+          X
+        </button>
+      </foreignObject>
+    </>
+  );
+}
+```
+
+<FlowDemo name="smartBezierWithCustomLabel" />
+
+## Advanced configuration
+
+Pass an optional `options` object to tune pathfinding. See [Options](../options/node-padding) and [`getSmartEdge`](../api/get-smart-edge).
+
+```js
+const result = getSmartEdge({
+  sourcePosition,
+  targetPosition,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  nodes,
+  options: {
+    nodePadding: 20,
+    gridRatio: 15,
+  },
+});
+```
+
+Use [`smartEdgePresets`](../api/smart-edge-presets) to match built-in edge behavior:
+
+```tsx
+import { getSmartEdge, smartEdgePresets } from "@tisoap/react-flow-smart-edge";
+
+const bezierResult = getSmartEdge({ /* ... */, options: smartEdgePresets.bezier });
+const stepResult = getSmartEdge({ /* ... */, options: smartEdgePresets.step });
+```

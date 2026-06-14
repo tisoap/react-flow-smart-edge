@@ -25,6 +25,9 @@
   "license": "MIT",
   "author": "Tiso Alvarez Puccinelli",
   "type": "module",
+  "workspaces": [
+    "website"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -40,16 +43,18 @@
     "src"
   ],
   "scripts": {
-    "build": "npm run build-component && npm run build-storybook",
+    "build": "npm run build-component",
     "build-component": "vite build",
+    "build-docs": "npm run build-component && npm run build -w website",
     "build-storybook": "storybook build",
     "check": "npm run typecheck && npm run spellcheck && npm run eslint && npm run prettier",
-    "deploy-storybook": "npm run build-storybook && npm run gh-pages",
+    "deploy-docs": "npm run build-docs && npm run gh-pages",
+    "docs": "npm run start -w website",
     "dev": "vite",
     "eslint": "eslint .",
     "eslint-fix": "eslint . --fix",
     "fix": "npm run eslint-fix && npm run prettier-write",
-    "gh-pages": "gh-pages -d storybook-static",
+    "gh-pages": "gh-pages -d website/build",
     "install-chromium": "npx playwright install chromium --with-deps",
     "prettier": "prettier --check .",
     "prettier-write": "prettier --write .",

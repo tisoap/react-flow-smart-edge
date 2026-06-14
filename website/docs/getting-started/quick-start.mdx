@@ -1,0 +1,44 @@
+---
+sidebar_position: 1
+---
+
+# Quick start
+
+Import a preset edge, register it in `edgeTypes`, and pass it to `<ReactFlow />`.
+
+```tsx
+import { ReactFlow } from "@xyflow/react";
+import { SmartBezierEdge } from "@tisoap/react-flow-smart-edge";
+import "@xyflow/react/dist/style.css";
+
+const nodes = [
+  { id: "1", data: { label: "Node 1" }, position: { x: 300, y: 100 } },
+  { id: "2", data: { label: "Node 2" }, position: { x: 300, y: 200 } },
+];
+
+const edges = [{ id: "e21", source: "2", target: "1", type: "smart" }];
+
+const edgeTypes = {
+  smart: SmartBezierEdge,
+};
+
+export function Graph() {
+  return (
+    <ReactFlow
+      defaultNodes={nodes}
+      defaultEdges={edges}
+      edgeTypes={edgeTypes}
+      fitView
+    />
+  );
+}
+```
+
+## Live example
+
+<FlowDemo name="smartBezierSimple" height={360} />
+
+## Learn more
+
+- [Configuring edge options](../guides/configuring-options) — tune `gridRatio`, `nodePadding`, and more
+- [Edge types](../edge-types/bezier) — compare bezier, straight, step, and smooth-step presets

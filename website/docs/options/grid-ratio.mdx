@@ -1,0 +1,23 @@
+---
+sidebar_position: 2
+---
+
+# `gridRatio`
+
+Size in pixels of each square grid cell used for pathfinding.
+
+|             |          |
+| ----------- | -------- |
+| **Type**    | `number` |
+| **Default** | `10`     |
+| **Minimum** | `2`      |
+
+Smaller values produce more accurate paths but slower pathfinding. Larger values are faster but coarser.
+
+```ts
+createSmartEdge("step", { gridRatio: 5 });
+```
+
+<FlowDemo name="smartStepConfigured" height={400} />
+
+On large graphs, avoid very small `gridRatio` values — pathfinding runs on a discrete grid and cost grows quickly.

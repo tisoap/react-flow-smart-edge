@@ -1,0 +1,22 @@
+---
+sidebar_position: 5
+---
+
+# `editable`
+
+When `true`, the edge renders draggable waypoints and routes through them. Each segment still uses pathfinding.
+
+|             |           |
+| ----------- | --------- |
+| **Type**    | `boolean` |
+| **Default** | `false`   |
+
+```ts
+createSmartEdge("step", { editable: true, gridRatio: 5 });
+```
+
+Or use `SmartEditableEdge` directly.
+
+<FlowDemo name="smartEditable" height={480} />
+
+Waypoints persist on `edge.data.points`. See [Editable edges](../guides/editable-edges).

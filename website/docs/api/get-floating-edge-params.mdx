@@ -1,0 +1,33 @@
+---
+sidebar_position: 5
+---
+
+# `getFloatingEdgeParams`
+
+Computes floating connection points between two nodes from their geometry.
+
+```ts
+import { getFloatingEdgeParams } from "@tisoap/react-flow-smart-edge";
+
+const { sx, sy, tx, ty, sourcePos, targetPos } = getFloatingEdgeParams(
+  sourceNode,
+  targetNode,
+);
+```
+
+## Return value
+
+| Field                    | Description                     |
+| ------------------------ | ------------------------------- |
+| `sx`, `sy`               | Source intersection coordinates |
+| `tx`, `ty`               | Target intersection coordinates |
+| `sourcePos`, `targetPos` | Side of each node (`Position`)  |
+
+Feed these into `getSmartEdge` when building a custom floating edge. Both nodes need absolute positions and `measured` dimensions.
+
+## Related exports
+
+- `getNodeIntersection` — intersection point for one node
+- `getEdgePosition` — which side of a node an intersection lies on
+
+See [Floating edges](../guides/floating-edges).

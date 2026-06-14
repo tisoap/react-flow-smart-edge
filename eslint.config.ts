@@ -10,7 +10,7 @@ import { configs as sonarJsConfigs } from "eslint-plugin-sonarjs";
 import prettier from "eslint-plugin-prettier/recommended";
 
 export default defineConfig(
-  globalIgnores(["dist", "storybook-static"]),
+  globalIgnores(["dist", "storybook-static", "website"]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: [

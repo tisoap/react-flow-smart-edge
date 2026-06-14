@@ -1,0 +1,34 @@
+---
+sidebar_position: 4
+---
+
+# SmartSmoothStepEdge
+
+`SmartSmoothStepEdge` uses orthogonal jump-point pathfinding and rounds corners when drawing — the smart equivalent of React Flow's [`SmoothStepEdge`](https://reactflow.dev/api-reference/components/edges/smooth-step-edge).
+
+```tsx
+import { SmartSmoothStepEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = { smartSmoothStep: SmartSmoothStepEdge };
+```
+
+<FlowDemo name="smartSmoothStep" />
+
+## Custom corner radius
+
+Use `svgDrawSmoothStepLinePath` with `createSmartEdge`:
+
+```tsx
+import {
+  createSmartEdge,
+  svgDrawSmoothStepLinePath,
+} from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  smartSmoothStep: createSmartEdge("smoothstep", {
+    drawEdge: svgDrawSmoothStepLinePath({ borderRadius: 20 }),
+  }),
+};
+```
+
+<FlowDemo name="smartSmoothStepConfigured" />

@@ -1,0 +1,21 @@
+---
+sidebar_position: 1
+---
+
+# `nodePadding`
+
+How many pixels of padding are added around nodes (and [`avoidAreas`](./avoid-areas)) when building the pathfinding grid.
+
+|             |          |
+| ----------- | -------- |
+| **Type**    | `number` |
+| **Default** | `10`     |
+| **Minimum** | `2`      |
+
+Higher values keep edges farther from node borders. Lower values allow tighter routing but may graze node corners.
+
+```ts
+createSmartEdge("bezier", { nodePadding: 20 });
+```
+
+Works together with [`gridRatio`](./grid-ratio): padding is applied in graph pixels before the grid is built.

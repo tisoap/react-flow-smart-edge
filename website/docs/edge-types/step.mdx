@@ -1,0 +1,29 @@
+---
+sidebar_position: 3
+---
+
+# SmartStepEdge
+
+`SmartStepEdge` uses orthogonal-only jump-point pathfinding and draws straight segments — the smart equivalent of React Flow's [`StepEdge`](https://reactflow.dev/api-reference/components/edges/step-edge).
+
+```tsx
+import { SmartStepEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = { smartStep: SmartStepEdge };
+```
+
+<FlowDemo name="smartStep" />
+
+## Tuned example
+
+Lower `gridRatio` for finer routing:
+
+```tsx
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  smartStep: createSmartEdge("step", { gridRatio: 5 }),
+};
+```
+
+<FlowDemo name="smartStepConfigured" />

@@ -1,0 +1,61 @@
+---
+sidebar_position: 2
+---
+
+# Floating edges
+
+A smart equivalent of React Flow's [floating edges example](https://reactflow.dev/examples/edges/floating-edges). Instead of fixed handle positions, a floating edge computes source/target connection points dynamically from node geometry, attaching to the nearest border facing the other node, then routes around obstacles.
+
+## `SmartFloatingEdge`
+
+```ts
+import { SmartFloatingEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  smartFloating: SmartFloatingEdge,
+};
+```
+
+<FlowDemo name="smartFloating" />
+
+## With `createSmartEdge`
+
+The `floating` option works with any preset:
+
+```ts
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  floatingStep: createSmartEdge("step", { floating: true, gridRatio: 5 }),
+};
+```
+
+See also: [`floating` option](../options/floating).
+
+## Floating connection line
+
+Preview a smart floating line while dragging a new connection:
+
+```tsx
+import {
+  SmartFloatingEdge,
+  SmartFloatingConnectionLine,
+} from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = { smartFloating: SmartFloatingEdge };
+
+function Flow() {
+  return (
+    <ReactFlow
+      edgeTypes={edgeTypes}
+      connectionLineComponent={SmartFloatingConnectionLine}
+    />
+  );
+}
+```
+
+<FlowDemo name="smartFloatingWithConnectionLine" />
+
+## `getFloatingEdgeParams`
+
+For fully custom edges, compute floating connection points with [`getFloatingEdgeParams`](../api/get-floating-edge-params).
