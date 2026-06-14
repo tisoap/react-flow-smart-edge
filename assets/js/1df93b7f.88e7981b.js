@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkreact_flow_smart_edge_website=self.webpackChunkreact_flow_smart_edge_website||[]).push([[583],{3166(e,t,s){s.r(t),s.d(t,{default:()=>_});var r=s(9519),a=s(2540);function _(){return(0,a.jsx)(r.rd,{to:"/docs"})}}}]);
