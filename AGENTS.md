@@ -12,7 +12,7 @@ Guidance for AI agents working in this repository.
 - **Storybook demos**: Chromatic (`.github/workflows/chromatic.yml`); local dev via `npm run storybook`
 - **Package entry**: `src/index.tsx` → `dist/index.{mjs,cjs}` + `dist/index.d.ts`
 
-Do not treat Storybook stories or `src/internal/` as part of the public API unless explicitly exporting them.
+Do not treat Storybook stories or `src/demos/` as part of the public API unless explicitly exporting them.
 
 ## Architecture (read this before changing path logic)
 
@@ -68,7 +68,6 @@ src/
   SmartStepEdge/
   functions/             # Grid, bounds, SVG path builders
   pathfinding/           # Grid + A*
-  internal/              # Debug overlay/context (NOT in package exports)
   demos/                 # Shared GraphWrapper, fixtures, demoRegistry (Storybook + docs)
   stories/               # Storybook only (excluded from dts build)
 website/                 # Docusaurus documentation site (npm workspace)
@@ -100,7 +99,7 @@ dist/                    # Build output (gitignored in dev; published to npm)
 - **No unit test files** in `src/**/*.test.*`; tests are **Storybook interaction tests** run in **headless Chromium** via Vitest (`vite.config.ts` → `storybook` project).
 - Stories live in `src/stories/`; primary file: `SmartEdge.stories.tsx`.
 - Demo fixtures and `demoRegistry` live in `src/demos/` and are shared with the Docusaurus `<FlowDemo />` component.
-- `GraphWrapper` wraps flows with optional `smartEdgeDebug` and `data-testid="graph-wrapper"`.
+- `GraphWrapper` wraps flows with `data-testid="graph-wrapper"`.
 - CI (`.github/workflows/test-ui.yml`): Node 24.4.1 → `install-chromium` → `npm ci` → `npm run test-storybook`.
 
 When adding behavior, prefer extending existing stories or adding a focused story over introducing a parallel test harness.
@@ -110,7 +109,7 @@ When adding behavior, prefer extending existing stories or adding a focused stor
 - **Bundler**: Vite library mode (`vite.config.ts`).
 - **Externals** (not bundled): `react`, `react-dom`, `react/jsx-runtime`, `@xyflow/react`.
 - **Types**: `vite-plugin-dts` with `entryRoot: src`, excludes `src/stories/**`.
-- **Published files** (`package.json` `"files"`): `dist`, `src` (source shipped for debugging/types convenience).
+- **Published files** (`package.json` `"files"`): `dist`, `src` (source shipped for types convenience).
 - **Chromatic**: `.github/workflows/chromatic.yml` publishes Storybook on every push (public demo host).
 - **Docs site**: Docusaurus in `website/`; `npm run deploy-docs` publishes to gh-pages via `release-it` `after:release` hook.
 - **Rebuild before publish**: `prepublishOnly` runs `build-component`; `.release-it.json` runs the same in `before:npm`. Never publish with an outdated `dist/`—npm does not use `src/` for runtime imports.
@@ -123,18 +122,13 @@ When adding behavior, prefer extending existing stories or adding a focused stor
 - **Spellcheck**: cspell (`.cspell.json`); run via `npm run spellcheck`.
 - **React**: functional components; smart edges use `useNodes()` inside preset components, not in `getSmartEdge`.
 - **Imports**: use `import type` for types; respect `verbatimModuleSyntax`.
-- **Errors**: `getSmartEdge` catches and returns `Error` instances; pathfinding helpers may `throw` internally. `SmartEdge` falls back to `options.fallback` (default `BezierEdge`) and logs in debug mode.
-
-## Internal debug (contributors only)
-
-- `src/internal/`: `SmartEdgeDebugProvider`, overlay, `useSmartEdgeDebug`.
-- `getSmartEdge` accepts optional `options.debug` (wired from `SmartEdge` when debug context is enabled)—**not documented for npm consumers**; avoid expanding this API without maintainer intent.
+- **Errors**: `getSmartEdge` catches and returns `Error` instances; pathfinding helpers may `throw` internally. `SmartEdge` falls back to `options.fallback` (default `BezierEdge`).
 
 ## Common agent tasks
 
 ### Fix routing / path quality
 
-1. Reproduce in Storybook (`npm run storybook`) with `smartEdgeDebug: true` if needed.
+1. Reproduce in Storybook (`npm run storybook`).
 2. Trace: `getBoundingBoxes` → `createGrid` → `guaranteeWalkablePath` → A\* → `drawSvgPath`.
 3. Tune `gridRatio` / `nodePadding` in stories before changing defaults.
 
@@ -160,7 +154,7 @@ Add an entry to `smartEdgePresets.ts`, export via `createSmartEdge("newPreset")`
 - **React Flow v12 only** (`@xyflow/react` ≥ 12). Do not use legacy `reactflow` import paths in docs or code.
 - **README examples** may show older import names (`reactflow`); library code correctly uses `@xyflow/react`.
 - Changing `getSmartEdge` return shape or option defaults is a **breaking change** for consumers—bump major version via release-it.
-- `src/stories/` and `src/internal/` must stay out of the dts entry surface (already excluded in Vite dts config).
+- `src/stories/` and `src/demos/` must stay out of the dts entry surface (stories are already excluded in Vite dts config).
 - Pathfinding runs on a **discrete grid**; very small `gridRatio` on large graphs can be slow.
 - **Stale `dist/` on npm**: editing `src/index.tsx` alone does not fix consumers; a release must include a fresh `npm run build-component` output.
 
