@@ -177,4 +177,95 @@ describe("ControlPoint", () => {
 
     expect(setControlPoints).not.toHaveBeenCalled();
   });
+
+  it("ignores unhandled keys and inactive context-menu deletes", async () => {
+    const user = userEvent.setup();
+    const { setControlPoints } = renderPoint({ id: "__inactive-0", index: 0 });
+    const circle = screen.getByTestId("smart-edge-control-point");
+
+    circle.focus();
+    await user.keyboard("a");
+
+    circle.dispatchEvent(
+      new MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
+    );
+
+    expect(setControlPoints).not.toHaveBeenCalled();
+  });
+
+  it("activates an active point from the keyboard without preventing default", async () => {
+    const user = userEvent.setup();
+    const { setControlPoints } = renderPoint({
+      id: "active-1",
+      index: 1,
+      active: true,
+    });
+    const circle = screen.getByTestId("smart-edge-control-point");
+
+    circle.focus();
+    await user.keyboard(" ");
+
+    expect(setControlPoints).toHaveBeenCalled();
+  });
+
+  it("deletes an active point with Backspace", async () => {
+    const user = userEvent.setup();
+    const { setControlPoints } = renderPoint({
+      id: "active-1",
+      index: 1,
+      active: true,
+    });
+    const circle = screen.getByTestId("smart-edge-control-point");
+
+    circle.focus();
+    await user.keyboard("{Backspace}");
+
+    expect(setControlPoints).toHaveBeenCalled();
+    const updater = vi.mocked(setControlPoints).mock.calls.at(-1)?.[0];
+    expect(updater?.([{ id: "active-1", x: 50, y: 50, active: true }])).toEqual(
+      [],
+    );
+  });
+
+  it("updates only the matching active point when multiple waypoints exist", async () => {
+    const user = userEvent.setup();
+    const { setControlPoints } = renderPoint({
+      id: "active-2",
+      index: 3,
+      active: true,
+      x: 80,
+      y: 90,
+    });
+    const circle = screen.getByTestId("smart-edge-control-point");
+
+    await user.click(circle);
+
+    const updater = vi.mocked(setControlPoints).mock.calls.at(-1)?.[0];
+    const result = updater?.([
+      { id: "active-1", x: 10, y: 10, active: true },
+      { id: "active-2", x: 80, y: 90, active: true },
+    ]);
+
+    expect(result).toEqual([
+      { id: "active-1", x: 10, y: 10, active: true },
+      expect.objectContaining({ id: "active-2", x: 80, y: 90, active: true }),
+    ]);
+  });
+
+  it("skips unrelated points when inserting after an existing waypoint", async () => {
+    const user = userEvent.setup();
+    const { setControlPoints } = renderPoint({ id: "__inactive-1", index: 2 });
+    const circle = screen.getByTestId("smart-edge-control-point");
+
+    await user.click(circle);
+
+    const updater = vi.mocked(setControlPoints).mock.calls.at(-1)?.[0];
+    const result = updater?.([
+      { id: "a", x: 10, y: 10, active: true },
+      { id: "b", x: 20, y: 20, active: true },
+    ]);
+
+    expect(result).toHaveLength(3);
+    expect(result?.[0]).toEqual({ id: "a", x: 10, y: 10, active: true });
+  });
 });

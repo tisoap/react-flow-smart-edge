@@ -1,5 +1,6 @@
 import { Position, ReactFlowProvider } from "@xyflow/react";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import * as getSmartEdgeModule from "../getSmartEdge";
 import * as getSmartEdgeWaypointsModule from "../getSmartEdge/getSmartEdgeWaypoints";
@@ -7,10 +8,11 @@ import { SmartEdge } from "./index";
 import type { Node } from "@xyflow/react";
 
 const setEdges = vi.fn();
+let debugEnabled = true;
 
 vi.mock("../internal/useSmartEdgeDebug", () => ({
   useSmartEdgeDebug: () => ({
-    enabled: true,
+    enabled: debugEnabled,
     setGraphBox: vi.fn(),
     setAvoidAreas: vi.fn(),
   }),
@@ -78,6 +80,7 @@ describe("SmartEdge", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     setEdges.mockReset();
+    debugEnabled = true;
   });
 
   it("renders the fallback edge when routing fails", () => {
@@ -184,5 +187,143 @@ describe("SmartEdge", () => {
       container.querySelectorAll("[data-testid='smart-edge-control-point']")
         .length,
     ).toBeGreaterThan(0);
+  });
+
+  it("falls back to handle positions when floating nodes are not measured", () => {
+    const spy = vi.spyOn(getSmartEdgeModule, "getSmartEdge");
+    const unmeasuredNodes: Node[] = [
+      { id: "a", position: { x: 0, y: 0 }, data: {} },
+      { id: "b", position: { x: 300, y: 0 }, data: {} },
+    ];
+
+    render(
+      <ReactFlowProvider>
+        <SmartEdge
+          nodes={unmeasuredNodes}
+          options={{ floating: true }}
+          {...baseEdgeProps}
+        />
+      </ReactFlowProvider>,
+    );
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ sourceX: 100, targetX: 300 }),
+    );
+  });
+
+  it("renders the fallback edge without logging when debug is disabled", () => {
+    debugEnabled = false;
+    vi.spyOn(getSmartEdgeModule, "getSmartEdge").mockReturnValue(
+      new Error("routing failed"),
+    );
+    const errorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+
+    const { container } = renderEdge({});
+
+    expect(container.querySelector("path")).toBeTruthy();
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+
+  it("uses the default control point color and empty interior routing", () => {
+    vi.spyOn(
+      getSmartEdgeWaypointsModule,
+      "getSmartEdgeWaypoints",
+    ).mockReturnValue({
+      svgPathString: "M0,0 L100,0",
+      edgeCenterX: 50,
+      edgeCenterY: 0,
+      points: [],
+    });
+
+    const { container } = renderEdge(
+      { editable: true },
+      {
+        selected: true,
+        data: { points: [] },
+      },
+    );
+
+    expect(
+      container.querySelectorAll("[data-testid='smart-edge-control-point']").length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("handles long routed interiors when placing inactive control points", () => {
+    const interior = Array.from({ length: 40 }, (_, index) => [
+      index * 2.5,
+      Math.sin(index * 0.3) * 0.0001,
+    ] as [number, number]);
+
+    vi.spyOn(
+      getSmartEdgeWaypointsModule,
+      "getSmartEdgeWaypoints",
+    ).mockReturnValue({
+      svgPathString: "M0,0 L100,0",
+      edgeCenterX: 50,
+      edgeCenterY: 0,
+      points: interior,
+    });
+
+    const { container } = renderEdge(
+      { editable: true, controlPointColor: "#ff0000" },
+      {
+        selected: true,
+        data: {
+          points: [{ id: "wp-1", x: 50, y: 0, active: true }],
+        },
+      },
+    );
+
+    expect(
+      container.querySelectorAll("[data-testid='smart-edge-control-point']").length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("updates only the matching edge when persisting control points", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(
+      getSmartEdgeWaypointsModule,
+      "getSmartEdgeWaypoints",
+    ).mockReturnValue({
+      svgPathString: "M0,0 L100,0",
+      edgeCenterX: 50,
+      edgeCenterY: 0,
+      points: [],
+    });
+
+    setEdges.mockImplementation((updater) => {
+      const edges = [
+        { id: "e1", data: { points: [] as { id: string; x: number; y: number }[] } },
+        { id: "e2", data: { points: [] as { id: string; x: number; y: number }[] } },
+      ];
+      return updater(edges);
+    });
+
+    renderEdge(
+      { editable: true },
+      {
+        selected: true,
+        data: { points: [] },
+      },
+    );
+
+    await user.click(screen.getByTestId("smart-edge-control-point"));
+
+    expect(setEdges).toHaveBeenCalled();
+    const updater = vi.mocked(setEdges).mock.calls.at(-1)?.[0] as (
+      edges: { id: string; data: { points: unknown[] } }[],
+    ) => unknown;
+    const result = updater([
+      { id: "e1", data: { points: [] } },
+      { id: "e2", data: { points: [{ id: "other", x: 1, y: 2 }] } },
+    ]);
+
+    expect(result).toEqual([
+      expect.objectContaining({ id: "e1", data: expect.any(Object) }),
+      { id: "e2", data: { points: [{ id: "other", x: 1, y: 2 }] } },
+    ]);
   });
 });
