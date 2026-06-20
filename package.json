@@ -119,5 +119,9 @@
     "react": ">=18",
     "react-dom": ">=18",
     "typescript": ">=5"
+  },
+  "allowScripts": {
+    "esbuild@0.27.7": true,
+    "core-js@3.49.0": true
   }
 }
