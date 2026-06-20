@@ -1,125 +1,227 @@
-import { expect, userEvent, waitFor } from "storybook/test";
 import { demoRegistry } from "../demos/registry";
 import { GraphWrapper } from "../demos/GraphWrapper";
-import type { Meta, StoryFn } from "@storybook/react-vite";
-import type { DemoGraphProps } from "../demos/registry";
+import {
+  demoStoryPlay,
+  dragSmartConnectionPreview,
+  expectBezierCurves,
+  expectCustomLabelButtons,
+  expectDemoGraph,
+  expectEdgePaths,
+  expectPathAvoidsRect,
+  expectStraightOrStepPaths,
+  interactWithEditableEdge,
+} from "./storyPlayHelpers";
+import { demoAvoidAreas } from "../demos/DummyData";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
-export default {
+const meta = {
   title: "Smart Edge",
   component: GraphWrapper,
   parameters: {
     layout: "fullscreen",
   },
-} as Meta;
+} satisfies Meta<typeof GraphWrapper>;
 
-const Template: StoryFn<DemoGraphProps> = (args) => <GraphWrapper {...args} />;
+export default meta;
 
-export const SmartBezier = Template.bind({});
-SmartBezier.args = demoRegistry.smartBezier;
+type Story = StoryObj<typeof meta>;
 
-export const SmartStraight = Template.bind({});
-SmartStraight.args = demoRegistry.smartStraight;
-
-export const SmartStep = Template.bind({});
-SmartStep.args = demoRegistry.smartStep;
-
-export const SmartStepConfigured = Template.bind({});
-SmartStepConfigured.args = demoRegistry.smartStepConfigured;
-
-export const SmartSmoothStep = Template.bind({});
-SmartSmoothStep.args = demoRegistry.smartSmoothStep;
-
-export const SmartSmoothStepConfigured = Template.bind({});
-SmartSmoothStepConfigured.args = demoRegistry.smartSmoothStepConfigured;
-
-export const SmartBezierWithCustomLabel = Template.bind({});
-SmartBezierWithCustomLabel.args = demoRegistry.smartBezierWithCustomLabel;
-
-export const SmartBezierSimple = Template.bind({});
-SmartBezierSimple.args = demoRegistry.smartBezierSimple;
-
-export const SmartStepUnaligned = Template.bind({});
-SmartStepUnaligned.args = demoRegistry.smartStepUnaligned;
-
-export const SmartStepHorizontal = Template.bind({});
-SmartStepHorizontal.args = demoRegistry.smartStepHorizontal;
-
-export const SmartBezierSubFlow = Template.bind({});
-SmartBezierSubFlow.args = demoRegistry.smartBezierSubFlow;
-
-export const SmartStepSubFlow = Template.bind({});
-SmartStepSubFlow.args = demoRegistry.smartStepSubFlow;
-
-export const SmartBezierSubFlowGroup = Template.bind({});
-SmartBezierSubFlowGroup.args = demoRegistry.smartBezierSubFlowGroup;
-
-export const SmartStepSubFlowGroup = Template.bind({});
-SmartStepSubFlowGroup.args = demoRegistry.smartStepSubFlowGroup;
-
-export const SmartFloating = Template.bind({});
-SmartFloating.args = demoRegistry.smartFloating;
-
-export const SmartFloatingWithConnectionLine = Template.bind({});
-SmartFloatingWithConnectionLine.args =
-  demoRegistry.smartFloatingWithConnectionLine;
-
-export const SmartBezierWithAvoidArea = Template.bind({});
-SmartBezierWithAvoidArea.args = demoRegistry.smartBezierWithAvoidArea;
-SmartBezierWithAvoidArea.play = async ({ canvasElement }) => {
-  const edgePath = await waitFor(() => {
-    const path = canvasElement.querySelector<SVGPathElement>(
-      ".react-flow__edge-path",
-    );
-    if (!path) throw new Error("edge path not rendered yet");
-    return path;
-  });
-  await expect(edgePath.getAttribute("d")).toBeTruthy();
+export const SmartBezier: Story = {
+  args: demoRegistry.smartBezier,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 7 },
+      edgeCount: { exact: 9 },
+    });
+    await expectBezierCurves(canvasElement);
+  }),
 };
 
-export const SmartEditable = Template.bind({});
-SmartEditable.args = demoRegistry.smartEditable;
-SmartEditable.play = async ({ canvasElement }) => {
-  const controlPoints = await waitFor(() => {
-    const circles = canvasElement.querySelectorAll<SVGCircleElement>(
-      "[data-testid='smart-edge-control-point']",
-    );
-    if (circles.length === 0) throw new Error("control points not rendered");
-    return circles;
-  });
+export const SmartStraight: Story = {
+  args: demoRegistry.smartStraight,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 7 },
+      edgeCount: { exact: 9 },
+    });
+    await expectStraightOrStepPaths(canvasElement);
+  }),
+};
 
-  await expect(controlPoints.length).toBeGreaterThanOrEqual(3);
+export const SmartStep: Story = {
+  args: demoRegistry.smartStep,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 7 },
+      edgeCount: { exact: 9 },
+    });
+    await expectStraightOrStepPaths(canvasElement);
+  }),
+};
 
-  const activePoint = canvasElement.querySelector<SVGCircleElement>(
-    "circle.active[data-testid='smart-edge-control-point']",
-  );
-  if (!activePoint) throw new Error("active control point not found");
+export const SmartStepConfigured: Story = {
+  args: demoRegistry.smartStepConfigured,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 7 },
+      edgeCount: { exact: 9 },
+    });
+    await expectStraightOrStepPaths(canvasElement);
+  }),
+};
 
-  const edgePath = canvasElement.querySelector<SVGPathElement>(
-    ".react-flow__edge-path",
-  );
-  if (!edgePath) throw new Error("edge path not rendered");
-  const initialPath = edgePath.getAttribute("d");
+export const SmartSmoothStep: Story = {
+  args: demoRegistry.smartSmoothStep,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 7 },
+      edgeCount: { exact: 9 },
+    });
+    await expectEdgePaths(canvasElement, { exact: 9 });
+  }),
+};
 
-  await userEvent.click(activePoint);
-  await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
+export const SmartSmoothStepConfigured: Story = {
+  args: demoRegistry.smartSmoothStepConfigured,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 7 },
+      edgeCount: { exact: 9 },
+    });
+    await expectEdgePaths(canvasElement, { exact: 9 });
+  }),
+};
 
-  await waitFor(() => {
-    const path = canvasElement.querySelector<SVGPathElement>(
-      ".react-flow__edge-path",
-    );
-    if (!path) throw new Error("edge path not rendered");
-    if (path.getAttribute("d") === initialPath) {
-      throw new Error("edge path did not change after moving the waypoint");
-    }
-  });
+export const SmartBezierWithCustomLabel: Story = {
+  args: demoRegistry.smartBezierWithCustomLabel,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 7 },
+      edgeCount: { exact: 9 },
+    });
+    await expectCustomLabelButtons(canvasElement, { exact: 9 });
+  }),
+};
 
-  const inactivePoint = canvasElement.querySelector<SVGCircleElement>(
-    "[data-testid='smart-edge-control-point']:not(.active)",
-  );
-  if (inactivePoint) {
-    await userEvent.click(inactivePoint);
-  }
+export const SmartBezierSimple: Story = {
+  args: demoRegistry.smartBezierSimple,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 2 },
+      edgeCount: { exact: 1 },
+    });
+    await expectBezierCurves(canvasElement);
+  }),
+};
 
-  activePoint.focus();
-  await userEvent.keyboard("{Delete}");
+export const SmartStepUnaligned: Story = {
+  args: demoRegistry.smartStepUnaligned,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 4 },
+      edgeCount: { exact: 3 },
+    });
+    await expectStraightOrStepPaths(canvasElement);
+  }),
+};
+
+export const SmartStepHorizontal: Story = {
+  args: demoRegistry.smartStepHorizontal,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 3 },
+      edgeCount: { exact: 2 },
+    });
+    await expectStraightOrStepPaths(canvasElement);
+  }),
+};
+
+export const SmartBezierSubFlow: Story = {
+  args: demoRegistry.smartBezierSubFlow,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 8 },
+      edgeCount: { exact: 7 },
+    });
+    await expectBezierCurves(canvasElement);
+  }),
+};
+
+export const SmartStepSubFlow: Story = {
+  args: demoRegistry.smartStepSubFlow,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 8 },
+      edgeCount: { exact: 7 },
+    });
+    await expectStraightOrStepPaths(canvasElement);
+  }),
+};
+
+export const SmartBezierSubFlowGroup: Story = {
+  args: demoRegistry.smartBezierSubFlowGroup,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 8 },
+      edgeCount: { exact: 5 },
+    });
+    await expectBezierCurves(canvasElement);
+  }),
+};
+
+export const SmartStepSubFlowGroup: Story = {
+  args: demoRegistry.smartStepSubFlowGroup,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 8 },
+      edgeCount: { exact: 5 },
+    });
+    await expectStraightOrStepPaths(canvasElement);
+  }),
+};
+
+export const SmartFloating: Story = {
+  args: demoRegistry.smartFloating,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 7 },
+      edgeCount: { exact: 6 },
+    });
+    await expectBezierCurves(canvasElement);
+  }),
+};
+
+export const SmartFloatingWithConnectionLine: Story = {
+  args: demoRegistry.smartFloatingWithConnectionLine,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 7 },
+      edgeCount: { exact: 6 },
+    });
+    await dragSmartConnectionPreview(canvasElement, "f-hub");
+  }),
+};
+
+export const SmartBezierWithAvoidArea: Story = {
+  args: demoRegistry.smartBezierWithAvoidArea,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 2 },
+      edgeCount: { exact: 1 },
+    });
+
+    const [avoidArea] = demoAvoidAreas;
+    await expectPathAvoidsRect(canvasElement, avoidArea);
+  }),
+};
+
+export const SmartEditable: Story = {
+  args: demoRegistry.smartEditable,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 6 },
+      edgeCount: { exact: 1 },
+    });
+    await interactWithEditableEdge(canvasElement);
+  }),
 };
