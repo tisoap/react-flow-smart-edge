@@ -28,3 +28,6 @@ storybook-static
 website/build
 website/.docusaurus
 .env
+
+.temp*
+.temp/**
