@@ -25,6 +25,7 @@ dist-ssr
 
 *storybook.log
 storybook-static
+coverage
 website/build
 website/.docusaurus
 .env

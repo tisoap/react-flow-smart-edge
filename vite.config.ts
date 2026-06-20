@@ -14,6 +14,16 @@ const dirname =
 
 const storybookBrowserProvider = playwright({});
 
+/** Source files counted toward library coverage (excludes Storybook-only fixtures). */
+const coverageInclude = ["src/**/*.{ts,tsx}"];
+const coverageExclude = [
+  "src/stories/**",
+  "src/demos/**",
+  "src/internal/**",
+  "src/**/*.test.ts",
+  "src/vite-env.d.ts",
+];
+
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   plugins: [
@@ -58,6 +68,21 @@ export default defineConfig({
     },
   },
   test: {
+    coverage: {
+      provider: "v8",
+      include: coverageInclude,
+      exclude: coverageExclude,
+      reporter: ["text", "text-summary", "html"],
+      reportsDirectory: "./coverage",
+      // Baseline (Mar 2026): ~91% stmts/lines, ~78% branches, ~89% funcs.
+      // Thresholds sit a few points below so minor drift does not fail CI.
+      thresholds: {
+        statements: 88,
+        branches: 72,
+        functions: 85,
+        lines: 88,
+      },
+    },
     projects: [
       {
         extends: true,
