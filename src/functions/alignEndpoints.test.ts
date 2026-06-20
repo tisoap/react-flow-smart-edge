@@ -47,4 +47,34 @@ describe("alignEndpoints", () => {
     expect(aligned[0]).toEqual([150, 137]);
     expect(aligned[aligned.length - 1]).toEqual([570, 73]);
   });
+
+  it("aligns the trailing run on X for a bottom handle", () => {
+    const source = { x: 0, y: 0, position: Position.Right };
+    const target = { x: 100, y: 200, position: Position.Bottom };
+    const graphPath = [
+      [0, 0],
+      [50, 0],
+      [50, 180],
+      [100, 180],
+      [100, 190],
+    ];
+
+    const aligned = alignEndpoints(source, target, graphPath);
+    expect(aligned[aligned.length - 1]).toEqual([100, 190]);
+  });
+
+  it("keeps trailing alignment from overlapping the leading rewrite", () => {
+    const source = { x: 10, y: 10, position: Position.Top };
+    const target = { x: 10, y: 90, position: Position.Bottom };
+    const graphPath = [
+      [10, 20],
+      [10, 40],
+      [10, 60],
+      [10, 80],
+    ];
+
+    const aligned = alignEndpoints(source, target, graphPath);
+    expect(aligned[0][0]).toBe(10);
+    expect(aligned.at(-1)?.[0]).toBe(10);
+  });
 });

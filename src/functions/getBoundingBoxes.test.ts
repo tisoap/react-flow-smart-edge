@@ -28,6 +28,27 @@ describe("getBoundingBoxes", () => {
     expect(graphBox.xMax).toBeGreaterThanOrEqual(nodeBoxes[1].bottomRight.x);
   });
 
+  it("skips grid rounding when roundTo is zero", () => {
+    const nodes = [testNode("a", 103, 107)];
+    const { nodeBoxes } = getBoundingBoxes(nodes, 10, 0);
+
+    expect(nodeBoxes[0].topLeft).toEqual({ x: 93, y: 97 });
+  });
+
+  it("falls back to 1px dimensions when measured sizes are missing", () => {
+    const nodes: Node[] = [
+      {
+        id: "bare",
+        position: { x: 10, y: 20 },
+        data: {},
+      },
+    ];
+    const { nodeBoxes } = getBoundingBoxes(nodes, 0, 0);
+
+    expect(nodeBoxes[0].width).toBe(1);
+    expect(nodeBoxes[0].height).toBe(1);
+  });
+
   it("includes avoid areas as extra obstacles", () => {
     const nodes = [testNode("a", 0, 0)];
     const { avoidBoxes } = getBoundingBoxes(nodes, 10, 10, [

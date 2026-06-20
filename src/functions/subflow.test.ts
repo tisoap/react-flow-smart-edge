@@ -35,4 +35,17 @@ describe("subflow helpers", () => {
 
     expect(filtered.map((node) => node.id)).toEqual(["child", "outside"]);
   });
+
+  it("stops resolving parents when the parent id is missing", () => {
+    const nodes: Node[] = [
+      {
+        id: "orphan",
+        parentId: "missing-parent",
+        position: { x: 12, y: 34 },
+        data: {},
+      },
+    ];
+
+    expect(getAbsoluteNodes(nodes)[0].position).toEqual({ x: 12, y: 34 });
+  });
 });

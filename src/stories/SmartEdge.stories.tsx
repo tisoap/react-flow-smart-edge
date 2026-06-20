@@ -128,4 +128,14 @@ SmartEditable.play = async ({ canvasElement }) => {
       throw new Error("edge path did not change after moving the waypoint");
     }
   });
+
+  const inactivePoint = canvasElement.querySelector<SVGCircleElement>(
+    "[data-testid='smart-edge-control-point']:not(.active)",
+  );
+  if (inactivePoint) {
+    await userEvent.click(inactivePoint);
+  }
+
+  activePoint.focus();
+  await userEvent.keyboard("{Delete}");
 };
