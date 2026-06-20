@@ -8,7 +8,6 @@ import {
   excludeEdgeAncestorNodes,
   getFloatingEdgeParams,
 } from "../functions";
-import { useSmartEdgeDebug } from "../internal/useSmartEdgeDebug";
 import { buildControlPoints } from "./controlPointGeometry";
 import { ControlPoint } from "./ControlPoint";
 import type { ControlPointData, SetControlPoints } from "./ControlPoint";
@@ -94,11 +93,6 @@ export function SmartEdge<
   options,
   ...edgeProps
 }: Readonly<SmartEdgeProps<EdgeType, NodeType>>) {
-  const {
-    enabled: isDebugEnabled,
-    setGraphBox,
-    setAvoidAreas,
-  } = useSmartEdgeDebug();
   const { setEdges } = useReactFlow();
 
   const { id } = edgeProps;
@@ -184,10 +178,7 @@ export function SmartEdge<
     sourceY,
     targetX,
     targetY,
-    options: {
-      ...options,
-      debug: { enabled: isDebugEnabled, setGraphBox, setAvoidAreas },
-    },
+    options,
     nodes: preparedNodes,
   };
 
@@ -201,9 +192,6 @@ export function SmartEdge<
   const FallbackEdge = options.fallback ?? BezierEdge;
 
   if (smartResponse instanceof Error) {
-    if (isDebugEnabled) {
-      console.error(smartResponse);
-    }
     return <FallbackEdge {...edgeProps} />;
   }
 

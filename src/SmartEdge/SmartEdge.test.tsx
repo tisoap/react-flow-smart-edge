@@ -11,15 +11,6 @@ import type { Node, Edge } from "@xyflow/react";
 type SetEdges = (payload: Edge[] | ((edges: Edge[]) => Edge[])) => void;
 
 const setEdges = vi.fn<SetEdges>();
-let debugEnabled = true;
-
-vi.mock("../internal/useSmartEdgeDebug", () => ({
-  useSmartEdgeDebug: () => ({
-    enabled: debugEnabled,
-    setGraphBox: vi.fn(),
-    setAvoidAreas: vi.fn(),
-  }),
-}));
 
 vi.mock("@xyflow/react", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@xyflow/react")>();
@@ -85,22 +76,16 @@ describe("SmartEdge", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     setEdges.mockReset();
-    debugEnabled = true;
   });
 
   it("renders the fallback edge when routing fails", () => {
     vi.spyOn(getSmartEdgeModule, "getSmartEdge").mockReturnValue(
       new Error("routing failed"),
     );
-    const errorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
 
     const { container } = renderEdge({});
 
     expect(container.querySelector("path")).toBeTruthy();
-    expect(errorSpy).toHaveBeenCalled();
-    errorSpy.mockRestore();
   });
 
   it("uses floating connection parameters when enabled", () => {
@@ -216,22 +201,6 @@ describe("SmartEdge", () => {
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({ sourceX: 100, targetX: 300 }),
     );
-  });
-
-  it("renders the fallback edge without logging when debug is disabled", () => {
-    debugEnabled = false;
-    vi.spyOn(getSmartEdgeModule, "getSmartEdge").mockReturnValue(
-      new Error("routing failed"),
-    );
-    const errorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
-
-    const { container } = renderEdge({});
-
-    expect(container.querySelector("path")).toBeTruthy();
-    expect(errorSpy).not.toHaveBeenCalled();
-    errorSpy.mockRestore();
   });
 
   it("uses the default control point color and empty interior routing", () => {

@@ -19,7 +19,6 @@ const coverageInclude = ["src/**/*.{ts,tsx}"];
 const coverageExclude = [
   "src/stories/**",
   "src/demos/**",
-  "src/internal/**",
   "src/**/*.test.ts",
   "src/**/*.test.tsx",
   "src/vite-env.d.ts",

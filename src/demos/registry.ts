@@ -33,9 +33,7 @@ import {
 } from "./DummyData";
 import type { ReactFlowProps } from "@xyflow/react";
 
-export type DemoGraphProps = ReactFlowProps & {
-  smartEdgeDebug?: boolean;
-};
+export type DemoGraphProps = ReactFlowProps;
 
 const configuredStepEdgeTypes = {
   smartStep: createSmartEdge("step", { gridRatio: 5 }),
@@ -55,7 +53,6 @@ const smartBezierBase: DemoGraphProps = {
   edgeTypes,
   defaultNodes: nodes,
   defaultEdges: edgesBezier,
-  smartEdgeDebug: false,
 };
 
 export const demoRegistry = {
@@ -72,7 +69,6 @@ export const demoRegistry = {
     edgeTypes: configuredStepEdgeTypes,
     defaultNodes: nodes,
     defaultEdges: edgesStep,
-    smartEdgeDebug: true,
   },
   smartSmoothStep: {
     ...smartBezierBase,
@@ -82,7 +78,6 @@ export const demoRegistry = {
     edgeTypes: configuredSmoothStepEdgeTypes,
     defaultNodes: nodes,
     defaultEdges: edgesSmoothStep,
-    smartEdgeDebug: true,
   },
   smartBezierWithCustomLabel: {
     ...smartBezierBase,
@@ -92,68 +87,57 @@ export const demoRegistry = {
     edgeTypes,
     defaultNodes: simpleNodes,
     defaultEdges: simpleEdgesBezier,
-    smartEdgeDebug: false,
   },
   smartStepUnaligned: {
     edgeTypes,
     defaultNodes: unalignedNodes,
     defaultEdges: unalignedEdgesStep,
-    smartEdgeDebug: false,
   },
   smartStepHorizontal: {
     edgeTypes,
     defaultNodes: horizontalNodes,
     defaultEdges: horizontalEdgesStep,
-    smartEdgeDebug: false,
   },
   smartBezierSubFlow: {
     edgeTypes,
     defaultNodes: subFlowNodes,
     defaultEdges: subFlowEdgesBezier,
-    smartEdgeDebug: false,
   },
   smartStepSubFlow: {
     edgeTypes,
     defaultNodes: subFlowNodes,
     defaultEdges: subFlowEdgesStep,
-    smartEdgeDebug: false,
   },
   smartBezierSubFlowGroup: {
     edgeTypes,
     defaultNodes: subFlowGroupNodes,
     defaultEdges: subFlowGroupEdgesBezier,
-    smartEdgeDebug: false,
   },
   smartStepSubFlowGroup: {
     edgeTypes,
     defaultNodes: subFlowGroupNodes,
     defaultEdges: subFlowGroupEdgesStep,
-    smartEdgeDebug: false,
   },
   smartFloating: {
     edgeTypes,
     defaultNodes: floatingNodes,
     defaultEdges: floatingEdges,
-    smartEdgeDebug: false,
   },
   smartFloatingWithConnectionLine: {
     edgeTypes,
     defaultNodes: floatingNodes,
     defaultEdges: floatingEdges,
     connectionLineComponent: SmartFloatingConnectionLine,
-    smartEdgeDebug: false,
   },
   smartBezierWithAvoidArea: {
     edgeTypes: avoidAreaEdgeTypes,
     defaultNodes: avoidAreaNodes,
     defaultEdges: avoidAreaEdgesBezier,
-    smartEdgeDebug: true,
   },
   smartEditable: {
     edgeTypes,
     defaultNodes: editableNodes,
     defaultEdges: editableEdges,
-    smartEdgeDebug: false,
   },
 } satisfies Record<string, DemoGraphProps>;
 

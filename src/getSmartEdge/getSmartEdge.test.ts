@@ -1,5 +1,5 @@
 import { Position } from "@xyflow/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { getSmartEdge } from "./index";
 import {
   pathfindingAStarNoDiagonal,
@@ -109,31 +109,6 @@ describe("getSmartEdge", () => {
     if (result instanceof Error) {
       expect(result.message).toBe("No path found");
     }
-  });
-
-  it("publishes debug bounding boxes when debug is enabled", () => {
-    const setGraphBox = vi.fn();
-    const setAvoidAreas = vi.fn<(areas: { width: number }[]) => void>();
-
-    const result = getSmartEdge({
-      nodes: [testNode("source", 80, 200), testNode("target", 520, 200)],
-      sourceX: 230,
-      sourceY: 220,
-      targetX: 520,
-      targetY: 220,
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
-      options: {
-        avoidAreas: [{ x: 260, y: 120, width: 150, height: 170 }],
-        debug: { enabled: true, setGraphBox, setAvoidAreas },
-      },
-    });
-
-    expect(result).not.toBeInstanceOf(Error);
-    expect(setGraphBox).toHaveBeenCalled();
-    expect(setAvoidAreas).toHaveBeenCalled();
-    const publishedAreas = setAvoidAreas.mock.calls[0][0];
-    expect(typeof publishedAreas[0].width).toBe("number");
   });
 
   it("wraps unknown thrown values as errors", () => {

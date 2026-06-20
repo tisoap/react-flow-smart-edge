@@ -1,5 +1,4 @@
-import { expect, userEvent, waitFor, within } from "storybook/test";
-import { demoAvoidAreas } from "../demos/DummyData";
+import { expect, userEvent, waitFor } from "storybook/test";
 import { demoRegistry } from "../demos/registry";
 import { GraphWrapper } from "../demos/GraphWrapper";
 import type { Meta, StoryFn } from "@storybook/react-vite";
@@ -8,14 +7,6 @@ import type { DemoGraphProps } from "../demos/registry";
 export default {
   title: "Smart Edge",
   component: GraphWrapper,
-  argTypes: {
-    smartEdgeDebug: {
-      control: { type: "boolean" },
-      defaultValue: false,
-      description: "Enable SmartEdge debug logging",
-      table: { category: "Debug" },
-    },
-  },
   parameters: {
     layout: "fullscreen",
   },
@@ -75,13 +66,6 @@ SmartFloatingWithConnectionLine.args =
 export const SmartBezierWithAvoidArea = Template.bind({});
 SmartBezierWithAvoidArea.args = demoRegistry.smartBezierWithAvoidArea;
 SmartBezierWithAvoidArea.play = async ({ canvasElement }) => {
-  const canvas = within(canvasElement);
-
-  const areas = await waitFor(() =>
-    canvas.getAllByTestId("smart-edge-avoid-area"),
-  );
-  await expect(areas).toHaveLength(demoAvoidAreas.length);
-
   const edgePath = await waitFor(() => {
     const path = canvasElement.querySelector<SVGPathElement>(
       ".react-flow__edge-path",

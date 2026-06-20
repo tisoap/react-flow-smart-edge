@@ -36,19 +36,6 @@ export interface GetSmartEdgeOptions {
    * `nodePadding` clearance as nodes.
    */
   avoidAreas?: Rect[];
-  // Internal-only debug hook. Not intended for public consumption.
-  debug?: {
-    enabled?: boolean;
-    setGraphBox?: (box: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    }) => void;
-    setAvoidAreas?: (
-      areas: { x: number; y: number; width: number; height: number }[],
-    ) => void;
-  };
 }
 
 export type GetSmartEdgeParams<
@@ -107,24 +94,6 @@ export const getSmartEdge = <
         { x: targetX, y: targetY },
       ],
     );
-
-    // Internal: publish computed bounding box for debugging visualization
-    if (options.debug?.enabled) {
-      options.debug.setGraphBox?.({
-        x: graphBox.topLeft.x,
-        y: graphBox.topLeft.y,
-        width: graphBox.width,
-        height: graphBox.height,
-      });
-      options.debug.setAvoidAreas?.(
-        avoidBoxes.map((box) => ({
-          x: box.topLeft.x,
-          y: box.topLeft.y,
-          width: Math.abs(box.bottomRight.x - box.topLeft.x),
-          height: Math.abs(box.bottomRight.y - box.topLeft.y),
-        })),
-      );
-    }
 
     const source: PointInfo = {
       x: sourceX,

@@ -7,9 +7,7 @@ import type { EdgeProps, EdgeTypes } from "@xyflow/react";
 
 type SmartEdgeComponent = EdgeTypes[string];
 
-export type ConfigureSmartEdgeOptions = Partial<
-  Omit<SmartEdgeOptions, "debug">
->;
+export type ConfigureSmartEdgeOptions = Partial<SmartEdgeOptions>;
 
 export function createSmartEdge(
   preset: SmartEdgePreset,

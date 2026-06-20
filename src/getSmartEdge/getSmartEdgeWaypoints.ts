@@ -248,9 +248,7 @@ export const getSmartEdgeWaypoints = <
     }));
     const chain: XYPosition[] = [source, ...snappedWaypoints, target];
 
-    // Strip the debug hook so per-segment routing doesn't repeatedly overwrite
-    // the debug overlay's published bounding boxes.
-    const segmentOptions = { ...options, debug: undefined };
+    const segmentOptions = options;
 
     const raw = routeChainSegments(
       chain,
