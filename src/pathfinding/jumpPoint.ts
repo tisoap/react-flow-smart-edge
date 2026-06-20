@@ -2,8 +2,11 @@
 // Algorithm based on PathFinding.js (MIT) — https://github.com/qiao/PathFinding.js
 
 import type { Grid, GridNode } from "./grid";
-
-const manhattan = (dx: number, dy: number): number => dx + dy;
+import {
+  costFromStartOrInfinity,
+  costFromStartOrZero,
+  selectNodeWithLowestEstimatedTotalCost,
+} from "./searchMetadata";
 
 const backtrace = (endNode: GridNode): number[][] => {
   const path: number[][] = [[endNode.x, endNode.y]];
@@ -17,22 +20,7 @@ const backtrace = (endNode: GridNode): number[][] => {
   return path.reverse();
 };
 
-const selectNodeWithLowestEstimatedTotalCost = (
-  openList: GridNode[],
-): GridNode => {
-  let bestIdx = 0;
-
-  for (let i = 1; i < openList.length; i++) {
-    if (
-      (openList[i].estimatedTotalCost ?? Infinity) <
-      (openList[bestIdx].estimatedTotalCost ?? Infinity)
-    ) {
-      bestIdx = i;
-    }
-  }
-
-  return openList.splice(bestIdx, 1)[0];
-};
+const manhattan = (dx: number, dy: number): number => dx + dy;
 
 const findStartNeighbors = (node: GridNode, grid: Grid): number[][] =>
   grid.getNeighbors(node, "Never").map((n) => [n.x, n.y]);
@@ -151,15 +139,19 @@ const relaxJumpPoint = (
   openList: GridNode[],
 ): void => {
   const stepCost = manhattan(Math.abs(jx - node.x), Math.abs(jy - node.y));
-  const tentativeG = (node.costFromStart ?? 0) + stepCost;
+  const tentativeG = costFromStartOrZero(node) + stepCost;
+  const jumpNodeCost = costFromStartOrInfinity(jumpNode);
 
-  if (!jumpNode.opened || tentativeG < (jumpNode.costFromStart ?? Infinity)) {
+  if (!jumpNode.opened || tentativeG < jumpNodeCost) {
     jumpNode.costFromStart = tentativeG;
-    jumpNode.heuristicCostToGoal =
-      jumpNode.heuristicCostToGoal ??
-      manhattan(Math.abs(jx - endX), Math.abs(jy - endY));
-    jumpNode.estimatedTotalCost =
-      (jumpNode.costFromStart ?? 0) + (jumpNode.heuristicCostToGoal ?? 0);
+
+    jumpNode.heuristicCostToGoal ??= manhattan(
+      Math.abs(jx - endX),
+      Math.abs(jy - endY),
+    );
+
+    jumpNode.estimatedTotalCost = tentativeG + jumpNode.heuristicCostToGoal;
+
     jumpNode.parent = node;
 
     if (!jumpNode.opened) {

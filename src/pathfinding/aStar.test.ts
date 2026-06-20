@@ -93,39 +93,16 @@ describe("createAStarFinder", () => {
     expect(finder.findPath(0, 0, 2, 0, grid).length).toBeGreaterThan(0);
   });
 
-  it("handles nodes with missing search metadata during expansion", () => {
-    const grid = createGrid(4, 2);
-    const finder = createAStarFinder({ diagonalMovement: "Always" });
-    const reopened = grid.getNodeAt(1, 0);
-    reopened.opened = true;
-    delete reopened.costFromStart;
+  it("reuses an existing heuristic when reopening a neighbor", () => {
+    const grid = createGrid(3, 3);
+    const finder = createAStarFinder({ diagonalMovement: "Never" });
+    const neighbor = grid.getNodeAt(1, 0);
+    neighbor.opened = true;
+    neighbor.costFromStart = 100;
+    neighbor.heuristicCostToGoal = 42;
 
-    const originalGetNeighbors = grid.getNeighbors.bind(grid);
-    let expansions = 0;
-    grid.getNeighbors = (node, diagonalMovement) => {
-      expansions += 1;
-      if (expansions === 2) {
-        delete node.costFromStart;
-      }
-      return originalGetNeighbors(node, diagonalMovement);
-    };
-
-    for (const node of grid.nodes.flat()) {
-      Object.defineProperty(node, "estimatedTotalCost", {
-        configurable: true,
-        get() {
-          return undefined;
-        },
-        set(value: number | undefined) {
-          Object.defineProperty(this, "estimatedTotalCost", {
-            configurable: true,
-            writable: true,
-            value,
-          });
-        },
-      });
-    }
-
-    expect(finder.findPath(0, 0, 3, 1, grid).length).toBeGreaterThan(0);
+    const path = finder.findPath(0, 0, 2, 0, grid);
+    expect(path.length).toBeGreaterThan(0);
+    expect(neighbor.heuristicCostToGoal).toBe(42);
   });
 });

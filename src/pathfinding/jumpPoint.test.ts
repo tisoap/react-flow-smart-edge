@@ -44,33 +44,19 @@ describe("createJumpPointFinder", () => {
     expect(finder.findPath(0, 1, 5, 1, grid).length).toBeGreaterThan(0);
   });
 
-  it("handles nodes with missing search metadata during relaxation", () => {
+  it("reuses an existing heuristic when relaxing a jump point", () => {
     const grid = createGrid(5, 3);
     for (let x = 1; x <= 3; x++) {
       grid.setWalkableAt(x, 1, false);
     }
 
-    const reopened = grid.getNodeAt(2, 0);
-    reopened.opened = true;
-    delete reopened.costFromStart;
-
-    for (const node of grid.nodes.flat()) {
-      Object.defineProperty(node, "estimatedTotalCost", {
-        configurable: true,
-        get() {
-          return undefined;
-        },
-        set(value: number | undefined) {
-          Object.defineProperty(this, "estimatedTotalCost", {
-            configurable: true,
-            writable: true,
-            value,
-          });
-        },
-      });
-    }
+    const jumpNode = grid.getNodeAt(2, 0);
+    jumpNode.opened = true;
+    jumpNode.costFromStart = 100;
+    jumpNode.heuristicCostToGoal = 7;
 
     const finder = createJumpPointFinder();
     expect(finder.findPath(0, 1, 4, 1, grid).length).toBeGreaterThan(0);
+    expect(jumpNode.heuristicCostToGoal).toBe(7);
   });
 });

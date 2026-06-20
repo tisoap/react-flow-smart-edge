@@ -5,9 +5,11 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import * as getSmartEdgeModule from "../getSmartEdge";
 import * as getSmartEdgeWaypointsModule from "../getSmartEdge/getSmartEdgeWaypoints";
 import { SmartEdge } from "./index";
-import type { Node } from "@xyflow/react";
+import type { Node, Edge } from "@xyflow/react";
 
-const setEdges = vi.fn();
+type SetEdges = (payload: Edge[] | ((edges: Edge[]) => Edge[])) => void;
+
+const setEdges = vi.fn<SetEdges>();
 let debugEnabled = true;
 
 vi.mock("../internal/useSmartEdgeDebug", () => ({
@@ -247,15 +249,16 @@ describe("SmartEdge", () => {
     );
 
     expect(
-      container.querySelectorAll("[data-testid='smart-edge-control-point']").length,
+      container.querySelectorAll("[data-testid='smart-edge-control-point']")
+        .length,
     ).toBeGreaterThan(0);
   });
 
   it("handles long routed interiors when placing inactive control points", () => {
-    const interior = Array.from({ length: 40 }, (_, index) => [
+    const interior: number[][] = Array.from({ length: 40 }, (_, index) => [
       index * 2.5,
       Math.sin(index * 0.3) * 0.0001,
-    ] as [number, number]);
+    ]);
 
     vi.spyOn(
       getSmartEdgeWaypointsModule,
@@ -278,7 +281,8 @@ describe("SmartEdge", () => {
     );
 
     expect(
-      container.querySelectorAll("[data-testid='smart-edge-control-point']").length,
+      container.querySelectorAll("[data-testid='smart-edge-control-point']")
+        .length,
     ).toBeGreaterThan(0);
   });
 
@@ -294,12 +298,15 @@ describe("SmartEdge", () => {
       points: [],
     });
 
-    setEdges.mockImplementation((updater) => {
-      const edges = [
-        { id: "e1", data: { points: [] as { id: string; x: number; y: number }[] } },
-        { id: "e2", data: { points: [] as { id: string; x: number; y: number }[] } },
+    setEdges.mockImplementation((payload) => {
+      if (typeof payload !== "function") {
+        return;
+      }
+      const edges: Edge[] = [
+        { id: "e1", source: "a", target: "b", data: { points: [] } },
+        { id: "e2", source: "a", target: "b", data: { points: [] } },
       ];
-      return updater(edges);
+      payload(edges);
     });
 
     renderEdge(
@@ -313,17 +320,29 @@ describe("SmartEdge", () => {
     await user.click(screen.getByTestId("smart-edge-control-point"));
 
     expect(setEdges).toHaveBeenCalled();
-    const updater = vi.mocked(setEdges).mock.calls.at(-1)?.[0] as (
-      edges: { id: string; data: { points: unknown[] } }[],
-    ) => unknown;
+    const updater = vi.mocked(setEdges).mock.calls.at(-1)?.[0];
+    expect(typeof updater).toBe("function");
+    if (typeof updater !== "function") {
+      return;
+    }
     const result = updater([
-      { id: "e1", data: { points: [] } },
-      { id: "e2", data: { points: [{ id: "other", x: 1, y: 2 }] } },
+      { id: "e1", source: "a", target: "b", data: { points: [] } },
+      {
+        id: "e2",
+        source: "a",
+        target: "b",
+        data: { points: [{ id: "other", x: 1, y: 2 }] },
+      },
     ]);
 
     expect(result).toEqual([
-      expect.objectContaining({ id: "e1", data: expect.any(Object) }),
-      { id: "e2", data: { points: [{ id: "other", x: 1, y: 2 }] } },
+      expect.objectContaining({ id: "e1", source: "a", target: "b" }),
+      {
+        id: "e2",
+        source: "a",
+        target: "b",
+        data: { points: [{ id: "other", x: 1, y: 2 }] },
+      },
     ]);
   });
 });

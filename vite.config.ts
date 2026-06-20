@@ -75,13 +75,11 @@ export default defineConfig({
       exclude: coverageExclude,
       reporter: ["text", "text-summary", "html"],
       reportsDirectory: "./coverage",
-      // Baseline (Mar 2026): ~91% stmts/lines, ~78% branches, ~89% funcs.
-      // Thresholds sit a few points below so minor drift does not fail CI.
       thresholds: {
-        statements: 88,
-        branches: 72,
-        functions: 85,
-        lines: 88,
+        statements: 100,
+        branches: 100,
+        functions: 100,
+        lines: 100,
       },
     },
     projects: [

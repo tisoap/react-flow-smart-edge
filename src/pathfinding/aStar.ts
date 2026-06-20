@@ -2,6 +2,11 @@
 
 import type { Grid, GridNode } from "./grid";
 import type { DiagonalMovement } from "./types.ts";
+import {
+  costFromStartOrInfinity,
+  costFromStartOrZero,
+  selectNodeWithLowestEstimatedTotalCost,
+} from "./searchMetadata";
 
 export interface AStarOptions {
   diagonalMovement?: DiagonalMovement;
@@ -35,23 +40,6 @@ const getHeuristic = (
   return octile;
 };
 
-const selectNodeWithLowestEstimatedTotalCost = (
-  openList: GridNode[],
-): GridNode => {
-  let bestIdx = 0;
-
-  for (let i = 1; i < openList.length; i++) {
-    if (
-      (openList[i].estimatedTotalCost ?? Infinity) <
-      (openList[bestIdx].estimatedTotalCost ?? Infinity)
-    ) {
-      bestIdx = i;
-    }
-  }
-
-  return openList.splice(bestIdx, 1)[0];
-};
-
 const processNeighbor = (
   neighbor: GridNode,
   current: GridNode,
@@ -64,20 +52,18 @@ const processNeighbor = (
 
   const dx = Math.abs(neighbor.x - current.x);
   const dy = Math.abs(neighbor.y - current.y);
-
   const tentativeG =
-    (current.costFromStart ?? 0) + (dx === 0 || dy === 0 ? 1 : Math.SQRT2);
+    costFromStartOrZero(current) + (dx === 0 || dy === 0 ? 1 : Math.SQRT2);
+  const neighborCost = costFromStartOrInfinity(neighbor);
 
-  if (!neighbor.opened || tentativeG < (neighbor.costFromStart ?? Infinity)) {
+  if (!neighbor.opened || tentativeG < neighborCost) {
     neighbor.costFromStart = tentativeG;
 
-    neighbor.heuristicCostToGoal =
-      neighbor.heuristicCostToGoal ??
+    neighbor.heuristicCostToGoal ??=
       weight *
-        heuristic(Math.abs(neighbor.x - end.x), Math.abs(neighbor.y - end.y));
+      heuristic(Math.abs(neighbor.x - end.x), Math.abs(neighbor.y - end.y));
 
-    neighbor.estimatedTotalCost =
-      (neighbor.costFromStart ?? 0) + (neighbor.heuristicCostToGoal ?? 0);
+    neighbor.estimatedTotalCost = tentativeG + neighbor.heuristicCostToGoal;
 
     neighbor.parent = current;
 
