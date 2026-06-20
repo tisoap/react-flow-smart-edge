@@ -2,6 +2,7 @@ import { Position, ReactFlowProvider } from "@xyflow/react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import { SvgWrapper } from "../../vitest/svgWrapper";
 import * as getSmartEdgeModule from "../getSmartEdge";
 import * as getSmartEdgeWaypointsModule from "../getSmartEdge/getSmartEdgeWaypoints";
 import { SmartEdge } from "./index";
@@ -69,12 +70,14 @@ const renderEdge = (
 ) =>
   render(
     <ReactFlowProvider>
-      <SmartEdge
-        nodes={nodes}
-        options={options}
-        {...baseEdgeProps}
-        {...extra}
-      />
+      <SvgWrapper>
+        <SmartEdge
+          nodes={nodes}
+          options={options}
+          {...baseEdgeProps}
+          {...extra}
+        />
+      </SvgWrapper>
     </ReactFlowProvider>,
   );
 
@@ -200,11 +203,13 @@ describe("SmartEdge", () => {
 
     render(
       <ReactFlowProvider>
-        <SmartEdge
-          nodes={unmeasuredNodes}
-          options={{ floating: true }}
-          {...baseEdgeProps}
-        />
+        <SvgWrapper>
+          <SmartEdge
+            nodes={unmeasuredNodes}
+            options={{ floating: true }}
+            {...baseEdgeProps}
+          />
+        </SvgWrapper>
       </ReactFlowProvider>,
     );
 

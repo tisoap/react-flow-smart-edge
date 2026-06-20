@@ -6,6 +6,7 @@ import {
 } from "@xyflow/react";
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import { SvgWrapper } from "../../vitest/svgWrapper";
 import * as getSmartEdgeModule from "../getSmartEdge";
 import {
   SmartFloatingConnectionLine,
@@ -70,7 +71,9 @@ describe("SmartFloatingConnectionLine", () => {
 
   it("renders a routed preview path to the cursor", () => {
     const { container } = render(
-      <SmartFloatingConnectionLine {...baseProps} />,
+      <SvgWrapper>
+        <SmartFloatingConnectionLine {...baseProps} />
+      </SvgWrapper>,
     );
 
     const path = container.querySelector(".react-flow__connection-path");
@@ -84,11 +87,13 @@ describe("SmartFloatingConnectionLine", () => {
     );
 
     const { container } = render(
-      <SmartFloatingConnectionLine
-        {...baseProps}
-        connectionLineStyle={{ stroke: "red" }}
-        options={{ gridRatio: 2, nodePadding: 2 }}
-      />,
+      <SvgWrapper>
+        <SmartFloatingConnectionLine
+          {...baseProps}
+          connectionLineStyle={{ stroke: "red" }}
+          options={{ gridRatio: 2, nodePadding: 2 }}
+        />
+      </SvgWrapper>,
     );
 
     expect(

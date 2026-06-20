@@ -3,6 +3,7 @@ import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { SvgWrapper } from "../../vitest/svgWrapper";
 import { ControlPoint } from "./ControlPoint";
 import type { ControlPointData } from "./ControlPoint";
 
@@ -35,15 +36,17 @@ const renderPoint = (
     setControlPoints,
     ...render(
       <ReactFlowProvider>
-        <ControlPoint
-          id={props.id ?? "cp-1"}
-          index={props.index ?? 1}
-          x={props.x ?? 50}
-          y={props.y ?? 50}
-          color={props.color ?? "#3367d9"}
-          active={props.active}
-          setControlPoints={setControlPoints}
-        />
+        <SvgWrapper>
+          <ControlPoint
+            id={props.id ?? "cp-1"}
+            index={props.index ?? 1}
+            x={props.x ?? 50}
+            y={props.y ?? 50}
+            color={props.color ?? "#3367d9"}
+            active={props.active}
+            setControlPoints={setControlPoints}
+          />
+        </SvgWrapper>
       </ReactFlowProvider>,
     ),
   };
