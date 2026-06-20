@@ -5,6 +5,7 @@
     "requireUpstream": false
   },
   "hooks": {
+    "before:init": "npm run prerelease",
     "before:npm": "npm run build-component",
     "after:release": "npm run deploy-docs"
   }
