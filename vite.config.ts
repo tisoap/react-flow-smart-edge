@@ -21,6 +21,7 @@ const coverageExclude = [
   "src/demos/**",
   "src/internal/**",
   "src/**/*.test.ts",
+  "src/**/*.test.tsx",
   "src/vite-env.d.ts",
 ];
 
@@ -88,8 +89,9 @@ export default defineConfig({
         extends: true,
         test: {
           name: "unit",
-          include: ["src/**/*.test.ts"],
-          environment: "node",
+          include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+          environment: "jsdom",
+          setupFiles: ["./vitest.setup.ts"],
         },
       },
       {
