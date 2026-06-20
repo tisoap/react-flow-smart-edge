@@ -100,7 +100,7 @@ dist/                    # Build output (gitignored in dev; published to npm)
 - Stories live in `src/stories/`; primary file: `SmartEdge.stories.tsx`.
 - Demo fixtures and `demoRegistry` live in `src/demos/` and are shared with the Docusaurus `<FlowDemo />` component.
 - `GraphWrapper` wraps flows with `data-testid="graph-wrapper"`.
-- CI (`.github/workflows/test-ui.yml`): Node 26.3.1 → `install-chromium` → `npm ci` → `npm run test-storybook`.
+- CI (`.github/workflows/test-ui.yml`): Node 26.3.1 → `npm ci` → `install-chromium` → `npm run test-storybook`.
 
 When adding behavior, prefer extending existing stories or adding a focused story over introducing a parallel test harness.
 
