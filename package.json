@@ -68,7 +68,7 @@
     "test:coverage": "vitest run --coverage",
     "test-storybook": "vitest run --project=storybook",
     "test-unit": "vitest run --project=unit",
-    "typecheck": "tsc --noEmit --project tsconfig.app.json"
+    "typecheck": "tsc --build --noEmit"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "5.2.1",
