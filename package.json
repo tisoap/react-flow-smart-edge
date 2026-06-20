@@ -63,8 +63,9 @@
     "release": "dotenv release-it",
     "spellcheck": "cspell lint --no-progress .",
     "storybook": "storybook dev -p 6006",
-    "test": "npm run test-storybook",
+    "test": "vitest run",
     "test-storybook": "vitest run --project=storybook",
+    "test-unit": "vitest run --project=unit",
     "typecheck": "tsc --noEmit --project tsconfig.app.json"
   },
   "devDependencies": {
