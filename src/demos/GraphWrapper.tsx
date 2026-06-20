@@ -13,10 +13,13 @@ export interface GraphWrapperProps extends ReactFlowProps {
   smartEdgeDebug?: boolean;
 }
 
-export const GraphWrapper = (args: GraphWrapperProps) => (
-  <SmartEdgeDebugProvider value={args.smartEdgeDebug}>
+export const GraphWrapper = ({
+  smartEdgeDebug,
+  ...reactFlowProps
+}: GraphWrapperProps) => (
+  <SmartEdgeDebugProvider value={smartEdgeDebug}>
     <div data-testid="graph-wrapper" style={{ ...style, position: "relative" }}>
-      <ReactFlow {...args} />
+      <ReactFlow {...reactFlowProps} />
       <SmartEdgeDebugOverlay />
     </div>
   </SmartEdgeDebugProvider>
