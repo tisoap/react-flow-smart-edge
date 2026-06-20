@@ -1,4 +1,4 @@
-/* eslint-disable sonarjs/todo-tag */
+/* eslint-disable sonarjs/todo-tag -- Storybook-specific */
 import type { Preview } from "@storybook/react-vite";
 import "@xyflow/react/dist/style.css";
 

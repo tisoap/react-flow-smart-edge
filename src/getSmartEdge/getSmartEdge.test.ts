@@ -20,6 +20,11 @@ const testNode = (
   data: { label: id },
 });
 
+const throwUnknown = (): never => {
+  // eslint-disable-next-line @typescript-eslint/only-throw-error -- verifies unknown error wrapping
+  throw "routing exploded";
+};
+
 describe("getSmartEdge", () => {
   it("returns an SVG path and center for a simple edge", () => {
     const nodes = [testNode("source", 80, 200), testNode("target", 520, 200)];
@@ -108,13 +113,10 @@ describe("getSmartEdge", () => {
 
   it("publishes debug bounding boxes when debug is enabled", () => {
     const setGraphBox = vi.fn();
-    const setAvoidAreas = vi.fn();
+    const setAvoidAreas = vi.fn<(areas: { width: number }[]) => void>();
 
     const result = getSmartEdge({
-      nodes: [
-        testNode("source", 80, 200),
-        testNode("target", 520, 200),
-      ],
+      nodes: [testNode("source", 80, 200), testNode("target", 520, 200)],
       sourceX: 230,
       sourceY: 220,
       targetX: 520,
@@ -129,9 +131,9 @@ describe("getSmartEdge", () => {
 
     expect(result).not.toBeInstanceOf(Error);
     expect(setGraphBox).toHaveBeenCalled();
-    expect(setAvoidAreas).toHaveBeenCalledWith([
-      expect.objectContaining({ width: expect.any(Number) }),
-    ]);
+    expect(setAvoidAreas).toHaveBeenCalled();
+    const publishedAreas = setAvoidAreas.mock.calls[0][0];
+    expect(typeof publishedAreas[0].width).toBe("number");
   });
 
   it("wraps unknown thrown values as errors", () => {
@@ -144,9 +146,7 @@ describe("getSmartEdge", () => {
       sourcePosition: Position.Right,
       targetPosition: Position.Left,
       options: {
-        generatePath: () => {
-          throw "routing exploded";
-        },
+        generatePath: (): number[][] => throwUnknown(),
       },
     });
 

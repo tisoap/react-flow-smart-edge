@@ -35,14 +35,10 @@ describe("drawSvgPath", () => {
 
   it("skips rounding on collinear smooth-step corners", () => {
     const draw = svgDrawSmoothStepLinePath();
-    const collinear = draw(
-      { x: 0, y: 10 },
-      { x: 100, y: 10 },
-      [
-        [50, 10],
-        [100, 10],
-      ],
-    );
+    const collinear = draw({ x: 0, y: 10 }, { x: 100, y: 10 }, [
+      [50, 10],
+      [100, 10],
+    ]);
     expect(collinear).toContain("L 50,10 ");
     expect(collinear).not.toContain("Q 50,10");
   });
@@ -62,14 +58,10 @@ describe("drawSvgPath", () => {
 
   it("dedupes consecutive duplicate points before drawing smooth steps", () => {
     const draw = svgDrawSmoothStepLinePath();
-    const d = draw(
-      { x: 0, y: 0 },
-      { x: 100, y: 0 },
-      [
-        [0, 0],
-        [50, 0],
-      ],
-    );
+    const d = draw({ x: 0, y: 0 }, { x: 100, y: 0 }, [
+      [0, 0],
+      [50, 0],
+    ]);
     expect(d).toBe("M 0,0 L 50,0 L 100,0 ");
   });
 });

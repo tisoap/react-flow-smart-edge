@@ -19,7 +19,7 @@ describe("createAStarFinder", () => {
     expect(path.length).toBeGreaterThan(0);
     expect(path[0]).toEqual([0, 1]);
     expect(path[path.length - 1]).toEqual([4, 1]);
-    expect(path.some(([x, y]) => y === 0 || y === 2)).toBe(true);
+    expect(path.some(([, y]) => y === 0 || y === 2)).toBe(true);
   });
 
   it("finds a shorter diagonal path when allowed", () => {

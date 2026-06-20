@@ -21,6 +21,11 @@ const testNode = (
   data: { label: id },
 });
 
+const throwUnknown = (): never => {
+  // eslint-disable-next-line @typescript-eslint/only-throw-error -- verifies unknown error wrapping
+  throw "waypoint failure";
+};
+
 const baseParams = {
   nodes: [testNode("source", 80, 200), testNode("target", 520, 200)],
   sourceX: 230,
@@ -104,9 +109,7 @@ describe("getSmartEdgeWaypoints", () => {
       waypoints: [{ x: 300, y: 100 }],
       options: {
         ...baseParams.options,
-        drawEdge: () => {
-          throw "waypoint failure";
-        },
+        drawEdge: (): string => throwUnknown(),
       },
     });
 

@@ -14,10 +14,16 @@ const testNode = (id: string, x: number, y: number): Node => ({
 describe("createGrid", () => {
   it("marks node areas blocked and offsets start/end past the handles", () => {
     const nodes = [testNode("a", 100, 100), testNode("b", 400, 100)];
-    const { graphBox, nodeBoxes } = getBoundingBoxes(nodes, 10, 10, [], [
-      { x: 200, y: 125 },
-      { x: 300, y: 125 },
-    ]);
+    const { graphBox, nodeBoxes } = getBoundingBoxes(
+      nodes,
+      10,
+      10,
+      [],
+      [
+        { x: 200, y: 125 },
+        { x: 300, y: 125 },
+      ],
+    );
 
     const { grid, start, end } = createRoutingGrid(
       graphBox,
@@ -29,7 +35,8 @@ describe("createGrid", () => {
 
     expect(grid.isWalkableAt(start.x, start.y)).toBe(true);
     expect(grid.isWalkableAt(end.x, end.y)).toBe(true);
-    expect(start).toEqual({ x: expect.any(Number), y: expect.any(Number) });
+    expect(typeof start.x).toBe("number");
+    expect(typeof start.y).toBe("number");
     expect(end.x).not.toBe(start.x);
   });
 });

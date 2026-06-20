@@ -17,6 +17,11 @@ const blockedGrid = () => {
   return grid;
 };
 
+const throwUnknown = (): never => {
+  // eslint-disable-next-line @typescript-eslint/only-throw-error -- verifies unknown error wrapping
+  throw "boom";
+};
+
 describe("generatePath", () => {
   it("pathfindingAStarDiagonal finds a diagonal path", () => {
     const grid = openGrid();
@@ -26,7 +31,11 @@ describe("generatePath", () => {
 
   it("pathfindingAStarNoDiagonal finds an orthogonal path", () => {
     const grid = openGrid();
-    const path = pathfindingAStarNoDiagonal(grid, { x: 0, y: 0 }, { x: 2, y: 2 });
+    const path = pathfindingAStarNoDiagonal(
+      grid,
+      { x: 0, y: 0 },
+      { x: 2, y: 2 },
+    );
     expect(path.length).toBeGreaterThan(0);
   });
 
@@ -52,32 +61,31 @@ describe("generatePath", () => {
   });
 
   it.each([
-    ["pathfindingAStarDiagonal", pathfindingAStarDiagonal, aStarModule],
-    ["pathfindingAStarNoDiagonal", pathfindingAStarNoDiagonal, aStarModule],
-    [
-      "pathfindingJumpPointNoDiagonal",
-      pathfindingJumpPointNoDiagonal,
-      jumpPointModule,
-    ],
-  ] as const)(
-    "wraps non-Error throws (%s)",
-    (_name, pathfinder, moduleRef) => {
-      const createFinder =
-        moduleRef === aStarModule
-          ? "createAStarFinder"
-          : "createJumpPointFinder";
-      vi.spyOn(moduleRef, createFinder).mockReturnValue({
-        findPath: () => {
-          throw "boom";
-        },
-      });
+    ["pathfindingAStarDiagonal", pathfindingAStarDiagonal],
+    ["pathfindingAStarNoDiagonal", pathfindingAStarNoDiagonal],
+  ] as const)("wraps non-Error throws (%s)", (_name, pathfinder) => {
+    vi.spyOn(aStarModule, "createAStarFinder").mockReturnValue({
+      findPath: (): number[][] => throwUnknown(),
+    });
 
-      const grid = openGrid();
-      expect(() => pathfinder(grid, { x: 0, y: 0 }, { x: 2, y: 2 })).toThrow(
-        "Unknown error: boom",
-      );
+    const grid = openGrid();
+    expect(() => pathfinder(grid, { x: 0, y: 0 }, { x: 2, y: 2 })).toThrow(
+      "Unknown error: boom",
+    );
 
-      vi.restoreAllMocks();
-    },
-  );
+    vi.restoreAllMocks();
+  });
+
+  it("wraps non-Error throws (pathfindingJumpPointNoDiagonal)", () => {
+    vi.spyOn(jumpPointModule, "createJumpPointFinder").mockReturnValue({
+      findPath: (): number[][] => throwUnknown(),
+    });
+
+    const grid = openGrid();
+    expect(() =>
+      pathfindingJumpPointNoDiagonal(grid, { x: 0, y: 0 }, { x: 2, y: 2 }),
+    ).toThrow("Unknown error: boom");
+
+    vi.restoreAllMocks();
+  });
 });

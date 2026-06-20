@@ -1,4 +1,4 @@
-import { Position, ReactFlowProvider } from "@xyflow/react";
+import { ReactFlowProvider } from "@xyflow/react";
 import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ComponentProps } from "react";
@@ -6,9 +6,10 @@ import { describe, expect, it, vi } from "vitest";
 import { ControlPoint } from "./ControlPoint";
 import type { ControlPointData } from "./ControlPoint";
 
-const screenToFlowPosition = vi.fn(
-  ({ x, y }: { x: number; y: number }) => ({ x, y }),
-);
+const screenToFlowPosition = vi.fn(({ x, y }: { x: number; y: number }) => ({
+  x,
+  y,
+}));
 const domNode = document.createElement("div");
 
 vi.mock("@xyflow/react", async (importOriginal) => {
@@ -22,17 +23,13 @@ vi.mock("@xyflow/react", async (importOriginal) => {
 });
 
 const renderPoint = (
-  props: Partial<ComponentProps<typeof ControlPoint>> & {
-    setControlPoints?: (
-      update: (points: ControlPointData[]) => ControlPointData[],
-    ) => void;
-  },
+  props: Partial<ComponentProps<typeof ControlPoint>> = {},
 ) => {
-  const setControlPoints =
-    props.setControlPoints ??
-    vi.fn((update: (points: ControlPointData[]) => ControlPointData[]) =>
-      update([]),
-    );
+  const setControlPoints = vi.fn(
+    (update: (points: ControlPointData[]) => ControlPointData[]) => {
+      update([]);
+    },
+  );
 
   return {
     setControlPoints,
@@ -59,9 +56,8 @@ describe("ControlPoint", () => {
 
     await user.click(screen.getByTestId("smart-edge-control-point"));
 
-    const updater = setControlPoints.mock.calls[0]?.[0] as (
-      points: ControlPointData[],
-    ) => ControlPointData[];
+    expect(vi.mocked(setControlPoints)).toHaveBeenCalled();
+    const updater = vi.mocked(setControlPoints).mock.calls[0][0];
     expect(updater([])).toEqual([
       expect.objectContaining({ active: true, x: 50, y: 50 }),
     ]);
@@ -76,9 +72,8 @@ describe("ControlPoint", () => {
 
     await user.click(screen.getByTestId("smart-edge-control-point"));
 
-    const updater = setControlPoints.mock.calls[0]?.[0] as (
-      points: ControlPointData[],
-    ) => ControlPointData[];
+    expect(vi.mocked(setControlPoints)).toHaveBeenCalled();
+    const updater = vi.mocked(setControlPoints).mock.calls[0][0];
     expect(updater(existing)).toHaveLength(2);
   });
 
@@ -92,11 +87,11 @@ describe("ControlPoint", () => {
     const circle = screen.getByTestId("smart-edge-control-point");
 
     circle.focus();
-    await user.keyboard(
-      "{ArrowRight}{ArrowUp}{ArrowDown}{ArrowLeft}{Delete}",
-    );
+    await user.keyboard("{ArrowRight}{ArrowUp}{ArrowDown}{ArrowLeft}{Delete}");
 
-    expect(setControlPoints.mock.calls.length).toBeGreaterThanOrEqual(4);
+    expect(
+      vi.mocked(setControlPoints).mock.calls.length,
+    ).toBeGreaterThanOrEqual(4);
   });
 
   it("updates position while dragging via pointer events", () => {

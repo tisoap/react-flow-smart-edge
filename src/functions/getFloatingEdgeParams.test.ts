@@ -16,7 +16,8 @@ const node = (
 ): Node => ({
   id,
   position: { x, y },
-  measured: width === undefined ? undefined : { width, height: height ?? width },
+  measured:
+    width === undefined ? undefined : { width, height: height ?? width },
   data: {},
 });
 
@@ -37,12 +38,11 @@ describe("getFloatingEdgeParams", () => {
     const source = node("s", 0, 0);
     const target = node("t", 50, 0);
 
-    expect(getFloatingEdgeParams(source, target)).toMatchObject({
-      sx: expect.any(Number),
-      sy: expect.any(Number),
-      tx: expect.any(Number),
-      ty: expect.any(Number),
-    });
+    const params = getFloatingEdgeParams(source, target);
+    expect(typeof params.sx).toBe("number");
+    expect(typeof params.sy).toBe("number");
+    expect(typeof params.tx).toBe("number");
+    expect(typeof params.ty).toBe("number");
   });
 
   it("handles coincident node centers without dividing by zero", () => {
@@ -58,8 +58,11 @@ describe("getFloatingEdgeParams", () => {
     [Position.Top, { x: 50, y: 0 }],
     [Position.Bottom, { x: 50, y: 99 }],
     [Position.Top, { x: 50, y: 50 }],
-  ] as const)("maps %s for an intersection near the border", (expected, point) => {
-    const rect = node("n", 0, 0, 100, 100);
-    expect(getEdgePosition(rect, point)).toBe(expected);
-  });
+  ] as const)(
+    "maps %s for an intersection near the border",
+    (expected, point) => {
+      const rect = node("n", 0, 0, 100, 100);
+      expect(getEdgePosition(rect, point)).toBe(expected);
+    },
+  );
 });

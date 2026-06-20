@@ -84,7 +84,9 @@ describe("SmartEdge", () => {
     vi.spyOn(getSmartEdgeModule, "getSmartEdge").mockReturnValue(
       new Error("routing failed"),
     );
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const errorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
 
     const { container } = renderEdge({});
 
@@ -98,12 +100,10 @@ describe("SmartEdge", () => {
 
     renderEdge({ floating: true });
 
-    expect(spy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        sourcePosition: expect.any(String),
-        targetPosition: expect.any(String),
-      }),
-    );
+    expect(spy).toHaveBeenCalled();
+    const callArgs = vi.mocked(spy).mock.calls[0][0];
+    expect(typeof callArgs.sourcePosition).toBe("string");
+    expect(typeof callArgs.targetPosition).toBe("string");
   });
 
   it("routes editable edges through waypoint stitching", () => {
@@ -138,7 +138,10 @@ describe("SmartEdge", () => {
   });
 
   it("shows control points when an endpoint node is selected", () => {
-    vi.spyOn(getSmartEdgeWaypointsModule, "getSmartEdgeWaypoints").mockReturnValue({
+    vi.spyOn(
+      getSmartEdgeWaypointsModule,
+      "getSmartEdgeWaypoints",
+    ).mockReturnValue({
       svgPathString: "M0,0 L100,0",
       edgeCenterX: 50,
       edgeCenterY: 0,
@@ -159,7 +162,10 @@ describe("SmartEdge", () => {
   });
 
   it("handles degenerate polylines when building inactive control points", () => {
-    vi.spyOn(getSmartEdgeWaypointsModule, "getSmartEdgeWaypoints").mockReturnValue({
+    vi.spyOn(
+      getSmartEdgeWaypointsModule,
+      "getSmartEdgeWaypoints",
+    ).mockReturnValue({
       svgPathString: "M0,0 L100,0",
       edgeCenterX: 50,
       edgeCenterY: 0,
@@ -175,7 +181,8 @@ describe("SmartEdge", () => {
     );
 
     expect(
-      container.querySelectorAll("[data-testid='smart-edge-control-point']").length,
+      container.querySelectorAll("[data-testid='smart-edge-control-point']")
+        .length,
     ).toBeGreaterThan(0);
   });
 });

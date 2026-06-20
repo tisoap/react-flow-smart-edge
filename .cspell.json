@@ -30,5 +30,11 @@
     "xyflow"
   ],
   "flagWords": [],
-  "ignorePaths": ["dist", "storybook-static", "website/build", "node_modules"]
+  "ignorePaths": [
+    "dist",
+    "storybook-static",
+    "website/build",
+    "node_modules",
+    "coverage"
+  ]
 }
