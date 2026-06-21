@@ -1,6 +1,6 @@
 {
   "name": "@tisoap/react-flow-smart-edge",
-  "version": "4.11.0",
+  "version": "4.11.1",
   "private": false,
   "description": "Custom React Flow Edge that never intersects with other nodes",
   "keywords": [
