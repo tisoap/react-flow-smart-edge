@@ -36,8 +36,10 @@ export default defineConfig(
       },
     },
     rules: {
+      // Disabled
       "react-refresh/only-export-components": "off",
       // Errors
+      "id-length": ["error", { min: 3, properties: "never" }],
       "@typescript-eslint/consistent-type-assertions": [
         "error",
         {
