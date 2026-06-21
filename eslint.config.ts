@@ -9,6 +9,7 @@ import { globalIgnores, defineConfig, type Config } from "eslint/config";
 import { configs as sonarJsConfigs } from "eslint-plugin-sonarjs";
 import prettier from "eslint-plugin-prettier/recommended";
 import comments from "@eslint-community/eslint-plugin-eslint-comments/configs";
+import reactYouMightNotNeedAnEffect from "eslint-plugin-react-you-might-not-need-an-effect";
 
 export default defineConfig(
   globalIgnores(["dist", "storybook-static", "website"]),
@@ -23,6 +24,7 @@ export default defineConfig(
       reactRefresh.configs.vite,
       sonarJsConfigs.recommended,
       comments.recommended,
+      reactYouMightNotNeedAnEffect.configs.strict,
     ],
     languageOptions: {
       ecmaVersion: 2025,
@@ -40,6 +42,7 @@ export default defineConfig(
       "react-refresh/only-export-components": "off",
       // Errors
       "id-length": ["error", { min: 3, properties: "never" }],
+      "react-hooks/exhaustive-deps": ["error"],
       "@typescript-eslint/consistent-type-assertions": [
         "error",
         {
@@ -50,6 +53,7 @@ export default defineConfig(
         "error",
         "react/*",
         "sonarjs/*",
+        "react-hooks/*",
         "@eslint-react/*",
         "eslint-community/*",
       ],

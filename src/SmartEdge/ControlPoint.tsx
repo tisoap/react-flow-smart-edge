@@ -113,7 +113,7 @@ export function ControlPoint({
   );
 
   useEffect(() => {
-    if (!container || !active || !dragging) return;
+    if (!container || !dragging) return;
 
     const onPointerMove = (event: PointerEvent) => {
       updatePosition(
@@ -137,7 +137,7 @@ export function ControlPoint({
       container.removeEventListener("pointerup", onPointerUp);
       container.removeEventListener("pointerleave", onPointerUp);
     };
-  }, [container, dragging, active, screenToFlowPosition, updatePosition]);
+  }, [container, dragging, screenToFlowPosition, updatePosition]);
 
   return (
     <circle
