@@ -9,16 +9,16 @@ import {
 import type { Node } from "@xyflow/react";
 
 const testNode = (
-  id: string,
-  x: number,
-  y: number,
+  nodeId: string,
+  posX: number,
+  posY: number,
   width = 150,
   height = 40,
 ): Node => ({
-  id,
-  position: { x, y },
+  id: nodeId,
+  position: { x: posX, y: posY },
   measured: { width, height },
-  data: { label: id },
+  data: { label: nodeId },
 });
 
 const throwUnknown = (): never => {
@@ -59,7 +59,9 @@ describe("getSmartEdgeWaypoints", () => {
 
     expect(result.points.length).toBeGreaterThan(0);
     expect(result.svgPathString).toContain("L");
-    expect(result.points.some(([x, y]) => x === 360 && y === 40)).toBe(true);
+    expect(
+      result.points.some(([posX, posY]) => posX === 360 && posY === 40),
+    ).toBe(true);
   });
 
   it("degrades a failed segment instead of failing the whole edge", () => {

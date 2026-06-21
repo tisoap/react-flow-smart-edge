@@ -36,9 +36,9 @@ export const createGrid = (
     const nodeStart = graphToGridPoint(node.topLeft, xMin, yMin, gridRatio);
     const nodeEnd = graphToGridPoint(node.bottomRight, xMin, yMin, gridRatio);
 
-    for (let x = nodeStart.x; x < nodeEnd.x; x++) {
-      for (let y = nodeStart.y; y < nodeEnd.y; y++) {
-        grid.setWalkableAt(x, y, false);
+    for (let column = nodeStart.x; column < nodeEnd.x; column++) {
+      for (let row = nodeStart.y; row < nodeEnd.y; row++) {
+        grid.setWalkableAt(column, row, false);
       }
     }
   });

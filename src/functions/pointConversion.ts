@@ -27,9 +27,9 @@ export const graphToGridPoint = (
   gridRatio: number,
 ): XYPosition => {
   // Affine transform: translate by top-left, scale by grid size, then offset border (1 cell)
-  const x = (graphPoint.x - smallestX) / gridRatio + 1;
-  const y = (graphPoint.y - smallestY) / gridRatio + 1;
-  return { x, y };
+  const posX = (graphPoint.x - smallestX) / gridRatio + 1;
+  const posY = (graphPoint.y - smallestY) / gridRatio + 1;
+  return { x: posX, y: posY };
 };
 
 /**
@@ -43,7 +43,7 @@ export const gridToGraphPoint = (
   gridRatio: number,
 ): XYPosition => {
   // Inverse affine transform: remove border, scale by grid size, then translate by top-left
-  const x = (gridPoint.x - 1) * gridRatio + smallestX;
-  const y = (gridPoint.y - 1) * gridRatio + smallestY;
-  return { x, y };
+  const posX = (gridPoint.x - 1) * gridRatio + smallestX;
+  const posY = (gridPoint.y - 1) * gridRatio + smallestY;
+  return { x: posX, y: posY };
 };

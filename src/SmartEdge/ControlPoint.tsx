@@ -59,8 +59,8 @@ export function ControlPoint({
 
           if (index !== 0) {
             const insertAfter = index * 0.5 - 1;
-            return points.flatMap((point, i) =>
-              i === insertAfter ? [point, newPoint] : [point],
+            return points.flatMap((point, pointIndex) =>
+              pointIndex === insertAfter ? [point, newPoint] : [point],
             );
           }
           return [newPoint, ...points];

@@ -45,7 +45,7 @@ export const alignEndpoints = (
 ): number[][] => {
   if (graphPath.length === 0) return graphPath;
 
-  const result = graphPath.map(([x, y]) => [x, y]);
+  const result = graphPath.map(([posX, posY]) => [posX, posY]);
 
   const sourceAxis = axisFor(source.position);
   const sourceCoord = sourceAxis === 0 ? source.x : source.y;
@@ -59,8 +59,8 @@ export const alignEndpoints = (
     leadEnd++;
   }
 
-  for (let i = 0; i < leadEnd; i++) {
-    result[i][sourceAxis] = sourceCoord;
+  for (let index = 0; index < leadEnd; index++) {
+    result[index][sourceAxis] = sourceCoord;
   }
 
   const targetAxis = axisFor(target.position);
@@ -75,8 +75,8 @@ export const alignEndpoints = (
     trailStart--;
   }
 
-  for (let i = trailStart; i < result.length; i++) {
-    result[i][targetAxis] = targetCoord;
+  for (let index = trailStart; index < result.length; index++) {
+    result[index][targetAxis] = targetCoord;
   }
 
   return result;

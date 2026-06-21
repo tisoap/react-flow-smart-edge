@@ -324,10 +324,10 @@ describe("SmartEdge", () => {
   });
 
   it("handles long routed interiors when placing inactive control points", () => {
-    const interior: number[][] = Array.from({ length: 40 }, (_, index) => [
-      index * 2.5,
-      Math.sin(index * 0.3) * 0.0001,
-    ]);
+    const interior: number[][] = Array.from(
+      { length: 40 },
+      (_unused, index) => [index * 2.5, Math.sin(index * 0.3) * 0.0001],
+    );
 
     vi.spyOn(
       getSmartEdgeWaypointsModule,

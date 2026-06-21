@@ -8,14 +8,14 @@ import {
 import type { Node } from "@xyflow/react";
 
 const node = (
-  id: string,
-  x: number,
-  y: number,
+  nodeId: string,
+  posX: number,
+  posY: number,
   width?: number,
   height?: number,
 ): Node => ({
-  id,
-  position: { x, y },
+  id: nodeId,
+  position: { x: posX, y: posY },
   measured:
     width === undefined ? undefined : { width, height: height ?? width },
   data: {},
@@ -46,10 +46,13 @@ describe("getFloatingEdgeParams", () => {
   });
 
   it("handles coincident node centers without dividing by zero", () => {
-    const a = node("a", 0, 0, 20, 20);
-    const b = node("b", 0, 0, 20, 20);
+    const firstNode = node("a", 0, 0, 20, 20);
+    const secondNode = node("b", 0, 0, 20, 20);
 
-    expect(getNodeIntersection(a, b)).toEqual({ x: 10, y: 10 });
+    expect(getNodeIntersection(firstNode, secondNode)).toEqual({
+      x: 10,
+      y: 10,
+    });
   });
 
   it.each([

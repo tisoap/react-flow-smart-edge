@@ -5,8 +5,8 @@ import { createGrid } from "./grid";
 describe("createAStarFinder", () => {
   const obstacleGrid = () => {
     const grid = createGrid(5, 3);
-    for (let x = 1; x <= 3; x++) {
-      grid.setWalkableAt(x, 1, false);
+    for (let column = 1; column <= 3; column++) {
+      grid.setWalkableAt(column, 1, false);
     }
     return grid;
   };
@@ -19,7 +19,7 @@ describe("createAStarFinder", () => {
     expect(path.length).toBeGreaterThan(0);
     expect(path[0]).toEqual([0, 1]);
     expect(path[path.length - 1]).toEqual([4, 1]);
-    expect(path.some(([, y]) => y === 0 || y === 2)).toBe(true);
+    expect(path.some(([, row]) => row === 0 || row === 2)).toBe(true);
   });
 
   it("finds a shorter diagonal path when allowed", () => {
@@ -46,7 +46,7 @@ describe("createAStarFinder", () => {
 
   it("uses a custom heuristic and weight", () => {
     const grid = createGrid(3, 3);
-    const heuristic = (dx: number, dy: number) => dx * dy;
+    const heuristic = (deltaX: number, deltaY: number) => deltaX * deltaY;
     const finder = createAStarFinder({
       diagonalMovement: "Never",
       heuristic,

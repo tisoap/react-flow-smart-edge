@@ -25,12 +25,12 @@ export type GetSmartEdgeWaypointsParams<
  * segment leaves/enters the waypoint pointing along the path.
  */
 const sideFacing = (point: XYPosition, toward: XYPosition): Position => {
-  const dx = toward.x - point.x;
-  const dy = toward.y - point.y;
-  if (Math.abs(dx) >= Math.abs(dy)) {
-    return dx >= 0 ? Position.Right : Position.Left;
+  const deltaX = toward.x - point.x;
+  const deltaY = toward.y - point.y;
+  if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+    return deltaX >= 0 ? Position.Right : Position.Left;
   }
-  return dy >= 0 ? Position.Bottom : Position.Top;
+  return deltaY >= 0 ? Position.Bottom : Position.Top;
 };
 
 interface StitchPoint {
@@ -79,20 +79,21 @@ const routeChainSegments = <
   const lastIndex = chain.length - 1;
   const raw: StitchPoint[] = [];
 
-  for (let i = 0; i < lastIndex; i++) {
-    const from = chain[i];
-    const to = chain[i + 1];
+  for (let index = 0; index < lastIndex; index++) {
+    const from = chain[index];
+    const targetPoint = chain[index + 1];
 
-    const fromPosition = i === 0 ? sourcePosition : sideFacing(from, to);
+    const fromPosition =
+      index === 0 ? sourcePosition : sideFacing(from, targetPoint);
     const toPosition =
-      i + 1 === lastIndex ? targetPosition : sideFacing(to, from);
+      index + 1 === lastIndex ? targetPosition : sideFacing(targetPoint, from);
 
     const segment = getSmartEdge<NodeDataType>({
       sourceX: from.x,
       sourceY: from.y,
       sourcePosition: fromPosition,
-      targetX: to.x,
-      targetY: to.y,
+      targetX: targetPoint.x,
+      targetY: targetPoint.y,
       targetPosition: toPosition,
       nodes,
       options,
@@ -102,15 +103,15 @@ const routeChainSegments = <
     // `drawEdge` pass then connects the surrounding endpoints in the edge's own
     // line style (bezier/straight/step) instead of dropping the edge.
     if (!(segment instanceof Error)) {
-      for (const [x, y] of segment.points) {
-        raw.push({ x, y, waypoint: false });
+      for (const [posX, posY] of segment.points) {
+        raw.push({ x: posX, y: posY, waypoint: false });
       }
     }
 
     // Pin the path to the actual waypoint coordinate (the control point
-    // handle). The final `to` is the target handle, added by `drawEdge`.
-    if (i + 1 < lastIndex) {
-      raw.push({ x: to.x, y: to.y, waypoint: true });
+    // handle). The final target point is the target handle, added by `drawEdge`.
+    if (index + 1 < lastIndex) {
+      raw.push({ x: targetPoint.x, y: targetPoint.y, waypoint: true });
     }
   }
 
@@ -179,16 +180,16 @@ const toDrawPoints = (
 ): number[][] => {
   const result: number[][] = [];
 
-  for (let i = 0; i < points.length; i++) {
-    const point = points[i];
+  for (let index = 0; index < points.length; index++) {
+    const point = points[index];
 
     if (!point.waypoint) {
       result.push([point.x, point.y]);
       continue;
     }
 
-    const before = i > 0 ? points[i - 1] : source;
-    const after = i < points.length - 1 ? points[i + 1] : target;
+    const before = index > 0 ? points[index - 1] : source;
+    const after = index < points.length - 1 ? points[index + 1] : target;
     result.push(...straddleWaypoint(point, before, after));
   }
 

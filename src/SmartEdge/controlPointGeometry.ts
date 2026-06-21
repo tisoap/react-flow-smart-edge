@@ -9,38 +9,43 @@ export const pointAlongPolyline = (
   fraction: number,
 ): XYPosition => {
   if (polyline.length < 2) {
-    const [x, y] = polyline[0] ?? [0, 0];
-    return { x, y };
+    const [posX, posY] = polyline[0] ?? [0, 0];
+    return { x: posX, y: posY };
   }
 
   let total = 0;
-  for (let i = 1; i < polyline.length; i++) {
+  for (let index = 1; index < polyline.length; index++) {
     total += Math.hypot(
-      polyline[i][0] - polyline[i - 1][0],
-      polyline[i][1] - polyline[i - 1][1],
+      polyline[index][0] - polyline[index - 1][0],
+      polyline[index][1] - polyline[index - 1][1],
     );
   }
 
   const targetDistance = total * fraction;
   let accumulated = 0;
-  for (let i = 1; i < polyline.length; i++) {
+  for (let index = 1; index < polyline.length; index++) {
     const segmentLength = Math.hypot(
-      polyline[i][0] - polyline[i - 1][0],
-      polyline[i][1] - polyline[i - 1][1],
+      polyline[index][0] - polyline[index - 1][0],
+      polyline[index][1] - polyline[index - 1][1],
     );
     if (accumulated + segmentLength >= targetDistance) {
       const remaining = targetDistance - accumulated;
-      const t = segmentLength === 0 ? 0 : remaining / segmentLength;
+      const segmentFraction =
+        segmentLength === 0 ? 0 : remaining / segmentLength;
       return {
-        x: polyline[i - 1][0] + (polyline[i][0] - polyline[i - 1][0]) * t,
-        y: polyline[i - 1][1] + (polyline[i][1] - polyline[i - 1][1]) * t,
+        x:
+          polyline[index - 1][0] +
+          (polyline[index][0] - polyline[index - 1][0]) * segmentFraction,
+        y:
+          polyline[index - 1][1] +
+          (polyline[index][1] - polyline[index - 1][1]) * segmentFraction,
       };
     }
     accumulated += segmentLength;
   }
 
-  const [x, y] = polyline[polyline.length - 1];
-  return { x, y };
+  const [posX, posY] = polyline[polyline.length - 1];
+  return { x: posX, y: posY };
 };
 
 /**
@@ -55,12 +60,12 @@ export const closestVertexIndex = (
   let bestIndex = from;
   let bestDistance = Infinity;
 
-  for (let i = from; i < polyline.length - 1; i++) {
+  for (let index = from; index < polyline.length - 1; index++) {
     const distance =
-      (polyline[i][0] - point.x) ** 2 + (polyline[i][1] - point.y) ** 2;
+      (polyline[index][0] - point.x) ** 2 + (polyline[index][1] - point.y) ** 2;
     if (distance < bestDistance) {
       bestDistance = distance;
-      bestIndex = i;
+      bestIndex = index;
     }
   }
 
@@ -112,17 +117,17 @@ export const buildControlPoints = (
   const segments = splitPolylineAtWaypoints(polyline, activePoints);
   const result: ControlPointData[] = [];
 
-  segments.forEach((segment, i) => {
+  segments.forEach((segment, segmentIndex) => {
     const midpoint = pointAlongPolyline(segment, 0.5);
     result.push({
-      id: `__inactive-${String(i)}`,
+      id: `__inactive-${String(segmentIndex)}`,
       x: midpoint.x,
       y: midpoint.y,
       active: false,
     });
 
-    if (i < activePoints.length) {
-      result.push(activePoints[i]);
+    if (segmentIndex < activePoints.length) {
+      result.push(activePoints[segmentIndex]);
     }
   });
 

@@ -5,8 +5,8 @@ import { createGrid } from "./grid";
 describe("createJumpPointFinder", () => {
   it("finds an orthogonal jump-point path around obstacles", () => {
     const grid = createGrid(5, 3);
-    for (let x = 1; x <= 3; x++) {
-      grid.setWalkableAt(x, 1, false);
+    for (let column = 1; column <= 3; column++) {
+      grid.setWalkableAt(column, 1, false);
     }
 
     const finder = createJumpPointFinder();
@@ -46,8 +46,8 @@ describe("createJumpPointFinder", () => {
 
   it("reuses an existing heuristic when relaxing a jump point", () => {
     const grid = createGrid(5, 3);
-    for (let x = 1; x <= 3; x++) {
-      grid.setWalkableAt(x, 1, false);
+    for (let column = 1; column <= 3; column++) {
+      grid.setWalkableAt(column, 1, false);
     }
 
     const jumpNode = grid.getNodeAt(2, 0);

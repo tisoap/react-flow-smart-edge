@@ -30,28 +30,28 @@ export interface GraphBoundingBox {
  * obstacles on the path-finding grid.
  */
 const buildBox = (
-  x: number,
-  y: number,
+  originX: number,
+  originY: number,
   width: number,
   height: number,
   nodePadding: number,
   roundTo: number,
 ) => {
   const topLeft: XYPosition = {
-    x: x - nodePadding,
-    y: y - nodePadding,
+    x: originX - nodePadding,
+    y: originY - nodePadding,
   };
   const bottomLeft: XYPosition = {
-    x: x - nodePadding,
-    y: y + height + nodePadding,
+    x: originX - nodePadding,
+    y: originY + height + nodePadding,
   };
   const topRight: XYPosition = {
-    x: x + width + nodePadding,
-    y: y - nodePadding,
+    x: originX + width + nodePadding,
+    y: originY - nodePadding,
   };
   const bottomRight: XYPosition = {
-    x: x + width + nodePadding,
-    y: y + height + nodePadding,
+    x: originX + width + nodePadding,
+    y: originY + height + nodePadding,
   };
 
   if (roundTo > 0) {

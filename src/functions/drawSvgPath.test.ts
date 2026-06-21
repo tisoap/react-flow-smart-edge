@@ -23,16 +23,16 @@ describe("drawSvgPath", () => {
   });
 
   it("draws a smooth bezier path starting at the source", () => {
-    const d = svgDrawSmoothLinePath(source, target, path);
-    expect(d.startsWith("M0,0M")).toBe(true);
-    expect(d).toContain("Q");
+    const pathData = svgDrawSmoothLinePath(source, target, path);
+    expect(pathData.startsWith("M0,0M")).toBe(true);
+    expect(pathData).toContain("Q");
   });
 
   it("draws an orthogonal smooth-step path with rounded corners", () => {
     const draw = svgDrawSmoothStepLinePath({ borderRadius: 5 });
-    const d = draw(source, target, path);
-    expect(d.startsWith("M 0,0")).toBe(true);
-    expect(d).toContain("Q");
+    const pathData = draw(source, target, path);
+    expect(pathData.startsWith("M 0,0")).toBe(true);
+    expect(pathData).toContain("Q");
   });
 
   it("skips rounding on collinear smooth-step corners", () => {
@@ -47,24 +47,24 @@ describe("drawSvgPath", () => {
 
   it("rounds horizontal-then-vertical corners in every quadrant", () => {
     const draw = svgDrawSmoothStepLinePath({ borderRadius: 4 });
-    const se = draw({ x: 0, y: 0 }, { x: 100, y: 100 }, [[0, 50]]);
-    const sw = draw({ x: 100, y: 0 }, { x: 0, y: 100 }, [[100, 50]]);
-    const ne = draw({ x: 0, y: 100 }, { x: 100, y: 0 }, [[0, 50]]);
-    const nw = draw({ x: 100, y: 100 }, { x: 0, y: 0 }, [[100, 50]]);
+    const southEast = draw({ x: 0, y: 0 }, { x: 100, y: 100 }, [[0, 50]]);
+    const southWest = draw({ x: 100, y: 0 }, { x: 0, y: 100 }, [[100, 50]]);
+    const northEast = draw({ x: 0, y: 100 }, { x: 100, y: 0 }, [[0, 50]]);
+    const northWest = draw({ x: 100, y: 100 }, { x: 0, y: 0 }, [[100, 50]]);
 
-    expect(se).toContain("Q");
-    expect(sw).toContain("Q");
-    expect(ne).toContain("Q");
-    expect(nw).toContain("Q");
+    expect(southEast).toContain("Q");
+    expect(southWest).toContain("Q");
+    expect(northEast).toContain("Q");
+    expect(northWest).toContain("Q");
   });
 
   it("dedupes consecutive duplicate points before drawing smooth steps", () => {
     const draw = svgDrawSmoothStepLinePath();
-    const d = draw({ x: 0, y: 0 }, { x: 100, y: 0 }, [
+    const pathData = draw({ x: 0, y: 0 }, { x: 100, y: 0 }, [
       [0, 0],
       [50, 0],
     ]);
-    expect(d).toBe("M 0,0 L 50,0 L 100,0 ");
+    expect(pathData).toBe("M 0,0 L 50,0 L 100,0 ");
   });
 
   it("matches getSimpleBezierPath when there are no intermediate points", () => {
@@ -101,14 +101,14 @@ describe("drawSvgPath", () => {
       y: 50,
       position: Position.Top,
     };
-    const d = svgDrawSimpleBezierLinePath(source, target, [
+    const pathData = svgDrawSimpleBezierLinePath(source, target, [
       [20, 0],
       [20, 50],
     ]);
 
-    expect(d.startsWith("M0,0")).toBe(true);
-    expect(d).toContain(" C");
-    expect(d.split(" C").length).toBeGreaterThan(2);
+    expect(pathData.startsWith("M0,0")).toBe(true);
+    expect(pathData).toContain(" C");
+    expect(pathData.split(" C").length).toBeGreaterThan(2);
   });
 
   it("uses horizontal handle controls for left/right positions", () => {

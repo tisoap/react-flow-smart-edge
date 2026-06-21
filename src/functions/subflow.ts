@@ -25,8 +25,8 @@ const getAbsolutePosition = (
   node: Node,
   nodeMap: Map<string, Node>,
 ): XYPosition => {
-  let x = node.position.x;
-  let y = node.position.y;
+  let posX = node.position.x;
+  let posY = node.position.y;
 
   let parentId = node.parentId;
   const visited = new Set<string>([node.id]);
@@ -35,12 +35,12 @@ const getAbsolutePosition = (
     visited.add(parentId);
     const parent = nodeMap.get(parentId);
     if (!parent) break;
-    x += parent.position.x;
-    y += parent.position.y;
+    posX += parent.position.x;
+    posY += parent.position.y;
     parentId = parent.parentId;
   }
 
-  return { x, y };
+  return { x: posX, y: posY };
 };
 
 /**
@@ -93,8 +93,8 @@ export const excludeEdgeAncestorNodes = (
 ): Node[] => {
   const nodeMap = toNodeMap(nodes);
   const ancestors = collectAncestorIds(sourceId, nodeMap);
-  for (const id of collectAncestorIds(targetId, nodeMap)) {
-    ancestors.add(id);
+  for (const ancestorId of collectAncestorIds(targetId, nodeMap)) {
+    ancestors.add(ancestorId);
   }
 
   if (ancestors.size === 0) return nodes;

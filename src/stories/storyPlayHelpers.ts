@@ -5,9 +5,9 @@ export interface DemoStoryPlayContext {
 }
 
 export const demoStoryPlay = (
-  fn: (canvasElement: HTMLElement) => Promise<void> | void,
+  play: (canvasElement: HTMLElement) => Promise<void> | void,
 ) => {
-  return ({ canvasElement }: DemoStoryPlayContext) => fn(canvasElement);
+  return ({ canvasElement }: DemoStoryPlayContext) => play(canvasElement);
 };
 
 export const EDGE_PATH_SELECTOR = ".react-flow__edge-path";
@@ -68,8 +68,8 @@ export async function expectEdgePaths(
     ];
     resolveCount(count, paths.length, "edge paths");
     for (const path of paths) {
-      const d = path.getAttribute("d")?.trim();
-      if (!d) throw new Error("edge path missing d attribute");
+      const pathData = path.getAttribute("d")?.trim();
+      if (!pathData) throw new Error("edge path missing d attribute");
     }
     return paths;
   });
@@ -93,9 +93,11 @@ export async function expectEdgePathsMatch(
 export async function expectStraightOrStepPaths(canvasElement: HTMLElement) {
   const paths = await expectEdgePaths(canvasElement);
   for (const path of paths) {
-    const d = path.getAttribute("d") ?? "";
-    if (/C/i.test(d)) {
-      throw new Error(`expected step/straight path without cubic curves: ${d}`);
+    const pathData = path.getAttribute("d") ?? "";
+    if (/C/i.test(pathData)) {
+      throw new Error(
+        `expected step/straight path without cubic curves: ${pathData}`,
+      );
     }
   }
   return paths;
@@ -181,8 +183,9 @@ export async function dragSmartConnectionPreview(
     const path = canvasElement.querySelector<SVGPathElement>(
       CONNECTION_PATH_SELECTOR,
     );
-    const d = path?.getAttribute("d")?.trim();
-    if (!d) throw new Error("smart connection preview path not rendered");
+    const pathData = path?.getAttribute("d")?.trim();
+    if (!pathData)
+      throw new Error("smart connection preview path not rendered");
     return path;
   });
 }

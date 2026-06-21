@@ -36,28 +36,31 @@ interface SimpleBezierPoint extends XYPosition {
  */
 const getSimpleBezierControl = (
   pos: Position,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
 ): [number, number] => {
   if (pos === Position.Left || pos === Position.Right) {
-    return [0.5 * (x1 + x2), y1];
+    return [0.5 * (fromX + toX), fromY];
   }
 
-  return [x1, 0.5 * (y1 + y2)];
+  return [fromX, 0.5 * (fromY + toY)];
 };
 
 /** Infers a handle side from the dominant travel direction between two points. */
-const inferHandlePosition = (from: XYPosition, to: XYPosition): Position => {
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
+const inferHandlePosition = (
+  from: XYPosition,
+  toward: XYPosition,
+): Position => {
+  const deltaX = toward.x - from.x;
+  const deltaY = toward.y - from.y;
 
-  if (Math.abs(dx) >= Math.abs(dy)) {
-    return dx >= 0 ? Position.Right : Position.Left;
+  if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+    return deltaX >= 0 ? Position.Right : Position.Left;
   }
 
-  return dy >= 0 ? Position.Bottom : Position.Top;
+  return deltaY >= 0 ? Position.Bottom : Position.Top;
 };
 
 const toSimpleBezierPoint = (
@@ -79,7 +82,7 @@ export const svgDrawSimpleBezierLinePath: SVGSimpleBezierDrawFunction = (
   target,
   path,
 ) => {
-  const waypoints = path.map(([x, y]) => ({ x, y }));
+  const waypoints = path.map(([posX, posY]) => ({ x: posX, y: posY }));
   const allPoints: XYPosition[] = [source, ...waypoints, target];
 
   const points: SimpleBezierPoint[] = allPoints.map((point, index) => {
@@ -101,23 +104,23 @@ export const svgDrawSimpleBezierLinePath: SVGSimpleBezierDrawFunction = (
 
   for (let index = 0; index < points.length - 1; index++) {
     const from = points[index];
-    const to = points[index + 1];
+    const targetPoint = points[index + 1];
     const [sourceControlX, sourceControlY] = getSimpleBezierControl(
       from.position,
       from.x,
       from.y,
-      to.x,
-      to.y,
+      targetPoint.x,
+      targetPoint.y,
     );
     const [targetControlX, targetControlY] = getSimpleBezierControl(
-      to.position,
-      to.x,
-      to.y,
+      targetPoint.position,
+      targetPoint.x,
+      targetPoint.y,
       from.x,
       from.y,
     );
 
-    svgPath += ` C${String(sourceControlX)},${String(sourceControlY)} ${String(targetControlX)},${String(targetControlY)} ${String(to.x)},${String(to.y)}`;
+    svgPath += ` C${String(sourceControlX)},${String(sourceControlY)} ${String(targetControlX)},${String(targetControlY)} ${String(targetPoint.x)},${String(targetPoint.y)}`;
   }
 
   return svgPath;
@@ -134,8 +137,8 @@ export const svgDrawStraightLinePath: SVGDrawFunction = (
   let svgPathString = `M ${String(source.x)}, ${String(source.y)} `;
 
   path.forEach((point) => {
-    const [x, y] = point;
-    svgPathString += `L ${String(x)}, ${String(y)} `;
+    const [posX, posY] = point;
+    svgPathString += `L ${String(posX)}, ${String(posY)} `;
   });
 
   svgPathString += `L ${String(target.x)}, ${String(target.y)} `;
@@ -156,18 +159,23 @@ export const svgDrawSmoothLinePath: SVGDrawFunction = (
 };
 
 const quadraticBezierCurve = (points: number[][]) => {
-  const X = 0;
-  const Y = 1;
+  const axisX = 0;
+  const axisY = 1;
   let point = points[0];
 
   const first = points[0];
-  let svgPath = `M${String(first[X])},${String(first[Y])}M`;
+  let svgPath = `M${String(first[axisX])},${String(first[axisY])}M`;
 
   for (const next of points) {
-    const midPoint = getMidPoint(point[X], point[Y], next[X], next[Y]);
+    const midPoint = getMidPoint(
+      point[axisX],
+      point[axisY],
+      next[axisX],
+      next[axisY],
+    );
 
-    svgPath += ` ${String(midPoint[X])},${String(midPoint[Y])}`;
-    svgPath += `Q${String(next[X])},${String(next[Y])}`;
+    svgPath += ` ${String(midPoint[axisX])},${String(midPoint[axisY])}`;
+    svgPath += `Q${String(next[axisX])},${String(next[axisY])}`;
     point = next;
   }
 
@@ -177,10 +185,15 @@ const quadraticBezierCurve = (points: number[][]) => {
   return svgPath;
 };
 
-const getMidPoint = (Ax: number, Ay: number, Bx: number, By: number) => {
-  const Zx = (Ax - Bx) / 2 + Bx;
-  const Zy = (Ay - By) / 2 + By;
-  return [Zx, Zy];
+const getMidPoint = (
+  pointAx: number,
+  pointAy: number,
+  pointBx: number,
+  pointBy: number,
+) => {
+  const midX = (pointAx - pointBx) / 2 + pointBx;
+  const midY = (pointAy - pointBy) / 2 + pointBy;
+  return [midX, midY];
 };
 
 export interface SmoothStepOptions {
@@ -204,7 +217,7 @@ export const svgDrawSmoothStepLinePath = (
   return (source, target, path) => {
     const points: XYPosition[] = dedupePoints([
       { x: source.x, y: source.y },
-      ...path.map(([x, y]) => ({ x, y })),
+      ...path.map(([posX, posY]) => ({ x: posX, y: posY })),
       { x: target.x, y: target.y },
     ]);
 
@@ -224,8 +237,8 @@ export const svgDrawSmoothStepLinePath = (
   };
 };
 
-const distance = (a: XYPosition, b: XYPosition) =>
-  Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+const distance = (first: XYPosition, second: XYPosition) =>
+  Math.sqrt(Math.pow(second.x - first.x, 2) + Math.pow(second.y - first.y, 2));
 
 /**
  * Drops consecutive duplicate points so corner rounding doesn't produce
@@ -241,28 +254,35 @@ const dedupePoints = (points: XYPosition[]) =>
   );
 
 const getBend = (
-  a: XYPosition,
-  b: XYPosition,
-  c: XYPosition,
+  pointA: XYPosition,
+  pointB: XYPosition,
+  pointC: XYPosition,
   size: number,
 ): string => {
-  const bendSize = Math.min(distance(a, b) / 2, distance(b, c) / 2, size);
-  const { x, y } = b;
+  const bendSize = Math.min(
+    distance(pointA, pointB) / 2,
+    distance(pointB, pointC) / 2,
+    size,
+  );
+  const { x: cornerX, y: cornerY } = pointB;
 
   // Collinear points: no corner to round.
-  if ((a.x === x && x === c.x) || (a.y === y && y === c.y)) {
-    return `L ${String(x)},${String(y)} `;
+  if (
+    (pointA.x === cornerX && cornerX === pointC.x) ||
+    (pointA.y === cornerY && cornerY === pointC.y)
+  ) {
+    return `L ${String(cornerX)},${String(cornerY)} `;
   }
 
   // First segment is horizontal.
-  if (a.y === y) {
-    const xDir = a.x < c.x ? -1 : 1;
-    const yDir = a.y < c.y ? 1 : -1;
-    return `L ${String(x + bendSize * xDir)},${String(y)}Q ${String(x)},${String(y)} ${String(x)},${String(y + bendSize * yDir)} `;
+  if (pointA.y === cornerY) {
+    const xDir = pointA.x < pointC.x ? -1 : 1;
+    const yDir = pointA.y < pointC.y ? 1 : -1;
+    return `L ${String(cornerX + bendSize * xDir)},${String(cornerY)}Q ${String(cornerX)},${String(cornerY)} ${String(cornerX)},${String(cornerY + bendSize * yDir)} `;
   }
 
   // First segment is vertical.
-  const xDir = a.x < c.x ? 1 : -1;
-  const yDir = a.y < c.y ? -1 : 1;
-  return `L ${String(x)},${String(y + bendSize * yDir)}Q ${String(x)},${String(y)} ${String(x + bendSize * xDir)},${String(y)} `;
+  const xDir = pointA.x < pointC.x ? 1 : -1;
+  const yDir = pointA.y < pointC.y ? -1 : 1;
+  return `L ${String(cornerX)},${String(cornerY + bendSize * yDir)}Q ${String(cornerX)},${String(cornerY)} ${String(cornerX + bendSize * xDir)},${String(cornerY)} `;
 };

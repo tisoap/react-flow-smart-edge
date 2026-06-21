@@ -14,12 +14,12 @@ export const selectNodeWithLowestEstimatedTotalCost = (
 ): GridNode => {
   let bestIdx = 0;
 
-  for (let i = 1; i < openList.length; i++) {
+  for (let index = 1; index < openList.length; index++) {
     if (
-      estimatedTotalCostOf(openList[i]) <
+      estimatedTotalCostOf(openList[index]) <
       estimatedTotalCostOf(openList[bestIdx])
     ) {
-      bestIdx = i;
+      bestIdx = index;
     }
   }
 

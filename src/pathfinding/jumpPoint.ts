@@ -20,34 +20,36 @@ const backtrace = (endNode: GridNode): number[][] => {
   return path.reverse();
 };
 
-const manhattan = (dx: number, dy: number): number => dx + dy;
+const manhattan = (deltaX: number, deltaY: number): number => deltaX + deltaY;
 
 const findStartNeighbors = (node: GridNode, grid: Grid): number[][] =>
-  grid.getNeighbors(node, "Never").map((n) => [n.x, n.y]);
+  grid.getNeighbors(node, "Never").map((neighbor) => [neighbor.x, neighbor.y]);
 
 const findHorizontalNeighbors = (
   grid: Grid,
-  x: number,
-  y: number,
-  dx: number,
+  column: number,
+  row: number,
+  deltaX: number,
 ): number[][] => {
   const neighbors: number[][] = [];
-  if (grid.isWalkableAt(x, y - 1)) neighbors.push([x, y - 1]);
-  if (grid.isWalkableAt(x, y + 1)) neighbors.push([x, y + 1]);
-  if (grid.isWalkableAt(x + dx, y)) neighbors.push([x + dx, y]);
+  if (grid.isWalkableAt(column, row - 1)) neighbors.push([column, row - 1]);
+  if (grid.isWalkableAt(column, row + 1)) neighbors.push([column, row + 1]);
+  if (grid.isWalkableAt(column + deltaX, row))
+    neighbors.push([column + deltaX, row]);
   return neighbors;
 };
 
 const findVerticalNeighbors = (
   grid: Grid,
-  x: number,
-  y: number,
-  dy: number,
+  column: number,
+  row: number,
+  deltaY: number,
 ): number[][] => {
   const neighbors: number[][] = [];
-  if (grid.isWalkableAt(x - 1, y)) neighbors.push([x - 1, y]);
-  if (grid.isWalkableAt(x + 1, y)) neighbors.push([x + 1, y]);
-  if (grid.isWalkableAt(x, y + dy)) neighbors.push([x, y + dy]);
+  if (grid.isWalkableAt(column - 1, row)) neighbors.push([column - 1, row]);
+  if (grid.isWalkableAt(column + 1, row)) neighbors.push([column + 1, row]);
+  if (grid.isWalkableAt(column, row + deltaY))
+    neighbors.push([column, row + deltaY]);
   return neighbors;
 };
 
@@ -58,16 +60,17 @@ const findNeighbors = (node: GridNode, grid: Grid): number[][] => {
     return findStartNeighbors(node, grid);
   }
 
-  const { x, y } = node;
-  const dx = (x - parent.x) / Math.max(Math.abs(x - parent.x), 1);
-  const dy = (y - parent.y) / Math.max(Math.abs(y - parent.y), 1);
+  const column = node.x;
+  const row = node.y;
+  const deltaX = (column - parent.x) / Math.max(Math.abs(column - parent.x), 1);
+  const deltaY = (row - parent.y) / Math.max(Math.abs(row - parent.y), 1);
 
-  if (dx !== 0) {
-    return findHorizontalNeighbors(grid, x, y, dx);
+  if (deltaX !== 0) {
+    return findHorizontalNeighbors(grid, column, row, deltaX);
   }
 
-  if (dy !== 0) {
-    return findVerticalNeighbors(grid, x, y, dy);
+  if (deltaY !== 0) {
+    return findVerticalNeighbors(grid, column, row, deltaY);
   }
 
   return [];
@@ -75,55 +78,65 @@ const findNeighbors = (node: GridNode, grid: Grid): number[][] => {
 
 const hasForcedNeighborHorizontal = (
   grid: Grid,
-  x: number,
-  y: number,
-  dx: number,
+  column: number,
+  row: number,
+  deltaX: number,
 ): boolean =>
-  (grid.isWalkableAt(x, y - 1) && !grid.isWalkableAt(x - dx, y - 1)) ||
-  (grid.isWalkableAt(x, y + 1) && !grid.isWalkableAt(x - dx, y + 1));
+  (grid.isWalkableAt(column, row - 1) &&
+    !grid.isWalkableAt(column - deltaX, row - 1)) ||
+  (grid.isWalkableAt(column, row + 1) &&
+    !grid.isWalkableAt(column - deltaX, row + 1));
 
 const hasForcedNeighborVertical = (
   grid: Grid,
-  x: number,
-  y: number,
-  dy: number,
+  column: number,
+  row: number,
+  deltaY: number,
 ): boolean =>
-  (grid.isWalkableAt(x - 1, y) && !grid.isWalkableAt(x - 1, y - dy)) ||
-  (grid.isWalkableAt(x + 1, y) && !grid.isWalkableAt(x + 1, y - dy));
+  (grid.isWalkableAt(column - 1, row) &&
+    !grid.isWalkableAt(column - 1, row - deltaY)) ||
+  (grid.isWalkableAt(column + 1, row) &&
+    !grid.isWalkableAt(column + 1, row - deltaY));
 
 const createJump = (grid: Grid, end: GridNode) => {
   const jump: (
-    x: number,
-    y: number,
-    px: number,
-    py: number,
-  ) => number[] | null = (x, y, px, py) => {
-    if (!grid.isWalkableAt(x, y)) {
+    column: number,
+    row: number,
+    parentColumn: number,
+    parentRow: number,
+  ) => number[] | null = (column, row, parentColumn, parentRow) => {
+    if (!grid.isWalkableAt(column, row)) {
       return null;
     }
 
-    if (grid.getNodeAt(x, y) === end) {
-      return [x, y];
+    if (grid.getNodeAt(column, row) === end) {
+      return [column, row];
     }
 
-    const dx = x - px;
-    const dy = y - py;
+    const deltaX = column - parentColumn;
+    const deltaY = row - parentRow;
 
-    if (dx !== 0 && hasForcedNeighborHorizontal(grid, x, y, dx)) {
-      return [x, y];
+    if (
+      deltaX !== 0 &&
+      hasForcedNeighborHorizontal(grid, column, row, deltaX)
+    ) {
+      return [column, row];
     }
 
-    if (dy !== 0) {
-      if (hasForcedNeighborVertical(grid, x, y, dy)) {
-        return [x, y];
+    if (deltaY !== 0) {
+      if (hasForcedNeighborVertical(grid, column, row, deltaY)) {
+        return [column, row];
       }
 
-      if (jump(x + 1, y, x, y) ?? jump(x - 1, y, x, y)) {
-        return [x, y];
+      if (
+        jump(column + 1, row, column, row) ??
+        jump(column - 1, row, column, row)
+      ) {
+        return [column, row];
       }
     }
 
-    return jump(x + dx, y + dy, x, y);
+    return jump(column + deltaX, row + deltaY, column, row);
   };
 
   return jump;
@@ -134,11 +147,14 @@ const relaxJumpPoint = (
   node: GridNode,
   endX: number,
   endY: number,
-  jx: number,
-  jy: number,
+  jumpX: number,
+  jumpY: number,
   openList: GridNode[],
 ): void => {
-  const stepCost = manhattan(Math.abs(jx - node.x), Math.abs(jy - node.y));
+  const stepCost = manhattan(
+    Math.abs(jumpX - node.x),
+    Math.abs(jumpY - node.y),
+  );
   const tentativeG = costFromStartOrZero(node) + stepCost;
   const jumpNodeCost = costFromStartOrInfinity(jumpNode);
 
@@ -146,8 +162,8 @@ const relaxJumpPoint = (
     jumpNode.costFromStart = tentativeG;
 
     jumpNode.heuristicCostToGoal ??= manhattan(
-      Math.abs(jx - endX),
-      Math.abs(jy - endY),
+      Math.abs(jumpX - endX),
+      Math.abs(jumpY - endY),
     );
 
     jumpNode.estimatedTotalCost = tentativeG + jumpNode.heuristicCostToGoal;
@@ -188,21 +204,21 @@ export const createJumpPointFinder = () => {
         return backtrace(end);
       }
 
-      for (const [nx, ny] of findNeighbors(node, grid)) {
-        const jumpPoint = jump(nx, ny, node.x, node.y);
+      for (const [neighborX, neighborY] of findNeighbors(node, grid)) {
+        const jumpPoint = jump(neighborX, neighborY, node.x, node.y);
 
         if (!jumpPoint) {
           continue;
         }
 
-        const [jx, jy] = jumpPoint;
-        const jumpNode = grid.getNodeAt(jx, jy);
+        const [jumpX, jumpY] = jumpPoint;
+        const jumpNode = grid.getNodeAt(jumpX, jumpY);
 
         if (jumpNode.closed) {
           continue;
         }
 
-        relaxJumpPoint(jumpNode, node, endX, endY, jx, jy, openList);
+        relaxJumpPoint(jumpNode, node, endX, endY, jumpX, jumpY, openList);
       }
     }
 

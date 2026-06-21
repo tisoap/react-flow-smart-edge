@@ -4,9 +4,9 @@ import { createGrid as createRoutingGrid } from "./createGrid";
 import { getBoundingBoxes } from "./getBoundingBoxes";
 import type { Node } from "@xyflow/react";
 
-const testNode = (id: string, x: number, y: number): Node => ({
-  id,
-  position: { x, y },
+const testNode = (nodeId: string, posX: number, posY: number): Node => ({
+  id: nodeId,
+  position: { x: posX, y: posY },
   measured: { width: 100, height: 50 },
   data: {},
 });

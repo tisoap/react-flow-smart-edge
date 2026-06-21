@@ -6,7 +6,7 @@ const size = 20;
 
 export function SmartEdgeCustomLabel(props: EdgeProps) {
   const {
-    id,
+    id: edgeId,
     sourcePosition,
     targetPosition,
     sourceX,
@@ -81,7 +81,7 @@ export function SmartEdgeCustomLabel(props: EdgeProps) {
               lineHeight: "1",
             }}
             onClick={() => {
-              alert(`Clicked on edge with id ${id}`);
+              alert(`Clicked on edge with id ${edgeId}`);
             }}
             type="button"
           >

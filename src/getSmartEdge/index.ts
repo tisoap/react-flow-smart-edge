@@ -124,9 +124,9 @@ export const getSmartEdge = <
 
     // Here we convert the grid path to a sequence of graph coordinates.
     const graphPath = fullPath.map((gridPoint) => {
-      const [x, y] = gridPoint;
+      const [posX, posY] = gridPoint;
       const graphPoint = gridToGraphPoint(
-        { x, y },
+        { x: posX, y: posY },
         graphBox.xMin,
         graphBox.yMin,
         gridRatio,

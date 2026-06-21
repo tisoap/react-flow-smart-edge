@@ -3,14 +3,14 @@ import { getBoundingBoxes } from "./getBoundingBoxes";
 import type { Node } from "@xyflow/react";
 
 const testNode = (
-  id: string,
-  x: number,
-  y: number,
+  nodeId: string,
+  posX: number,
+  posY: number,
   width = 100,
   height = 50,
 ): Node => ({
-  id,
-  position: { x, y },
+  id: nodeId,
+  position: { x: posX, y: posY },
   measured: { width, height },
   data: {},
 });

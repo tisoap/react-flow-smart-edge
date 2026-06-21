@@ -36,23 +36,27 @@ export const getNodeIntersection = (
   const intersection = getNodeRect(intersectionNode);
   const other = getNodeRect(otherNode);
 
-  const w = intersection.width / 2;
-  const h = intersection.height / 2;
+  const halfWidth = intersection.width / 2;
+  const halfHeight = intersection.height / 2;
 
-  const x2 = intersection.x + w;
-  const y2 = intersection.y + h;
-  const x1 = other.x + other.width / 2;
-  const y1 = other.y + other.height / 2;
+  const intersectionRight = intersection.x + halfWidth;
+  const intersectionBottom = intersection.y + halfHeight;
+  const otherCenterX = other.x + other.width / 2;
+  const otherCenterY = other.y + other.height / 2;
 
-  const xx1 = (x1 - x2) / (2 * w) - (y1 - y2) / (2 * h);
-  const yy1 = (x1 - x2) / (2 * w) + (y1 - y2) / (2 * h);
-  const a = 1 / (Math.abs(xx1) + Math.abs(yy1) || 1);
-  const xx3 = a * xx1;
-  const yy3 = a * yy1;
-  const x = w * (xx3 + yy3) + x2;
-  const y = h * (-xx3 + yy3) + y2;
+  const normalizedX =
+    (otherCenterX - intersectionRight) / (2 * halfWidth) -
+    (otherCenterY - intersectionBottom) / (2 * halfHeight);
+  const normalizedY =
+    (otherCenterX - intersectionRight) / (2 * halfWidth) +
+    (otherCenterY - intersectionBottom) / (2 * halfHeight);
+  const scale = 1 / (Math.abs(normalizedX) + Math.abs(normalizedY) || 1);
+  const scaledX = scale * normalizedX;
+  const scaledY = scale * normalizedY;
+  const intersectionX = halfWidth * (scaledX + scaledY) + intersectionRight;
+  const intersectionY = halfHeight * (-scaledX + scaledY) + intersectionBottom;
 
-  return { x, y };
+  return { x: intersectionX, y: intersectionY };
 };
 
 /**
@@ -64,21 +68,21 @@ export const getEdgePosition = (
   intersectionPoint: XYPosition,
 ): Position => {
   const { x, y, width, height } = getNodeRect(node);
-  const nx = Math.round(x);
-  const ny = Math.round(y);
-  const px = Math.round(intersectionPoint.x);
-  const py = Math.round(intersectionPoint.y);
+  const nodeX = Math.round(x);
+  const nodeY = Math.round(y);
+  const pointX = Math.round(intersectionPoint.x);
+  const pointY = Math.round(intersectionPoint.y);
 
-  if (px <= nx + 1) {
+  if (pointX <= nodeX + 1) {
     return Position.Left;
   }
-  if (px >= nx + width - 1) {
+  if (pointX >= nodeX + width - 1) {
     return Position.Right;
   }
-  if (py <= ny + 1) {
+  if (pointY <= nodeY + 1) {
     return Position.Top;
   }
-  if (py >= ny + height - 1) {
+  if (pointY >= nodeY + height - 1) {
     return Position.Bottom;
   }
 

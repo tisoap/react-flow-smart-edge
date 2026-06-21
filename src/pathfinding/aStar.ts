@@ -10,15 +10,17 @@ import {
 
 export interface AStarOptions {
   diagonalMovement?: DiagonalMovement;
-  heuristic?: (dx: number, dy: number) => number;
+  heuristic?: (deltaX: number, deltaY: number) => number;
   weight?: number;
 }
 
-const manhattan = (dx: number, dy: number): number => dx + dy;
+const manhattan = (deltaX: number, deltaY: number): number => deltaX + deltaY;
 
-const octile = (dx: number, dy: number): number => {
-  const F = Math.SQRT2 - 1;
-  return dx < dy ? F * dx + dy : F * dy + dx;
+const octile = (deltaX: number, deltaY: number): number => {
+  const diagonalFactor = Math.SQRT2 - 1;
+  return deltaX < deltaY
+    ? diagonalFactor * deltaX + deltaY
+    : diagonalFactor * deltaY + deltaX;
 };
 
 const reconstructPath = (endNode: GridNode): number[][] => {
@@ -35,7 +37,7 @@ const reconstructPath = (endNode: GridNode): number[][] => {
 
 const getHeuristic = (
   diagonalMovement: DiagonalMovement,
-): ((dx: number, dy: number) => number) => {
+): ((deltaX: number, deltaY: number) => number) => {
   if (diagonalMovement === "Never") return manhattan;
   return octile;
 };
@@ -45,15 +47,16 @@ const processNeighbor = (
   current: GridNode,
   end: GridNode,
   openList: GridNode[],
-  heuristic: (dx: number, dy: number) => number,
+  heuristic: (deltaX: number, deltaY: number) => number,
   weight: number,
 ): void => {
   if (neighbor.closed) return;
 
-  const dx = Math.abs(neighbor.x - current.x);
-  const dy = Math.abs(neighbor.y - current.y);
+  const deltaX = Math.abs(neighbor.x - current.x);
+  const deltaY = Math.abs(neighbor.y - current.y);
   const tentativeG =
-    costFromStartOrZero(current) + (dx === 0 || dy === 0 ? 1 : Math.SQRT2);
+    costFromStartOrZero(current) +
+    (deltaX === 0 || deltaY === 0 ? 1 : Math.SQRT2);
   const neighborCost = costFromStartOrInfinity(neighbor);
 
   if (!neighbor.opened || tentativeG < neighborCost) {

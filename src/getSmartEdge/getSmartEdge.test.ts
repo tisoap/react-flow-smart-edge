@@ -8,16 +8,16 @@ import {
 import type { Node } from "@xyflow/react";
 
 const testNode = (
-  id: string,
-  x: number,
-  y: number,
+  nodeId: string,
+  posX: number,
+  posY: number,
   width = 150,
   height = 40,
 ): Node => ({
-  id,
-  position: { x, y },
+  id: nodeId,
+  position: { x: posX, y: posY },
   measured: { width, height },
-  data: { label: id },
+  data: { label: nodeId },
 });
 
 const throwUnknown = (): never => {
@@ -82,7 +82,7 @@ describe("getSmartEdge", () => {
     // A straight horizontal line would stay near y=220; routing around the
     // obstacle should introduce at least one point off that line.
     const deviatesFromDirectPath = result.points.some(
-      ([, y]) => Math.abs(y - 220) > 5,
+      ([, posY]) => Math.abs(posY - 220) > 5,
     );
     expect(deviatesFromDirectPath).toBe(true);
   });

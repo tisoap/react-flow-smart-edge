@@ -41,23 +41,27 @@ const createNodes = (
   matrix?: (number | boolean)[][],
 ): GridNode[][] => {
   const rows: GridNode[][] = new Array<GridNode[]>(height);
-  for (let y = 0; y < height; y++) {
-    const row: GridNode[] = new Array<GridNode>(width);
-    for (let x = 0; x < width; x++) {
+  for (let row = 0; row < height; row++) {
+    const gridRow: GridNode[] = new Array<GridNode>(width);
+    for (let column = 0; column < width; column++) {
       // PathFinding.js semantics: a truthy matrix cell means non-walkable
       // (e.g., 1 indicates obstacle). Falsy (0) means walkable.
-      const cell = matrix ? matrix[y]?.[x] : undefined;
+      const cell = matrix ? matrix[row]?.[column] : undefined;
       const isBlocked = !!cell;
       const walkable = matrix ? !isBlocked : true;
-      row[x] = { x, y, walkable };
+      gridRow[column] = { x: column, y: row, walkable };
     }
-    rows[y] = row;
+    rows[row] = gridRow;
   }
   return rows;
 };
 
-const withinBounds = (width: number, height: number, x: number, y: number) =>
-  x >= 0 && x < width && y >= 0 && y < height;
+const withinBounds = (
+  width: number,
+  height: number,
+  column: number,
+  row: number,
+) => column >= 0 && column < width && row >= 0 && row < height;
 
 /**
  * Create a grid with the given width/height. Optionally accepts a matrix
@@ -70,14 +74,19 @@ export const createGrid = (
 ): Grid => {
   const nodes = createNodes(width, height, matrix);
 
-  const getNodeAt = (x: number, y: number): GridNode => nodes[y][x];
+  const getNodeAt = (column: number, row: number): GridNode =>
+    nodes[row][column];
 
-  const isWalkableAt = (x: number, y: number): boolean =>
-    withinBounds(width, height, x, y) && nodes[y][x].walkable;
+  const isWalkableAt = (column: number, row: number): boolean =>
+    withinBounds(width, height, column, row) && nodes[row][column].walkable;
 
-  const setWalkableAt = (x: number, y: number, walkable: boolean): void => {
-    if (!withinBounds(width, height, x, y)) return;
-    nodes[y][x].walkable = walkable;
+  const setWalkableAt = (
+    column: number,
+    row: number,
+    walkable: boolean,
+  ): void => {
+    if (!withinBounds(width, height, column, row)) return;
+    nodes[row][column].walkable = walkable;
   };
 
   // Diagonal movement policy using string literal union values:
@@ -86,43 +95,43 @@ export const createGrid = (
     node: GridNode,
     diagonalMovement: import("./types.ts").DiagonalMovement,
   ): GridNode[] => {
-    const x = node.x;
-    const y = node.y;
+    const column = node.x;
+    const row = node.y;
     const neighbors: GridNode[] = [];
 
     // ↑, →, ↓, ←
-    const s0 = isWalkableAt(x, y - 1);
-    const s1 = isWalkableAt(x + 1, y);
-    const s2 = isWalkableAt(x, y + 1);
-    const s3 = isWalkableAt(x - 1, y);
+    const canWalkNorth = isWalkableAt(column, row - 1);
+    const canWalkEast = isWalkableAt(column + 1, row);
+    const canWalkSouth = isWalkableAt(column, row + 1);
+    const canWalkWest = isWalkableAt(column - 1, row);
 
-    if (s0) neighbors.push(getNodeAt(x, y - 1));
-    if (s1) neighbors.push(getNodeAt(x + 1, y));
-    if (s2) neighbors.push(getNodeAt(x, y + 1));
-    if (s3) neighbors.push(getNodeAt(x - 1, y));
+    if (canWalkNorth) neighbors.push(getNodeAt(column, row - 1));
+    if (canWalkEast) neighbors.push(getNodeAt(column + 1, row));
+    if (canWalkSouth) neighbors.push(getNodeAt(column, row + 1));
+    if (canWalkWest) neighbors.push(getNodeAt(column - 1, row));
 
     // Diagonals: ↗, ↘, ↙, ↖
-    const d0Walkable = isWalkableAt(x + 1, y - 1);
-    const d1Walkable = isWalkableAt(x + 1, y + 1);
-    const d2Walkable = isWalkableAt(x - 1, y + 1);
-    const d3Walkable = isWalkableAt(x - 1, y - 1);
+    const northEastWalkable = isWalkableAt(column + 1, row - 1);
+    const southEastWalkable = isWalkableAt(column + 1, row + 1);
+    const southWestWalkable = isWalkableAt(column - 1, row + 1);
+    const northWestWalkable = isWalkableAt(column - 1, row - 1);
 
     if (diagonalMovement === "Never") {
       return neighbors;
     }
 
     // default: "Always"
-    if (d0Walkable) neighbors.push(getNodeAt(x + 1, y - 1));
-    if (d1Walkable) neighbors.push(getNodeAt(x + 1, y + 1));
-    if (d2Walkable) neighbors.push(getNodeAt(x - 1, y + 1));
-    if (d3Walkable) neighbors.push(getNodeAt(x - 1, y - 1));
+    if (northEastWalkable) neighbors.push(getNodeAt(column + 1, row - 1));
+    if (southEastWalkable) neighbors.push(getNodeAt(column + 1, row + 1));
+    if (southWestWalkable) neighbors.push(getNodeAt(column - 1, row + 1));
+    if (northWestWalkable) neighbors.push(getNodeAt(column - 1, row - 1));
     return neighbors;
   };
 
   const clone = (): Grid => {
     // Recreate the original matrix semantics: truthy = blocked
-    const clonedMatrix: number[][] = nodes.map((row) =>
-      row.map((node) => (node.walkable ? 0 : 1)),
+    const clonedMatrix: number[][] = nodes.map((gridRow) =>
+      gridRow.map((node) => (node.walkable ? 0 : 1)),
     );
     return createGrid(width, height, clonedMatrix);
   };
@@ -135,7 +144,8 @@ export const createGrid = (
     isWalkableAt,
     setWalkableAt,
     getNeighbors,
-    isInside: (x: number, y: number) => withinBounds(width, height, x, y),
+    isInside: (column: number, row: number) =>
+      withinBounds(width, height, column, row),
     clone,
   };
 };
