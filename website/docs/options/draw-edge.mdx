@@ -43,6 +43,6 @@ type SVGDrawFunction = (
 ) => string;
 ```
 
-For simple-bezier drawing, use the separate {@link SVGSimpleBezierDrawFunction} type (requires handle `position` on endpoints). Pass either type to `getSmartEdge` / `createSmartEdge` via {@link DrawEdgeFunction}.
+For simple-bezier drawing, use the separate [`SVGSimpleBezierDrawFunction`](/docs/types/exported-types#pluggable-functions) type (requires handle `position` on endpoints). Pass either type to `getSmartEdge` / `createSmartEdge` via [`DrawEdgeFunction`](/docs/types/exported-types#pluggable-functions).
 
 See [`drawSvgPath.ts` source](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/functions/drawSvgPath.ts) for implementation examples.
