@@ -39,22 +39,17 @@ const createNodes = (
   width: number,
   height: number,
   matrix?: (number | boolean)[][],
-): GridNode[][] => {
-  const rows: GridNode[][] = new Array<GridNode[]>(height);
-  for (let row = 0; row < height; row++) {
-    const gridRow: GridNode[] = new Array<GridNode>(width);
-    for (let column = 0; column < width; column++) {
+): GridNode[][] =>
+  Array.from({ length: height }, (_unused, rowIndex) =>
+    Array.from({ length: width }, (_unused, columnIndex) => {
       // PathFinding.js semantics: a truthy matrix cell means non-walkable
       // (e.g., 1 indicates obstacle). Falsy (0) means walkable.
-      const cell = matrix ? matrix[row]?.[column] : undefined;
+      const cell = matrix ? matrix[rowIndex]?.[columnIndex] : undefined;
       const isBlocked = !!cell;
       const walkable = matrix ? !isBlocked : true;
-      gridRow[column] = { x: column, y: row, walkable };
-    }
-    rows[row] = gridRow;
-  }
-  return rows;
-};
+      return { x: columnIndex, y: rowIndex, walkable };
+    }),
+  );
 
 const withinBounds = (
   width: number,

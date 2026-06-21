@@ -3,14 +3,15 @@ import { useCallback } from "react";
 import type { ComponentType } from "react";
 import { getSmartEdge } from "../getSmartEdge";
 import { getSmartEdgeWaypoints } from "../getSmartEdge/getSmartEdgeWaypoints";
-import {
-  getAbsoluteNodes,
-  excludeEdgeAncestorNodes,
-  getFloatingEdgeParams,
-} from "../functions";
+import { getAbsoluteNodes, excludeEdgeAncestorNodes } from "../functions";
 import { buildControlPoints } from "./controlPointGeometry";
 import { ControlPoint } from "./ControlPoint";
 import type { ControlPointData, SetControlPoints } from "./ControlPoint";
+import { readControlPoints } from "./smartEdgeData";
+import {
+  applyFloatingEdgeCoordinates,
+  resolveWaypointParams,
+} from "./smartEdgeRouting";
 import type { GetSmartEdgeOptions } from "../getSmartEdge";
 import type { EdgeProps, Node, Edge, XYPosition } from "@xyflow/react";
 
@@ -62,59 +63,6 @@ export interface SmartCheckpointEdgeData extends Record<string, unknown> {
 
 const DEFAULT_CONTROL_POINT_COLOR = "#3367d9";
 
-const isControlPointData = (value: unknown): value is ControlPointData =>
-  typeof value === "object" &&
-  value !== null &&
-  "id" in value &&
-  typeof value.id === "string" &&
-  "x" in value &&
-  typeof value.x === "number" &&
-  "y" in value &&
-  typeof value.y === "number";
-
-const isControlPointArray = (value: unknown): value is ControlPointData[] =>
-  Array.isArray(value) && value.every(isControlPointData);
-
-/**
- * Reads the active waypoints from an edge's `data`, tolerating any data shape
- * (returns an empty list when absent or malformed).
- */
-const readControlPoints = (data: unknown): ControlPointData[] => {
-  if (
-    data !== null &&
-    typeof data === "object" &&
-    "points" in data &&
-    isControlPointArray(data.points)
-  ) {
-    return data.points;
-  }
-  return [];
-};
-
-const isXYPosition = (value: unknown): value is XYPosition =>
-  typeof value === "object" &&
-  value !== null &&
-  "x" in value &&
-  typeof value.x === "number" &&
-  "y" in value &&
-  typeof value.y === "number";
-
-/**
- * Reads fixed checkpoints from an edge's `data`, tolerating any data shape
- * (returns an empty list when absent or malformed).
- */
-const readCheckpoints = (data: unknown): XYPosition[] => {
-  if (
-    data !== null &&
-    typeof data === "object" &&
-    "checkpoints" in data &&
-    Array.isArray(data.checkpoints)
-  ) {
-    return data.checkpoints.filter(isXYPosition);
-  }
-  return [];
-};
-
 export interface SmartEdgeProps<
   EdgeType extends Edge = Edge,
   NodeType extends Node = Node,
@@ -154,8 +102,21 @@ export function SmartEdge<
     [id, setEdges],
   );
 
-  let { sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition } =
-    edgeProps;
+  const absoluteNodes = getAbsoluteNodes(nodes);
+
+  const { sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition } =
+    applyFloatingEdgeCoordinates({
+      floating: options.floating,
+      sourceNodeId: edgeProps.source,
+      targetNodeId: edgeProps.target,
+      absoluteNodes,
+      sourceX: edgeProps.sourceX,
+      sourceY: edgeProps.sourceY,
+      targetX: edgeProps.targetX,
+      targetY: edgeProps.targetY,
+      sourcePosition: edgeProps.sourcePosition,
+      targetPosition: edgeProps.targetPosition,
+    });
   const {
     style,
     label,
@@ -172,38 +133,11 @@ export function SmartEdge<
   // Resolve subflow child positions to absolute coordinates and drop the
   // edge's own container nodes from the obstacle set, so routing works inside
   // React Flow subflows (see issue #32).
-  const absoluteNodes = getAbsoluteNodes(nodes);
   const preparedNodes = excludeEdgeAncestorNodes(
     absoluteNodes,
     edgeProps.source,
     edgeProps.target,
   );
-
-  // Floating edges (issue #13): derive the source/target connection points
-  // from node geometry instead of the fixed handles. Skipped for self-loops or
-  // when a node is missing its measured dimensions, falling back to the regular
-  // handle-based coordinates.
-  if (options.floating && edgeProps.source !== edgeProps.target) {
-    const sourceNode = absoluteNodes.find(
-      (node) => node.id === edgeProps.source,
-    );
-    const targetNode = absoluteNodes.find(
-      (node) => node.id === edgeProps.target,
-    );
-
-    if (sourceNode?.measured && targetNode?.measured) {
-      const { sx, sy, tx, ty, sourcePos, targetPos } = getFloatingEdgeParams(
-        sourceNode,
-        targetNode,
-      );
-      sourceX = sx;
-      sourceY = sy;
-      targetX = tx;
-      targetY = ty;
-      sourcePosition = sourcePos;
-      targetPosition = targetPos;
-    }
-  }
 
   const activePoints = options.editable
     ? readControlPoints(edgeProps.data)
@@ -220,12 +154,11 @@ export function SmartEdge<
     nodes: preparedNodes,
   };
 
-  let waypointParams: { x: number; y: number }[] = [];
-  if (options.editable) {
-    waypointParams = activePoints.map((point) => ({ x: point.x, y: point.y }));
-  } else if (options.checkpoints) {
-    waypointParams = readCheckpoints(edgeProps.data);
-  }
+  const waypointParams = resolveWaypointParams(
+    options,
+    edgeProps.data,
+    activePoints,
+  );
 
   const smartResponse =
     options.editable || options.checkpoints

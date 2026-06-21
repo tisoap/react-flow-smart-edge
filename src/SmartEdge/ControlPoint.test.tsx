@@ -7,6 +7,9 @@ import { SvgWrapper } from "../../vitest/svgWrapper";
 import { ControlPoint } from "./ControlPoint";
 import type { ControlPointData } from "./ControlPoint";
 
+const CONTROL_POINT_TEST_ID = "smart-edge-control-point";
+const INACTIVE_FIRST_SLOT_ID = "__inactive-0";
+
 const screenToFlowPosition = vi.fn(({ x, y }: { x: number; y: number }) => ({
   x,
   y,
@@ -55,9 +58,12 @@ const renderPoint = (
 describe("ControlPoint", () => {
   it("promotes an inactive point at the first insert slot", async () => {
     const user = userEvent.setup();
-    const { setControlPoints } = renderPoint({ id: "__inactive-0", index: 0 });
+    const { setControlPoints } = renderPoint({
+      id: INACTIVE_FIRST_SLOT_ID,
+      index: 0,
+    });
 
-    await user.click(screen.getByTestId("smart-edge-control-point"));
+    await user.click(screen.getByTestId(CONTROL_POINT_TEST_ID));
 
     expect(vi.mocked(setControlPoints)).toHaveBeenCalled();
     const updater = vi.mocked(setControlPoints).mock.calls[0][0];
@@ -73,7 +79,7 @@ describe("ControlPoint", () => {
       { id: "a", x: 10, y: 10, active: true },
     ];
 
-    await user.click(screen.getByTestId("smart-edge-control-point"));
+    await user.click(screen.getByTestId(CONTROL_POINT_TEST_ID));
 
     expect(vi.mocked(setControlPoints)).toHaveBeenCalled();
     const updater = vi.mocked(setControlPoints).mock.calls[0][0];
@@ -87,7 +93,7 @@ describe("ControlPoint", () => {
       index: 1,
       active: true,
     });
-    const circle = screen.getByTestId("smart-edge-control-point");
+    const circle = screen.getByTestId(CONTROL_POINT_TEST_ID);
 
     circle.focus();
     await user.keyboard("{ArrowRight}{ArrowUp}{ArrowDown}{ArrowLeft}{Delete}");
@@ -104,7 +110,7 @@ describe("ControlPoint", () => {
       index: 1,
       active: true,
     });
-    const circle = screen.getByTestId("smart-edge-control-point");
+    const circle = screen.getByTestId(CONTROL_POINT_TEST_ID);
 
     act(() => {
       circle.dispatchEvent(
@@ -135,8 +141,11 @@ describe("ControlPoint", () => {
 
   it("activates an inactive point from the keyboard", async () => {
     const user = userEvent.setup();
-    const { setControlPoints } = renderPoint({ id: "__inactive-0", index: 0 });
-    const circle = screen.getByTestId("smart-edge-control-point");
+    const { setControlPoints } = renderPoint({
+      id: INACTIVE_FIRST_SLOT_ID,
+      index: 0,
+    });
+    const circle = screen.getByTestId(CONTROL_POINT_TEST_ID);
 
     circle.focus();
     await user.keyboard("{Enter}");
@@ -154,7 +163,7 @@ describe("ControlPoint", () => {
       index: 1,
       active: true,
     });
-    const circle = screen.getByTestId("smart-edge-control-point");
+    const circle = screen.getByTestId(CONTROL_POINT_TEST_ID);
 
     await user.pointer([
       { keys: "[MouseLeft>]", target: circle },
@@ -172,7 +181,7 @@ describe("ControlPoint", () => {
 
   it("ignores right-button pointer down", () => {
     const { setControlPoints } = renderPoint({ active: true });
-    const circle = screen.getByTestId("smart-edge-control-point");
+    const circle = screen.getByTestId(CONTROL_POINT_TEST_ID);
 
     circle.dispatchEvent(
       new PointerEvent("pointerdown", { bubbles: true, button: 2 }),
@@ -183,8 +192,11 @@ describe("ControlPoint", () => {
 
   it("ignores unhandled keys and inactive context-menu deletes", async () => {
     const user = userEvent.setup();
-    const { setControlPoints } = renderPoint({ id: "__inactive-0", index: 0 });
-    const circle = screen.getByTestId("smart-edge-control-point");
+    const { setControlPoints } = renderPoint({
+      id: INACTIVE_FIRST_SLOT_ID,
+      index: 0,
+    });
+    const circle = screen.getByTestId(CONTROL_POINT_TEST_ID);
 
     circle.focus();
     await user.keyboard("a");
@@ -203,7 +215,7 @@ describe("ControlPoint", () => {
       index: 1,
       active: true,
     });
-    const circle = screen.getByTestId("smart-edge-control-point");
+    const circle = screen.getByTestId(CONTROL_POINT_TEST_ID);
 
     circle.focus();
     await user.keyboard(" ");
@@ -218,7 +230,7 @@ describe("ControlPoint", () => {
       index: 1,
       active: true,
     });
-    const circle = screen.getByTestId("smart-edge-control-point");
+    const circle = screen.getByTestId(CONTROL_POINT_TEST_ID);
 
     circle.focus();
     await user.keyboard("{Backspace}");
@@ -239,7 +251,7 @@ describe("ControlPoint", () => {
       x: 80,
       y: 90,
     });
-    const circle = screen.getByTestId("smart-edge-control-point");
+    const circle = screen.getByTestId(CONTROL_POINT_TEST_ID);
 
     await user.click(circle);
 
@@ -258,7 +270,7 @@ describe("ControlPoint", () => {
   it("skips unrelated points when inserting after an existing waypoint", async () => {
     const user = userEvent.setup();
     const { setControlPoints } = renderPoint({ id: "__inactive-1", index: 2 });
-    const circle = screen.getByTestId("smart-edge-control-point");
+    const circle = screen.getByTestId(CONTROL_POINT_TEST_ID);
 
     await user.click(circle);
 

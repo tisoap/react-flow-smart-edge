@@ -14,6 +14,15 @@ export type PathFindingFunction = (
   end: XYPosition,
 ) => number[][];
 
+const NO_PATH_FOUND_ERROR = "No path found";
+
+const rethrowPathfindingError = (error: unknown): never => {
+  if (error instanceof Error) {
+    throw error;
+  }
+  throw new Error(`Unknown error: ${String(error)}`, { cause: error });
+};
+
 export const pathfindingAStarDiagonal: PathFindingFunction = (
   grid,
   start,
@@ -26,14 +35,11 @@ export const pathfindingAStarDiagonal: PathFindingFunction = (
     const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid);
 
     if (fullPath.length === 0) {
-      throw new Error("No path found");
+      throw new Error(NO_PATH_FOUND_ERROR);
     }
     return fullPath;
   } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error(`Unknown error: ${String(error)}`, { cause: error });
+    return rethrowPathfindingError(error);
   }
 };
 
@@ -49,14 +55,11 @@ export const pathfindingAStarNoDiagonal: PathFindingFunction = (
     const fullPath = finder.findPath(start.x, start.y, end.x, end.y, grid);
 
     if (fullPath.length === 0) {
-      throw new Error("No path found");
+      throw new Error(NO_PATH_FOUND_ERROR);
     }
     return fullPath;
   } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error(`Unknown error: ${String(error)}`, { cause: error });
+    return rethrowPathfindingError(error);
   }
 };
 
@@ -70,13 +73,10 @@ export const pathfindingJumpPointNoDiagonal: PathFindingFunction = (
     const jumpPointPath = finder.findPath(start.x, start.y, end.x, end.y, grid);
 
     if (jumpPointPath.length === 0) {
-      throw new Error("No path found");
+      throw new Error(NO_PATH_FOUND_ERROR);
     }
     return jumpPointPath;
   } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error(`Unknown error: ${String(error)}`, { cause: error });
+    return rethrowPathfindingError(error);
   }
 };

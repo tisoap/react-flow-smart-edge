@@ -1,12 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeAll } from "vitest";
 import { createGrid } from "../pathfinding/grid";
-import * as aStarModule from "../pathfinding/aStar";
-import * as jumpPointModule from "../pathfinding/jumpPoint";
 import {
   pathfindingAStarDiagonal,
   pathfindingAStarNoDiagonal,
   pathfindingJumpPointNoDiagonal,
 } from "./generatePath";
+
+let aStarModule: typeof import("../pathfinding/aStar");
+let jumpPointModule: typeof import("../pathfinding/jumpPoint");
 
 const openGrid = () => createGrid(3, 3);
 const blockedGrid = () => {
@@ -23,6 +24,11 @@ const throwUnknown = (): never => {
 };
 
 describe("generatePath", () => {
+  beforeAll(async () => {
+    aStarModule = await import("../pathfinding/aStar");
+    jumpPointModule = await import("../pathfinding/jumpPoint");
+  });
+
   it("pathfindingAStarDiagonal finds a diagonal path", () => {
     const grid = openGrid();
     const path = pathfindingAStarDiagonal(grid, { x: 0, y: 0 }, { x: 2, y: 2 });

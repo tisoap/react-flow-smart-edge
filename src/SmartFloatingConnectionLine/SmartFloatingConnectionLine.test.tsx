@@ -5,13 +5,14 @@ import {
   type Node,
 } from "@xyflow/react";
 import { render } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach, beforeAll } from "vitest";
 import { SvgWrapper } from "../../vitest/svgWrapper";
-import * as getSmartEdgeModule from "../getSmartEdge";
 import {
   SmartFloatingConnectionLine,
   type SmartFloatingConnectionLineProps,
 } from "./index";
+
+let getSmartEdgeModule: typeof import("../getSmartEdge");
 
 const hubUserNode: Node = {
   id: "hub",
@@ -65,6 +66,10 @@ const baseProps: SmartFloatingConnectionLineProps = {
 };
 
 describe("SmartFloatingConnectionLine", () => {
+  beforeAll(async () => {
+    getSmartEdgeModule = await import("../getSmartEdge");
+  });
+
   beforeEach(() => {
     vi.restoreAllMocks();
   });

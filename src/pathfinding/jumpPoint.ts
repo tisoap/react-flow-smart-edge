@@ -177,6 +177,32 @@ const relaxJumpPoint = (
   }
 };
 
+const relaxNeighborJump = (
+  neighborX: number,
+  neighborY: number,
+  node: GridNode,
+  endX: number,
+  endY: number,
+  grid: Grid,
+  jump: ReturnType<typeof createJump>,
+  openList: GridNode[],
+) => {
+  const jumpPoint = jump(neighborX, neighborY, node.x, node.y);
+
+  if (!jumpPoint) {
+    return;
+  }
+
+  const [jumpX, jumpY] = jumpPoint;
+  const jumpNode = grid.getNodeAt(jumpX, jumpY);
+
+  if (jumpNode.closed) {
+    return;
+  }
+
+  relaxJumpPoint(jumpNode, node, endX, endY, jumpX, jumpY, openList);
+};
+
 export const createJumpPointFinder = () => {
   const findPath = (
     startX: number,
@@ -205,20 +231,16 @@ export const createJumpPointFinder = () => {
       }
 
       for (const [neighborX, neighborY] of findNeighbors(node, grid)) {
-        const jumpPoint = jump(neighborX, neighborY, node.x, node.y);
-
-        if (!jumpPoint) {
-          continue;
-        }
-
-        const [jumpX, jumpY] = jumpPoint;
-        const jumpNode = grid.getNodeAt(jumpX, jumpY);
-
-        if (jumpNode.closed) {
-          continue;
-        }
-
-        relaxJumpPoint(jumpNode, node, endX, endY, jumpX, jumpY, openList);
+        relaxNeighborJump(
+          neighborX,
+          neighborY,
+          node,
+          endX,
+          endY,
+          grid,
+          jump,
+          openList,
+        );
       }
     }
 

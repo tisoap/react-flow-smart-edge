@@ -113,7 +113,9 @@ export function ControlPoint({
   );
 
   useEffect(() => {
-    if (!container || !dragging) return;
+    if (!container || !dragging) {
+      return undefined;
+    }
 
     const onPointerMove = (event: PointerEvent) => {
       updatePosition(
@@ -144,7 +146,7 @@ export function ControlPoint({
       ref={ref}
       tabIndex={0}
       data-testid="smart-edge-control-point"
-      className={"nopan nodrag" + (active ? " active" : "")}
+      className={`nopan nodrag${active ? " active" : ""}`}
       cx={x}
       cy={y}
       r={active ? 4 : 3}

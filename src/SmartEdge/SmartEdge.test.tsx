@@ -1,14 +1,26 @@
 import { Position, ReactFlowProvider } from "@xyflow/react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach, beforeAll } from "vitest";
 import { SvgWrapper } from "../../vitest/svgWrapper";
-import * as getSmartEdgeModule from "../getSmartEdge";
-import * as getSmartEdgeWaypointsModule from "../getSmartEdge/getSmartEdgeWaypoints";
 import { SmartEdge } from "./index";
 import type { Node, Edge } from "@xyflow/react";
 
 type SetEdges = (payload: Edge[] | ((edges: Edge[]) => Edge[])) => void;
+
+let getSmartEdgeModule: typeof import("../getSmartEdge");
+let getSmartEdgeWaypointsModule: typeof import("../getSmartEdge/getSmartEdgeWaypoints");
+
+const MOCK_WAYPOINTS_PATH = "M0,0 L100,0";
+const CONTROL_POINT_TEST_ID = "smart-edge-control-point";
+const CONTROL_POINT_SELECTOR = `[data-testid='${CONTROL_POINT_TEST_ID}']`;
+
+const mockWaypointsResponse = {
+  svgPathString: MOCK_WAYPOINTS_PATH,
+  edgeCenterX: 50,
+  edgeCenterY: 0,
+  points: [] satisfies number[][],
+};
 
 const setEdges = vi.fn<SetEdges>();
 
@@ -73,6 +85,12 @@ const renderEdge = (
   );
 
 describe("SmartEdge", () => {
+  beforeAll(async () => {
+    getSmartEdgeModule = await import("../getSmartEdge");
+    getSmartEdgeWaypointsModule =
+      await import("../getSmartEdge/getSmartEdgeWaypoints");
+  });
+
   beforeEach(() => {
     vi.restoreAllMocks();
     setEdges.mockReset();
@@ -121,7 +139,7 @@ describe("SmartEdge", () => {
     renderEdge(
       { editable: true },
       {
-        data: { points: [{ invalid: true }] },
+        data: { points: [{ invalid: true }, "not-an-object"] },
       },
     );
 
@@ -229,12 +247,7 @@ describe("SmartEdge", () => {
     vi.spyOn(
       getSmartEdgeWaypointsModule,
       "getSmartEdgeWaypoints",
-    ).mockReturnValue({
-      svgPathString: "M0,0 L100,0",
-      edgeCenterX: 50,
-      edgeCenterY: 0,
-      points: [],
-    });
+    ).mockReturnValue(mockWaypointsResponse);
 
     const { container } = renderEdge(
       { editable: true },
@@ -244,8 +257,7 @@ describe("SmartEdge", () => {
     );
 
     expect(
-      container.querySelectorAll("[data-testid='smart-edge-control-point']")
-        .length,
+      container.querySelectorAll(CONTROL_POINT_SELECTOR).length,
     ).toBeGreaterThan(0);
   });
 
@@ -254,9 +266,7 @@ describe("SmartEdge", () => {
       getSmartEdgeWaypointsModule,
       "getSmartEdgeWaypoints",
     ).mockReturnValue({
-      svgPathString: "M0,0 L100,0",
-      edgeCenterX: 50,
-      edgeCenterY: 0,
+      ...mockWaypointsResponse,
       points: [[100, 25]],
     });
 
@@ -269,8 +279,7 @@ describe("SmartEdge", () => {
     );
 
     expect(
-      container.querySelectorAll("[data-testid='smart-edge-control-point']")
-        .length,
+      container.querySelectorAll(CONTROL_POINT_SELECTOR).length,
     ).toBeGreaterThan(0);
   });
 
@@ -302,12 +311,7 @@ describe("SmartEdge", () => {
     vi.spyOn(
       getSmartEdgeWaypointsModule,
       "getSmartEdgeWaypoints",
-    ).mockReturnValue({
-      svgPathString: "M0,0 L100,0",
-      edgeCenterX: 50,
-      edgeCenterY: 0,
-      points: [],
-    });
+    ).mockReturnValue(mockWaypointsResponse);
 
     const { container } = renderEdge(
       { editable: true },
@@ -318,8 +322,7 @@ describe("SmartEdge", () => {
     );
 
     expect(
-      container.querySelectorAll("[data-testid='smart-edge-control-point']")
-        .length,
+      container.querySelectorAll(CONTROL_POINT_SELECTOR).length,
     ).toBeGreaterThan(0);
   });
 
@@ -333,9 +336,7 @@ describe("SmartEdge", () => {
       getSmartEdgeWaypointsModule,
       "getSmartEdgeWaypoints",
     ).mockReturnValue({
-      svgPathString: "M0,0 L100,0",
-      edgeCenterX: 50,
-      edgeCenterY: 0,
+      ...mockWaypointsResponse,
       points: interior,
     });
 
@@ -350,8 +351,7 @@ describe("SmartEdge", () => {
     );
 
     expect(
-      container.querySelectorAll("[data-testid='smart-edge-control-point']")
-        .length,
+      container.querySelectorAll(CONTROL_POINT_SELECTOR).length,
     ).toBeGreaterThan(0);
   });
 
@@ -360,12 +360,7 @@ describe("SmartEdge", () => {
     vi.spyOn(
       getSmartEdgeWaypointsModule,
       "getSmartEdgeWaypoints",
-    ).mockReturnValue({
-      svgPathString: "M0,0 L100,0",
-      edgeCenterX: 50,
-      edgeCenterY: 0,
-      points: [],
-    });
+    ).mockReturnValue(mockWaypointsResponse);
 
     setEdges.mockImplementation((payload) => {
       if (typeof payload !== "function") {
@@ -386,7 +381,7 @@ describe("SmartEdge", () => {
       },
     );
 
-    await user.click(screen.getByTestId("smart-edge-control-point"));
+    await user.click(screen.getByTestId(CONTROL_POINT_TEST_ID));
 
     expect(setEdges).toHaveBeenCalled();
     const updater = vi.mocked(setEdges).mock.calls.at(-1)?.[0];

@@ -1,12 +1,13 @@
 import { Position } from "@xyflow/react";
-import { describe, expect, it, vi } from "vitest";
-import * as getSmartEdgeModule from "./index";
+import { describe, expect, it, vi, beforeAll } from "vitest";
 import { getSmartEdgeWaypoints } from "./getSmartEdgeWaypoints";
 import {
   pathfindingAStarNoDiagonal,
   svgDrawStraightLinePath,
 } from "../functions";
 import type { Node } from "@xyflow/react";
+
+let getSmartEdgeModule: typeof import("./index");
 
 const testNode = (
   nodeId: string,
@@ -43,6 +44,10 @@ const baseParams = {
 };
 
 describe("getSmartEdgeWaypoints", () => {
+  beforeAll(async () => {
+    getSmartEdgeModule = await import("./index");
+  });
+
   it("delegates to getSmartEdge when there are no waypoints", () => {
     const plain = getSmartEdgeWaypoints({ ...baseParams, waypoints: [] });
     expect(plain).not.toBeInstanceOf(Error);
