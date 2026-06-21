@@ -8,6 +8,7 @@ import tseslint from "typescript-eslint";
 import { globalIgnores, defineConfig, type Config } from "eslint/config";
 import { configs as sonarJsConfigs } from "eslint-plugin-sonarjs";
 import prettier from "eslint-plugin-prettier/recommended";
+import comments from "@eslint-community/eslint-plugin-eslint-comments/configs";
 
 export default defineConfig(
   globalIgnores(["dist", "storybook-static", "website"]),
@@ -21,6 +22,7 @@ export default defineConfig(
       reactHooks.configs.flat["recommended-latest"],
       reactRefresh.configs.vite,
       sonarJsConfigs.recommended,
+      comments.recommended,
     ],
     languageOptions: {
       ecmaVersion: 2025,
@@ -34,15 +36,24 @@ export default defineConfig(
       },
     },
     rules: {
-      "@typescript-eslint/no-unnecessary-type-parameters": "off",
-      "@eslint-react/no-use-context": "off",
-      "@eslint-react/no-context-provider": "off",
       "react-refresh/only-export-components": "off",
+      // Errors
       "@typescript-eslint/consistent-type-assertions": [
         "error",
         {
           assertionStyle: "never",
         },
+      ],
+      "@eslint-community/eslint-comments/no-restricted-disable": [
+        "error",
+        "react/*",
+        "sonarjs/*",
+        "@eslint-react/*",
+        "eslint-community/*",
+      ],
+      "@eslint-community/eslint-comments/require-description": [
+        "error",
+        { ignore: [] },
       ],
     },
   },
@@ -59,6 +70,12 @@ export default defineConfig(
     files: ["src/**/*.stories.tsx", "eslint.config.ts"],
     rules: {
       "@typescript-eslint/consistent-type-assertions": "off",
+    },
+  },
+  {
+    files: [".storybook/**"],
+    rules: {
+      "sonarjs/todo-tag": "off",
     },
   },
   ...(storybook.configs["flat/recommended"] as Config[]),

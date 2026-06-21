@@ -72,6 +72,7 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "5.2.1",
+    "@eslint-community/eslint-plugin-eslint-comments": "4.7.2",
     "@eslint-react/eslint-plugin": "5.8.18",
     "@eslint/js": "10.0.1",
     "@microsoft/api-extractor": "7.58.8",
