@@ -4,6 +4,7 @@ import {
   SmartStraightEdge,
   SmartStepEdge,
   SmartSmoothStepEdge,
+  SmartSimpleBezierEdge,
   SmartFloatingEdge,
   SmartEditableEdge,
   SmartCheckpointEdge,
@@ -18,6 +19,7 @@ export const edgeTypes = {
   smartStraight: SmartStraightEdge,
   smartStep: SmartStepEdge,
   smartSmoothStep: SmartSmoothStepEdge,
+  smartSimpleBezier: SmartSimpleBezierEdge,
   smartFloating: SmartFloatingEdge,
   smartEditable: SmartEditableEdge,
   smartCheckpoint: SmartCheckpointEdge,
@@ -180,6 +182,11 @@ export const edgesStep: Edge[] = edgesBezier.map((edge) => ({
 export const edgesSmoothStep: Edge[] = edgesBezier.map((edge) => ({
   ...edge,
   type: "smartSmoothStep",
+}));
+
+export const edgesSimpleBezier: Edge[] = edgesBezier.map((edge) => ({
+  ...edge,
+  type: "smartSimpleBezier",
 }));
 
 export const edgesLabel: Edge[] = edgesBezier.map((edge) => ({

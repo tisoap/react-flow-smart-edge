@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { getSimpleBezierPath, Position } from "@xyflow/react";
 import {
   svgDrawSmoothLinePath,
   svgDrawSmoothStepLinePath,
+  svgDrawSimpleBezierLinePath,
   svgDrawStraightLinePath,
 } from "./drawSvgPath";
 
@@ -63,5 +65,83 @@ describe("drawSvgPath", () => {
       [50, 0],
     ]);
     expect(d).toBe("M 0,0 L 50,0 L 100,0 ");
+  });
+
+  it("matches getSimpleBezierPath when there are no intermediate points", () => {
+    const source = {
+      x: 0,
+      y: 0,
+      position: Position.Right,
+    };
+    const target = {
+      x: 100,
+      y: 50,
+      position: Position.Left,
+    };
+    const [expectedPath] = getSimpleBezierPath({
+      sourceX: source.x,
+      sourceY: source.y,
+      sourcePosition: source.position,
+      targetX: target.x,
+      targetY: target.y,
+      targetPosition: target.position,
+    });
+
+    expect(svgDrawSimpleBezierLinePath(source, target, [])).toBe(expectedPath);
+  });
+
+  it("draws chained cubic bezier segments through intermediate points", () => {
+    const source = {
+      x: 0,
+      y: 0,
+      position: Position.Bottom,
+    };
+    const target = {
+      x: 100,
+      y: 50,
+      position: Position.Top,
+    };
+    const d = svgDrawSimpleBezierLinePath(source, target, [
+      [20, 0],
+      [20, 50],
+    ]);
+
+    expect(d.startsWith("M0,0")).toBe(true);
+    expect(d).toContain(" C");
+    expect(d.split(" C").length).toBeGreaterThan(2);
+  });
+
+  it("uses horizontal handle controls for left/right positions", () => {
+    const source = {
+      x: 0,
+      y: 10,
+      position: Position.Right,
+    };
+    const target = {
+      x: 100,
+      y: 10,
+      position: Position.Left,
+    };
+
+    expect(svgDrawSimpleBezierLinePath(source, target, [])).toBe(
+      "M0,10 C50,10 50,10 100,10",
+    );
+  });
+
+  it("uses vertical handle controls for top/bottom positions", () => {
+    const source = {
+      x: 10,
+      y: 0,
+      position: Position.Bottom,
+    };
+    const target = {
+      x: 10,
+      y: 100,
+      position: Position.Top,
+    };
+
+    expect(svgDrawSimpleBezierLinePath(source, target, [])).toBe(
+      "M10,0 C10,50 10,50 10,100",
+    );
   });
 });

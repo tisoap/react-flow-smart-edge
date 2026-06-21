@@ -1,8 +1,10 @@
+import { Position } from "@xyflow/react";
 import type { XYPosition } from "@xyflow/react";
+import type { EndpointInfo } from "./alignEndpoints";
 
 /**
- * Takes source and target {x, y} points, together with an array of number
- * tuples [x, y] representing the points along the path, and returns a string
+ * Takes source and target `{x, y}` points, together with an array of number
+ * tuples `[x, y]` representing the points along the path, and returns a string
  * to be used as the SVG path.
  */
 export type SVGDrawFunction = (
@@ -10,6 +12,116 @@ export type SVGDrawFunction = (
   target: XYPosition,
   path: number[][],
 ) => string;
+
+/**
+ * Like {@link SVGDrawFunction}, but requires handle positions on the endpoints
+ * so cubic control points can mirror React Flow's `SimpleBezierEdge`.
+ */
+export type SVGSimpleBezierDrawFunction = (
+  source: EndpointInfo,
+  target: EndpointInfo,
+  path: number[][],
+) => string;
+
+/** Values accepted by {@link GetSmartEdgeOptions.drawEdge}. */
+export type DrawEdgeFunction = SVGDrawFunction | SVGSimpleBezierDrawFunction;
+
+interface SimpleBezierPoint extends XYPosition {
+  position: Position;
+}
+
+/**
+ * Control point for a cubic segment, ported from xyflow's SimpleBezierEdge.
+ * @see https://github.com/xyflow/xyflow/blob/main/packages/react/src/components/Edges/SimpleBezierEdge.tsx
+ */
+const getSimpleBezierControl = (
+  pos: Position,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+): [number, number] => {
+  if (pos === Position.Left || pos === Position.Right) {
+    return [0.5 * (x1 + x2), y1];
+  }
+
+  return [x1, 0.5 * (y1 + y2)];
+};
+
+/** Infers a handle side from the dominant travel direction between two points. */
+const inferHandlePosition = (from: XYPosition, to: XYPosition): Position => {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    return dx >= 0 ? Position.Right : Position.Left;
+  }
+
+  return dy >= 0 ? Position.Bottom : Position.Top;
+};
+
+const toSimpleBezierPoint = (
+  point: XYPosition,
+  prev: XYPosition,
+  next: XYPosition,
+): SimpleBezierPoint => ({
+  x: point.x,
+  y: point.y,
+  position: inferHandlePosition(prev, next),
+});
+
+/**
+ * Draws an SVG path using chained cubic bezier segments with handle-position
+ * controls, mirroring React Flow's SimpleBezierEdge.
+ */
+export const svgDrawSimpleBezierLinePath: SVGSimpleBezierDrawFunction = (
+  source,
+  target,
+  path,
+) => {
+  const waypoints = path.map(([x, y]) => ({ x, y }));
+  const allPoints: XYPosition[] = [source, ...waypoints, target];
+
+  const points: SimpleBezierPoint[] = allPoints.map((point, index) => {
+    if (index === 0) {
+      return source;
+    }
+    if (index === allPoints.length - 1) {
+      return target;
+    }
+
+    return toSimpleBezierPoint(
+      point,
+      allPoints[index - 1],
+      allPoints[index + 1],
+    );
+  });
+
+  let svgPath = `M${String(points[0].x)},${String(points[0].y)}`;
+
+  for (let index = 0; index < points.length - 1; index++) {
+    const from = points[index];
+    const to = points[index + 1];
+    const [sourceControlX, sourceControlY] = getSimpleBezierControl(
+      from.position,
+      from.x,
+      from.y,
+      to.x,
+      to.y,
+    );
+    const [targetControlX, targetControlY] = getSimpleBezierControl(
+      to.position,
+      to.x,
+      to.y,
+      from.x,
+      from.y,
+    );
+
+    svgPath += ` C${String(sourceControlX)},${String(sourceControlY)} ${String(targetControlX)},${String(targetControlY)} ${String(to.x)},${String(to.y)}`;
+  }
+
+  return svgPath;
+};
 
 /**
  * Draws a SVG path from a list of points, using straight lines.

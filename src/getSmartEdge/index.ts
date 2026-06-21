@@ -10,7 +10,7 @@ import {
 import type {
   PointInfo,
   PathFindingFunction,
-  SVGDrawFunction,
+  DrawEdgeFunction,
 } from "../functions";
 import type { Node, EdgeProps, Rect } from "@xyflow/react";
 
@@ -27,7 +27,7 @@ export type EdgeParams = Pick<
 export interface GetSmartEdgeOptions {
   gridRatio?: number;
   nodePadding?: number;
-  drawEdge?: SVGDrawFunction;
+  drawEdge?: DrawEdgeFunction;
   generatePath?: PathFindingFunction;
   /**
    * Extra rectangular areas (in graph coordinates) the path should route

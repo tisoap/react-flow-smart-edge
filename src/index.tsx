@@ -2,6 +2,7 @@ export { SmartBezierEdge } from "./SmartBezierEdge";
 export { SmartStraightEdge } from "./SmartStraightEdge";
 export { SmartStepEdge } from "./SmartStepEdge";
 export { SmartSmoothStepEdge } from "./SmartSmoothStepEdge";
+export { SmartSimpleBezierEdge } from "./SmartSimpleBezierEdge";
 export { SmartEdge } from "./SmartEdge";
 export { SmartFloatingEdge } from "./SmartFloatingEdge";
 export { SmartEditableEdge } from "./SmartEditableEdge";
@@ -15,6 +16,7 @@ export {
   svgDrawSmoothLinePath,
   svgDrawStraightLinePath,
   svgDrawSmoothStepLinePath,
+  svgDrawSimpleBezierLinePath,
 } from "./functions/drawSvgPath";
 export {
   pathfindingAStarDiagonal,
@@ -40,8 +42,11 @@ export type { ConfigureSmartEdgeOptions } from "./createSmartEdge";
 export type { GetSmartEdgeOptions } from "./getSmartEdge";
 export type {
   SVGDrawFunction,
+  SVGSimpleBezierDrawFunction,
+  DrawEdgeFunction,
   SmoothStepOptions,
 } from "./functions/drawSvgPath";
+export type { EndpointInfo } from "./functions/alignEndpoints";
 export type { PathFindingFunction } from "./functions/generatePath";
 export type { FloatingEdgeParams } from "./functions/getFloatingEdgeParams";
 export type { Grid, GridNode } from "./pathfinding/grid";

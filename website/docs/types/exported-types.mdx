@@ -31,12 +31,15 @@ Public TypeScript types from `@tisoap/react-flow-smart-edge`:
 
 ## Pluggable functions
 
-| Type                  | Description                             |
-| --------------------- | --------------------------------------- |
-| `SVGDrawFunction`     | Custom SVG path drawer                  |
-| `SmoothStepOptions`   | Options for `svgDrawSmoothStepLinePath` |
-| `PathFindingFunction` | Custom pathfinding                      |
-| `FloatingEdgeParams`  | Return type of `getFloatingEdgeParams`  |
+| Type                          | Description                                     |
+| ----------------------------- | ----------------------------------------------- |
+| `SVGDrawFunction`             | Custom SVG path drawer (straight, smooth, step) |
+| `SVGSimpleBezierDrawFunction` | Simple-bezier drawer (requires handle position) |
+| `DrawEdgeFunction`            | Union accepted by `drawEdge` option             |
+| `EndpointInfo`                | `XYPosition` plus handle `position`             |
+| `SmoothStepOptions`           | Options for `svgDrawSmoothStepLinePath`         |
+| `PathFindingFunction`         | Custom pathfinding                              |
+| `FloatingEdgeParams`          | Return type of `getFloatingEdgeParams`          |
 
 ## Geometry
 

@@ -261,8 +261,8 @@ export const getSmartEdgeWaypoints = <
     const stitched = dedupeStitchPoints(raw);
     const points = toLogicalPoints(stitched);
     const svgPathString = drawEdge(
-      source,
-      target,
+      { x: sourceX, y: sourceY, position: sourcePosition },
+      { x: targetX, y: targetY, position: targetPosition },
       toDrawPoints(stitched, source, target),
     );
 

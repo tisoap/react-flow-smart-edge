@@ -52,15 +52,16 @@ export function Graph() {
 
 ## Edge components
 
-| Export                | React Flow equivalent                                                         |
-| --------------------- | ----------------------------------------------------------------------------- |
-| `SmartBezierEdge`     | [BezierEdge](https://reactflow.dev/examples/edges/edge-types)                 |
-| `SmartStraightEdge`   | [StraightEdge](https://reactflow.dev/examples/edges/edge-types)               |
-| `SmartStepEdge`       | [StepEdge](https://reactflow.dev/examples/edges/edge-types)                   |
-| `SmartSmoothStepEdge` | [SmoothStepEdge](https://reactflow.dev/examples/edges/edge-types)             |
-| `SmartFloatingEdge`   | [Floating edges example](https://reactflow.dev/examples/edges/floating-edges) |
-| `SmartEditableEdge`   | [Editable edge example](https://reactflow.dev/examples/edges/editable-edge)   |
-| `SmartCheckpointEdge` | No equivalent                                                                 |
+| Export                  | React Flow equivalent                                                                |
+| ----------------------- | ------------------------------------------------------------------------------------ |
+| `SmartBezierEdge`       | [BezierEdge](https://reactflow.dev/examples/edges/edge-types)                        |
+| `SmartStraightEdge`     | [StraightEdge](https://reactflow.dev/examples/edges/edge-types)                      |
+| `SmartStepEdge`         | [StepEdge](https://reactflow.dev/examples/edges/edge-types)                          |
+| `SmartSmoothStepEdge`   | [SmoothStepEdge](https://reactflow.dev/examples/edges/edge-types)                    |
+| `SmartSimpleBezierEdge` | [SimpleBezierEdge](https://reactflow.dev/api-reference/utils/get-simple-bezier-path) |
+| `SmartFloatingEdge`     | [Floating edges example](https://reactflow.dev/examples/edges/floating-edges)        |
+| `SmartEditableEdge`     | [Editable edge example](https://reactflow.dev/examples/edges/editable-edge)          |
+| `SmartCheckpointEdge`   | No equivalent                                                                        |
 
 Configure options with `createSmartEdge("step", { gridRatio: 5 })` or build custom edges with `getSmartEdge`. See the [docs](https://tisoap.github.io/react-flow-smart-edge/docs) for guides, API reference, and live examples.
 

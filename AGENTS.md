@@ -38,11 +38,13 @@ nodes + edge endpoints
 
 ### Edge presets (canonical configs in `src/smartEdgePresets.ts`)
 
-| Export / preset     | `drawEdge`                | `generatePath`                   | Fallback (on failure) |
-| ------------------- | ------------------------- | -------------------------------- | --------------------- |
-| `SmartBezierEdge`   | `svgDrawSmoothLinePath`   | `pathfindingAStarDiagonal`       | `BezierEdge`          |
-| `SmartStraightEdge` | `svgDrawStraightLinePath` | `pathfindingAStarDiagonal`       | `StraightEdge`        |
-| `SmartStepEdge`     | `svgDrawStraightLinePath` | `pathfindingJumpPointNoDiagonal` | `StepEdge`            |
+| Export / preset         | `drawEdge`                    | `generatePath`                   | Fallback (on failure) |
+| ----------------------- | ----------------------------- | -------------------------------- | --------------------- |
+| `SmartBezierEdge`       | `svgDrawSmoothLinePath`       | `pathfindingAStarDiagonal`       | `BezierEdge`          |
+| `SmartStraightEdge`     | `svgDrawStraightLinePath`     | `pathfindingAStarDiagonal`       | `StraightEdge`        |
+| `SmartStepEdge`         | `svgDrawStraightLinePath`     | `pathfindingJumpPointNoDiagonal` | `StepEdge`            |
+| `SmartSmoothStepEdge`   | `svgDrawSmoothStepLinePath`   | `pathfindingJumpPointNoDiagonal` | `SmoothStepEdge`      |
+| `SmartSimpleBezierEdge` | `svgDrawSimpleBezierLinePath` | `pathfindingAStarDiagonal`       | `SimpleBezierEdge`    |
 
 Preset components are `createSmartEdge(preset)` with default options. Consumers can call `createSmartEdge("step", { gridRatio: 5 })` at module scope, or use exported `SmartEdge` + `smartEdgePresets` for custom rendering.
 
@@ -66,6 +68,8 @@ src/
   SmartBezierEdge/       # Preset components (thin createSmartEdge wrappers)
   SmartStraightEdge/
   SmartStepEdge/
+  SmartSmoothStepEdge/
+  SmartSimpleBezierEdge/
   functions/             # Grid, bounds, SVG path builders
   pathfinding/           # Grid + A*
   demos/                 # Shared GraphWrapper, fixtures, demoRegistry (Storybook + docs)

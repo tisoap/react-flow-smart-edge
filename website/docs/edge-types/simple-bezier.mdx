@@ -1,0 +1,21 @@
+---
+sidebar_position: 5
+---
+
+# SmartSimpleBezierEdge
+
+`SmartSimpleBezierEdge` uses diagonal A\* pathfinding and draws chained cubic bezier segments with handle-position controls — the smart equivalent of React Flow's [`SimpleBezierEdge`](https://reactflow.dev/api-reference/utils/get-simple-bezier-path).
+
+```tsx
+import { SmartSimpleBezierEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = { smartSimpleBezier: SmartSimpleBezierEdge };
+```
+
+<FlowDemo name="smartSimpleBezier" />
+
+## Related
+
+- [Configuring options](../guides/configuring-options)
+- [`drawEdge`](../options/draw-edge) — change how the path is drawn
+- [`generatePath`](../options/generate-path) — change the pathfinding algorithm

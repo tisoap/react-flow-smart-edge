@@ -4,6 +4,7 @@ import {
   demoStoryPlay,
   dragSmartConnectionPreview,
   expectBezierCurves,
+  expectCubicBezierCurves,
   expectCustomLabelButtons,
   expectDemoGraph,
   expectEdgePaths,
@@ -89,6 +90,17 @@ export const SmartSmoothStepConfigured: Story = {
       edgeCount: { exact: 9 },
     });
     await expectEdgePaths(canvasElement, { exact: 9 });
+  }),
+};
+
+export const SmartSimpleBezier: Story = {
+  args: demoRegistry.smartSimpleBezier,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 7 },
+      edgeCount: { exact: 9 },
+    });
+    await expectCubicBezierCurves(canvasElement);
   }),
 };
 

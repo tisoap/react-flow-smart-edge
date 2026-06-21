@@ -10,6 +10,7 @@ import {
   edgesStraight,
   edgesStep,
   edgesSmoothStep,
+  edgesSimpleBezier,
   edgesLabel,
   simpleNodes,
   simpleEdgesBezier,
@@ -80,6 +81,10 @@ export const demoRegistry = {
     edgeTypes: configuredSmoothStepEdgeTypes,
     defaultNodes: nodes,
     defaultEdges: edgesSmoothStep,
+  },
+  smartSimpleBezier: {
+    ...smartBezierBase,
+    defaultEdges: edgesSimpleBezier,
   },
   smartBezierWithCustomLabel: {
     ...smartBezierBase,

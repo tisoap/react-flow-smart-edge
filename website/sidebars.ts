@@ -16,6 +16,7 @@ const sidebars: SidebarsConfig = {
         "edge-types/straight",
         "edge-types/step",
         "edge-types/smooth-step",
+        "edge-types/simple-bezier",
       ],
     },
     {
