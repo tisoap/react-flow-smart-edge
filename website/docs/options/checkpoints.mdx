@@ -1,0 +1,24 @@
+---
+sidebar_position: 6
+---
+
+# `checkpoints`
+
+When `true`, the edge is routed through fixed waypoints read from `edge.data.checkpoints`. Each segment still uses pathfinding. No draggable control points are rendered.
+
+|             |           |
+| ----------- | --------- |
+| **Type**    | `boolean` |
+| **Default** | `false`   |
+
+```ts
+createSmartEdge("step", { checkpoints: true, gridRatio: 5 });
+```
+
+Or use `SmartCheckpointEdge` directly.
+
+<FlowDemo name="smartCheckpoint" height={480} />
+
+Checkpoints persist on `edge.data.checkpoints` as `{ x, y }[]`. See [Checkpoint edges](../guides/checkpoint-edges).
+
+If both `checkpoints` and [`editable`](./editable) are `true`, editable waypoints take precedence and `checkpoints` is ignored.

@@ -130,6 +130,101 @@ describe("SmartEdge", () => {
     );
   });
 
+  it("routes checkpoint edges through waypoint stitching", () => {
+    const spy = vi.spyOn(getSmartEdgeWaypointsModule, "getSmartEdgeWaypoints");
+
+    renderEdge(
+      { checkpoints: true },
+      {
+        data: {
+          checkpoints: [{ x: 180, y: 80 }],
+        },
+      },
+    );
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        waypoints: [{ x: 180, y: 80 }],
+      }),
+    );
+  });
+
+  it("ignores malformed checkpoint data", () => {
+    const spy = vi.spyOn(getSmartEdgeWaypointsModule, "getSmartEdgeWaypoints");
+
+    renderEdge(
+      { checkpoints: true },
+      {
+        data: { checkpoints: [{ invalid: true }] },
+      },
+    );
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ waypoints: [] }),
+    );
+  });
+
+  it("reads empty checkpoints when data is absent or malformed", () => {
+    const spy = vi.spyOn(getSmartEdgeWaypointsModule, "getSmartEdgeWaypoints");
+
+    renderEdge({ checkpoints: true });
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ waypoints: [] }),
+    );
+
+    spy.mockClear();
+
+    renderEdge(
+      { checkpoints: true },
+      { data: { checkpoints: "not-an-array" } },
+    );
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ waypoints: [] }),
+    );
+  });
+
+  it("prefers editable waypoints when both editable and checkpoints are enabled", () => {
+    const spy = vi.spyOn(getSmartEdgeWaypointsModule, "getSmartEdgeWaypoints");
+
+    renderEdge(
+      { editable: true, checkpoints: true },
+      {
+        data: {
+          points: [{ id: "wp-1", x: 180, y: 80, active: true }],
+          checkpoints: [{ x: 999, y: 999 }],
+        },
+      },
+    );
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        waypoints: [{ x: 180, y: 80 }],
+      }),
+    );
+  });
+
+  it("uses getSmartEdge when checkpoints are disabled", () => {
+    const waypointsSpy = vi.spyOn(
+      getSmartEdgeWaypointsModule,
+      "getSmartEdgeWaypoints",
+    );
+    const smartEdgeSpy = vi.spyOn(getSmartEdgeModule, "getSmartEdge");
+
+    renderEdge(
+      { checkpoints: false },
+      {
+        data: {
+          checkpoints: [{ x: 180, y: 80 }],
+        },
+      },
+    );
+
+    expect(smartEdgeSpy).toHaveBeenCalled();
+    expect(waypointsSpy).not.toHaveBeenCalled();
+  });
+
   it("shows control points when an endpoint node is selected", () => {
     vi.spyOn(
       getSmartEdgeWaypointsModule,

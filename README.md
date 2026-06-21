@@ -12,7 +12,7 @@ Custom edges for [React Flow](https://reactflow.dev) that never intersect with o
 
 **Full documentation:** [tisoap.github.io/react-flow-smart-edge/docs](https://tisoap.github.io/react-flow-smart-edge/docs)
 
-Interactive Storybook examples are published on [Chromatic](https://main--625ade28911b53003a921739.chromatic.com/?path=/story/smart-edge--smart-bezier). Source: [`src/stories/SmartEdge.stories.tsx`](./src/stories/SmartEdge.stories.tsx).
+Interactive Storybook examples are published on [Chromatic](https://main--625ade28911b53003a921739.chromatic.com/?path=/story/smart-edge--smart-bezier).
 
 ## Install
 
@@ -52,14 +52,15 @@ export function Graph() {
 
 ## Edge components
 
-| Export                | React Flow equivalent  |
-| --------------------- | ---------------------- |
-| `SmartBezierEdge`     | `BezierEdge`           |
-| `SmartStraightEdge`   | `StraightEdge`         |
-| `SmartStepEdge`       | `StepEdge`             |
-| `SmartSmoothStepEdge` | `SmoothStepEdge`       |
-| `SmartFloatingEdge`   | Floating edges example |
-| `SmartEditableEdge`   | Editable edge example  |
+| Export                | React Flow equivalent                                                         |
+| --------------------- | ----------------------------------------------------------------------------- |
+| `SmartBezierEdge`     | [BezierEdge](https://reactflow.dev/examples/edges/edge-types)                 |
+| `SmartStraightEdge`   | [StraightEdge](https://reactflow.dev/examples/edges/edge-types)               |
+| `SmartStepEdge`       | [StepEdge](https://reactflow.dev/examples/edges/edge-types)                   |
+| `SmartSmoothStepEdge` | [SmoothStepEdge](https://reactflow.dev/examples/edges/edge-types)             |
+| `SmartFloatingEdge`   | [Floating edges example](https://reactflow.dev/examples/edges/floating-edges) |
+| `SmartEditableEdge`   | [Editable edge example](https://reactflow.dev/examples/edges/editable-edge)   |
+| `SmartCheckpointEdge` | No equivalent                                                                 |
 
 Configure options with `createSmartEdge("step", { gridRatio: 5 })` or build custom edges with `getSmartEdge`. See the [docs](https://tisoap.github.io/react-flow-smart-edge/docs) for guides, API reference, and live examples.
 

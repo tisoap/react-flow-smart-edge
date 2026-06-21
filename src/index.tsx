@@ -5,6 +5,7 @@ export { SmartSmoothStepEdge } from "./SmartSmoothStepEdge";
 export { SmartEdge } from "./SmartEdge";
 export { SmartFloatingEdge } from "./SmartFloatingEdge";
 export { SmartEditableEdge } from "./SmartEditableEdge";
+export { SmartCheckpointEdge } from "./SmartCheckpointEdge";
 export { SmartFloatingConnectionLine } from "./SmartFloatingConnectionLine";
 export { createSmartEdge } from "./createSmartEdge";
 export { smartEdgePresets } from "./smartEdgePresets";
@@ -26,7 +27,11 @@ export {
   getEdgePosition,
 } from "./functions/getFloatingEdgeParams";
 
-export type { SmartEdgeOptions, SmartEditableEdgeData } from "./SmartEdge";
+export type {
+  SmartEdgeOptions,
+  SmartEditableEdgeData,
+  SmartCheckpointEdgeData,
+} from "./SmartEdge";
 export type { ControlPointData } from "./SmartEdge/ControlPoint";
 export type { GetSmartEdgeWaypointsParams } from "./getSmartEdge/getSmartEdgeWaypoints";
 export type { SmartFloatingConnectionLineProps } from "./SmartFloatingConnectionLine";

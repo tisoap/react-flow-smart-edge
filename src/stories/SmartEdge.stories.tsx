@@ -225,3 +225,20 @@ export const SmartEditable: Story = {
     await interactWithEditableEdge(canvasElement);
   }),
 };
+
+export const SmartCheckpoint: Story = {
+  args: demoRegistry.smartCheckpoint,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 6 },
+      edgeCount: { exact: 1 },
+    });
+
+    await expectPathAvoidsRect(canvasElement, {
+      x: 300,
+      y: 200,
+      width: 100,
+      height: 100,
+    });
+  }),
+};

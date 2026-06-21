@@ -30,6 +30,8 @@ import {
   demoAvoidAreas,
   editableNodes,
   editableEdges,
+  checkpointNodes,
+  checkpointEdges,
 } from "./DummyData";
 import type { ReactFlowProps } from "@xyflow/react";
 
@@ -138,6 +140,11 @@ export const demoRegistry = {
     edgeTypes,
     defaultNodes: editableNodes,
     defaultEdges: editableEdges,
+  },
+  smartCheckpoint: {
+    edgeTypes,
+    defaultNodes: checkpointNodes,
+    defaultEdges: checkpointEdges,
   },
 } satisfies Record<string, DemoGraphProps>;
 

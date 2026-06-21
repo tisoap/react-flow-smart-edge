@@ -1,0 +1,63 @@
+---
+sidebar_position: 4
+---
+
+# Checkpoint edges
+
+Route an edge through **fixed waypoints** stored on `edge.data.checkpoints`. Each segment between consecutive checkpoints still uses pathfinding to avoid nodes—same stitching as [editable edges](./editable-edges), but without draggable control points.
+
+Use checkpoints when waypoint positions are known up front (imported graphs, programmatic layout, server data). Use [editable edges](./editable-edges) when users should drag waypoints in the UI.
+
+## `SmartCheckpointEdge`
+
+```ts
+import { SmartCheckpointEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  smartCheckpoint: SmartCheckpointEdge,
+};
+```
+
+<FlowDemo name="smartCheckpoint" height={480} />
+
+## With `createSmartEdge`
+
+```ts
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  checkpointStep: createSmartEdge("step", { checkpoints: true, gridRatio: 5 }),
+};
+```
+
+See also: [`checkpoints`](../options/checkpoints).
+
+## Persisting checkpoints (`edge.data.checkpoints`)
+
+Checkpoints are plain graph coordinates (`{ x, y }`). Your flow owns edge state (`useEdgesState`, `defaultEdges`, or controlled `edges`/`onEdgesChange`):
+
+```ts
+import type { SmartCheckpointEdgeData } from "@tisoap/react-flow-smart-edge";
+
+const initialEdges = [
+  {
+    id: "e1-2",
+    source: "1",
+    target: "2",
+    type: "smartCheckpoint",
+    data: {
+      checkpoints: [{ x: 320, y: 90 }],
+    } satisfies SmartCheckpointEdgeData,
+  },
+];
+```
+
+When `checkpoints` is enabled but `data.checkpoints` is empty or missing, routing behaves like a plain smart edge.
+
+## `getSmartEdgeWaypoints`
+
+For fully custom edges, call [`getSmartEdgeWaypoints`](../api/get-smart-edge-waypoints) directly with a `waypoints` array instead of using the built-in option.
+
+## See also
+
+- [Editable edges](./editable-edges) — draggable waypoints with the same segment routing

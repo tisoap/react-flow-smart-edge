@@ -12,7 +12,7 @@ import { buildControlPoints } from "./controlPointGeometry";
 import { ControlPoint } from "./ControlPoint";
 import type { ControlPointData, SetControlPoints } from "./ControlPoint";
 import type { GetSmartEdgeOptions } from "../getSmartEdge";
-import type { EdgeProps, Node, Edge } from "@xyflow/react";
+import type { EdgeProps, Node, Edge, XYPosition } from "@xyflow/react";
 
 export type SmartEdgeOptions = GetSmartEdgeOptions & {
   fallback?: ComponentType<EdgeProps<Edge>>;
@@ -33,6 +33,12 @@ export type SmartEdgeOptions = GetSmartEdgeOptions & {
    */
   editable?: boolean;
   /**
+   * When enabled, the edge is routed through fixed waypoints read from
+   * `edge.data.checkpoints` without rendering draggable control points. Each
+   * segment still uses pathfinding. Ignored when `editable` is also `true`.
+   */
+  checkpoints?: boolean;
+  /**
    * Color used to render the editable control points. Defaults to a blue.
    */
   controlPointColor?: string;
@@ -44,6 +50,14 @@ export type SmartEdgeOptions = GetSmartEdgeOptions & {
  */
 export interface SmartEditableEdgeData extends Record<string, unknown> {
   points?: ControlPointData[];
+}
+
+/**
+ * The `edge.data` shape consumed by checkpoint smart edges: the ordered list
+ * of fixed graph-coordinate points the edge is routed through.
+ */
+export interface SmartCheckpointEdgeData extends Record<string, unknown> {
+  checkpoints?: XYPosition[];
 }
 
 const DEFAULT_CONTROL_POINT_COLOR = "#3367d9";
@@ -73,6 +87,30 @@ const readControlPoints = (data: unknown): ControlPointData[] => {
     isControlPointArray(data.points)
   ) {
     return data.points;
+  }
+  return [];
+};
+
+const isXYPosition = (value: unknown): value is XYPosition =>
+  typeof value === "object" &&
+  value !== null &&
+  "x" in value &&
+  typeof value.x === "number" &&
+  "y" in value &&
+  typeof value.y === "number";
+
+/**
+ * Reads fixed checkpoints from an edge's `data`, tolerating any data shape
+ * (returns an empty list when absent or malformed).
+ */
+const readCheckpoints = (data: unknown): XYPosition[] => {
+  if (
+    data !== null &&
+    typeof data === "object" &&
+    "checkpoints" in data &&
+    Array.isArray(data.checkpoints)
+  ) {
+    return data.checkpoints.filter(isXYPosition);
   }
   return [];
 };
@@ -182,12 +220,17 @@ export function SmartEdge<
     nodes: preparedNodes,
   };
 
-  const smartResponse = options.editable
-    ? getSmartEdgeWaypoints({
-        ...commonParams,
-        waypoints: activePoints.map((point) => ({ x: point.x, y: point.y })),
-      })
-    : getSmartEdge(commonParams);
+  let waypointParams: { x: number; y: number }[] = [];
+  if (options.editable) {
+    waypointParams = activePoints.map((point) => ({ x: point.x, y: point.y }));
+  } else if (options.checkpoints) {
+    waypointParams = readCheckpoints(edgeProps.data);
+  }
+
+  const smartResponse =
+    options.editable || options.checkpoints
+      ? getSmartEdgeWaypoints({ ...commonParams, waypoints: waypointParams })
+      : getSmartEdge(commonParams);
 
   const FallbackEdge = options.fallback ?? BezierEdge;
 

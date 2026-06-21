@@ -6,6 +6,7 @@ import {
   SmartSmoothStepEdge,
   SmartFloatingEdge,
   SmartEditableEdge,
+  SmartCheckpointEdge,
 } from "../index";
 import { SmartEdgeCustomLabel } from "./CustomLabel";
 import type { Node, Edge, Rect } from "@xyflow/react";
@@ -19,6 +20,7 @@ export const edgeTypes = {
   smartSmoothStep: SmartSmoothStepEdge,
   smartFloating: SmartFloatingEdge,
   smartEditable: SmartEditableEdge,
+  smartCheckpoint: SmartCheckpointEdge,
   smartBezierLabel: SmartEdgeCustomLabel,
 };
 
@@ -652,6 +654,22 @@ export const editableEdges: Edge[] = [
     markerEnd: { type: markerEndType },
     data: {
       points: [{ id: "ed-wp-1", x: 360, y: 40, active: true }],
+    },
+  },
+];
+
+/** Same layout as the editable demo, but with fixed checkpoints instead of UI waypoints. */
+export const checkpointNodes = editableNodes;
+
+export const checkpointEdges: Edge[] = [
+  {
+    id: "cp-e-source-target",
+    source: "ed-source",
+    target: "ed-target",
+    type: "smartCheckpoint",
+    markerEnd: { type: markerEndType },
+    data: {
+      checkpoints: [{ x: 360, y: 40 }],
     },
   },
 ];
