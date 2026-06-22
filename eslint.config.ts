@@ -56,6 +56,7 @@ export default defineConfig(
         "react-hooks/*",
         "@eslint-react/*",
         "eslint-community/*",
+        "@typescript-eslint/no-explicit-any",
       ],
       "@eslint-community/eslint-comments/require-description": [
         "error",
