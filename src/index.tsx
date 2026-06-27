@@ -44,14 +44,13 @@ export type { SmartFloatingConnectionLineProps } from "./SmartFloatingConnection
 export type { SmartEdgePreset } from "./smartEdgePresets";
 export type { ConfigureSmartEdgeOptions } from "./createSmartEdge";
 export type { GetSmartEdgeOptions } from "./getSmartEdge";
+export type { SmartEdgeBatchRoutingProviderProps } from "./batchRouting/SmartEdgeBatchRoutingProvider";
+export type { EdgeRouteInput } from "./batchRouting/edgeOptions";
 export type {
-  SmartEdgeBatchRoutingProviderProps,
+  SerializableSmartEdgeOptions,
   SmartEdgeBatchOptions,
   SmartEdgeBatchOverride,
   SmartEdgeBatchEdgeData,
-} from "./batchRouting/SmartEdgeBatchRoutingProvider";
-export type {
-  SerializableSmartEdgeOptions,
   BatchEdgeInput,
   BatchRoutingInput,
   BatchRoutingResults,

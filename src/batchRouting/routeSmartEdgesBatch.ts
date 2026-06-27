@@ -19,6 +19,22 @@ export interface SerializableSmartEdgeOptions {
   borderRadius?: number;
 }
 
+/** Provider defaults applied to every edge, with an optional default preset. */
+export interface SmartEdgeBatchOptions extends SerializableSmartEdgeOptions {
+  preset?: SmartEdgePreset;
+}
+
+/** Per-edge override, read from `edge.data.smartEdge`. */
+export interface SmartEdgeBatchOverride {
+  preset?: SmartEdgePreset;
+  options?: SerializableSmartEdgeOptions;
+}
+
+/** The `edge.data` shape `useSmartEdgeRoute` reads per-edge overrides from. */
+export interface SmartEdgeBatchEdgeData extends Record<string, unknown> {
+  smartEdge?: SmartEdgeBatchOverride;
+}
+
 /** A single edge to route, with endpoints already resolved on the main thread. */
 export interface BatchEdgeInput {
   id: string;

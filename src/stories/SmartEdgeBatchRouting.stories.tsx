@@ -7,7 +7,12 @@ import {
 import { SmartEdgeBatchRoutingProvider } from "../batchRouting/SmartEdgeBatchRoutingProvider";
 import { useSmartEdgeRoute } from "../batchRouting/useSmartEdgeRoute";
 import { markerEndType } from "../demos/dummyData/shared";
-import { demoStoryPlay, expectDemoGraph } from "./storyPlayHelpers";
+import {
+  demoStoryPlay,
+  expectGraphRendered,
+  EDGE_PATH_SELECTOR,
+} from "./storyPlayHelpers";
+import { waitFor } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { EdgeProps, Node, Edge } from "@xyflow/react";
 
@@ -36,7 +41,7 @@ const edges: Edge[] = [
 
 /** A custom edge that renders the worker-routed path, or a bezier fallback. */
 function WorkerEdge(props: EdgeProps) {
-  const routed = useSmartEdgeRoute(props.id);
+  const routed = useSmartEdgeRoute(props);
   if (!routed) {
     return <BezierEdge {...props} />;
   }
@@ -58,7 +63,6 @@ function WorkerRoutingDemo() {
     <ReactFlowProvider>
       <SmartEdgeBatchRoutingProvider
         nodes={nodes}
-        edges={edges}
         options={{ preset: "bezier" }}
       >
         <div
@@ -90,16 +94,24 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const WorkerBatchRouting: Story = {
-  // Real-browser integration smoke test: the provider mounts inside React Flow
-  // context, the inline worker import builds, and the worker edge component +
-  // useSmartEdgeRoute wire up and render edge paths without crashing. The
-  // worker message protocol and the routed/fallback paths are covered by the
-  // unit tests in src/batchRouting (blob Web Workers do not run in the headless
-  // test sandbox, so routed output is asserted there instead).
   play: demoStoryPlay(async (canvasElement) => {
-    await expectDemoGraph(canvasElement, {
-      nodeCount: { exact: 3 },
-      edgeCount: { exact: 2 },
-    });
+    await expectGraphRendered(canvasElement);
+    // The worker routes with the smooth (quadratic) bezier drawer, so a routed
+    // path contains "Q"; the pending fallback BezierEdge uses cubic "C". Poll
+    // until the worker (or main-thread fallback) delivers routed paths.
+    await waitFor(
+      () => {
+        const paths = [
+          ...canvasElement.querySelectorAll<SVGPathElement>(EDGE_PATH_SELECTOR),
+        ];
+        const routed = paths.some((path) =>
+          (path.getAttribute("d") ?? "").includes("Q"),
+        );
+        if (!routed) {
+          throw new Error("routed paths not applied yet");
+        }
+      },
+      { timeout: 10000 },
+    );
   }),
 };

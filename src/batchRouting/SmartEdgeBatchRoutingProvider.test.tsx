@@ -1,13 +1,15 @@
+import { Position } from "@xyflow/react";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { SmartEdgeBatchRoutingProvider } from "./SmartEdgeBatchRoutingProvider";
 import { useSmartEdgeRoute } from "./useSmartEdgeRoute";
-import type { SmartEdgeBatchOptions } from "./SmartEdgeBatchRoutingProvider";
+import type { SmartEdgeBatchOptions } from "./routeSmartEdgesBatch";
+import type { EdgeRouteInput } from "./edgeOptions";
 import type { RoutingRequest, RoutingResponse } from "./workerMessages";
 import type { GetSmartEdgeReturn } from "../getSmartEdge";
-import type { Edge, Node } from "@xyflow/react";
+import type { Node } from "@xyflow/react";
 
-// Fake worker infrastructure, hoisted so the module mock factory can reference it.
+// Fake worker infrastructure, hoisted so the module mock factory can use it.
 const workerMock = vi.hoisted(() => {
   const instances: FakeWorker[] = [];
   const state = { shouldThrow: false };
@@ -39,20 +41,6 @@ vi.mock("./routing.worker?worker&inline", () => ({
   default: workerMock.FakeWorker,
 }));
 
-vi.mock("@xyflow/react", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@xyflow/react")>();
-  const nodeLookup = new Map<string, unknown>([
-    ["a", { position: { x: 0, y: 0 }, measured: { width: 100, height: 50 } }],
-    ["b", { position: { x: 300, y: 0 }, measured: { width: 100, height: 50 } }],
-  ]);
-  return {
-    ...actual,
-    useStore: (
-      selector: (state: { nodeLookup: typeof nodeLookup }) => unknown,
-    ) => selector({ nodeLookup }),
-  };
-});
-
 const nodes: Node[] = [
   {
     id: "a",
@@ -60,69 +48,37 @@ const nodes: Node[] = [
     measured: { width: 100, height: 50 },
     data: {},
   },
-  // No `measured` on purpose, to exercise the optional-chaining signature path.
+  // No `measured` to exercise the optional-chaining node projection.
   { id: "b", position: { x: 300, y: 0 }, data: {} },
 ];
 
-// Edges crafted to exercise every override-reading branch in the provider.
-const edges: Edge[] = [
-  { id: "e-default", source: "a", target: "b" },
-  {
-    id: "e-override",
-    source: "a",
-    target: "b",
-    data: {
-      smartEdge: {
-        preset: "step",
-        options: {
-          gridRatio: 20,
-          nodePadding: 5,
-          borderRadius: 8,
-          // A valid rect plus malformed ones that fail the isRect guard at
-          // each field, exercising every branch of the validation.
-          avoidAreas: [
-            { x: 150, y: 0, width: 20, height: 60 },
-            "not-a-record",
-            { bad: true },
-            { x: 1 },
-            { x: 1, y: 1 },
-            { x: 1, y: 1, width: 1 },
-          ],
-        },
-      },
-    },
-  },
-  {
-    id: "e-badpreset",
-    source: "a",
-    target: "b",
-    data: { smartEdge: { preset: "nope" } },
-  },
-  {
-    id: "e-badoptions",
-    source: "a",
-    target: "b",
-    data: { smartEdge: { options: "x" } },
-  },
-  {
-    id: "e-badnumber",
-    source: "a",
-    target: "b",
-    data: { smartEdge: { options: { gridRatio: "x", avoidAreas: "y" } } },
-  },
-  { id: "e-nosmartedge", source: "a", target: "b", data: { foo: 1 } },
-  { id: "e-missing", source: "missing", target: "b" },
+const DEFAULT_EDGE_ID = "e-default";
+
+const edgeProps = (
+  overrides: Partial<EdgeRouteInput> = {},
+): EdgeRouteInput => ({
+  id: DEFAULT_EDGE_ID,
+  source: "a",
+  target: "b",
+  sourceX: 100,
+  sourceY: 25,
+  targetX: 300,
+  targetY: 25,
+  sourcePosition: Position.Right,
+  targetPosition: Position.Left,
+  ...overrides,
+});
+
+const edges: EdgeRouteInput[] = [
+  edgeProps(),
+  edgeProps({ id: "e-step", data: { smartEdge: { preset: "step" } } }),
 ];
 
 const options: SmartEdgeBatchOptions = {
   preset: "bezier",
   gridRatio: 10,
   nodePadding: 10,
-  borderRadius: 5,
-  avoidAreas: [{ x: 0, y: 0, width: 5, height: 5 }],
 };
-
-const DEFAULT_EDGE_ID = "e-default";
 
 const routedResult: GetSmartEdgeReturn = {
   svgPathString: "M9,9",
@@ -131,9 +87,11 @@ const routedResult: GetSmartEdgeReturn = {
   points: [],
 };
 
-function RouteProbe({ id }: Readonly<{ id: string }>) {
-  const routed = useSmartEdgeRoute(id);
-  return <div data-testid={`route-${id}`}>{routed ? "routed" : "pending"}</div>;
+function RouteProbe({ edge }: Readonly<{ edge: EdgeRouteInput }>) {
+  const routed = useSmartEdgeRoute(edge);
+  return (
+    <div data-testid={`route-${edge.id}`}>{routed ? "routed" : "pending"}</div>
+  );
 }
 
 const probeStatus = (edgeId: string) =>
@@ -141,13 +99,9 @@ const probeStatus = (edgeId: string) =>
 
 const renderProvider = (providerOptions?: SmartEdgeBatchOptions) =>
   render(
-    <SmartEdgeBatchRoutingProvider
-      nodes={nodes}
-      edges={edges}
-      options={providerOptions}
-    >
+    <SmartEdgeBatchRoutingProvider nodes={nodes} options={providerOptions}>
       {edges.map((edge) => (
-        <RouteProbe key={edge.id} id={edge.id} />
+        <RouteProbe key={edge.id} edge={edge} />
       ))}
     </SmartEdgeBatchRoutingProvider>,
   );
@@ -162,7 +116,7 @@ describe("SmartEdgeBatchRoutingProvider", () => {
     vi.unstubAllGlobals();
   });
 
-  it("routes on the main thread when Web Workers are unavailable", async () => {
+  it("routes registered edges on the main thread when no Worker exists", async () => {
     vi.stubGlobal("Worker", undefined);
 
     renderProvider(options);
@@ -170,10 +124,7 @@ describe("SmartEdgeBatchRoutingProvider", () => {
     await waitFor(() => {
       expect(probeStatus(DEFAULT_EDGE_ID)).toBe("routed");
     });
-    expect(probeStatus("e-override")).toBe("routed");
-    expect(probeStatus("e-badpreset")).toBe("routed");
-    // The edge whose source node is missing from the lookup is skipped.
-    expect(probeStatus("e-missing")).toBe("pending");
+    expect(probeStatus("e-step")).toBe("routed");
   });
 
   it("uses the default preset when no options are provided", async () => {
@@ -186,18 +137,27 @@ describe("SmartEdgeBatchRoutingProvider", () => {
     });
   });
 
-  it("routes via the worker and ignores stale responses", () => {
+  it("routes the batch via the worker and ignores stale responses", async () => {
     vi.stubGlobal("Worker", workerMock.FakeWorker);
 
-    const { unmount } = renderProvider(options);
+    renderProvider(options);
 
-    expect(workerMock.instances).toHaveLength(1);
+    // Both edges coalesce into a single batch message.
+    await waitFor(() => {
+      expect(workerMock.instances).toHaveLength(1);
+      expect(workerMock.instances[0].posted).toHaveLength(1);
+    });
+
     const instance = workerMock.instances[0];
+    const request = instance.posted[0];
+    expect(
+      request.edges
+        .map((edge) => edge.id)
+        .sort((idA, idB) => idA.localeCompare(idB)),
+    ).toEqual([DEFAULT_EDGE_ID, "e-step"]);
     expect(probeStatus(DEFAULT_EDGE_ID)).toBe("pending");
 
-    const request = instance.posted[0];
-
-    // A stale requestId must be ignored.
+    // A stale requestId is ignored.
     act(() => {
       instance.onmessage?.({
         data: {
@@ -218,16 +178,28 @@ describe("SmartEdgeBatchRoutingProvider", () => {
       });
     });
     expect(probeStatus(DEFAULT_EDGE_ID)).toBe("routed");
+  });
+
+  it("terminates the worker on unmount", async () => {
+    vi.stubGlobal("Worker", workerMock.FakeWorker);
+
+    const { unmount } = renderProvider(options);
+    await waitFor(() => {
+      expect(workerMock.instances).toHaveLength(1);
+    });
+    const instance = workerMock.instances[0];
 
     unmount();
     expect(instance.terminated).toBe(true);
   });
 
-  it("falls back to the main thread when the worker errors", () => {
+  it("falls back to the main thread when the worker errors", async () => {
     vi.stubGlobal("Worker", workerMock.FakeWorker);
 
     renderProvider(options);
-
+    await waitFor(() => {
+      expect(workerMock.instances).toHaveLength(1);
+    });
     const instance = workerMock.instances[0];
     expect(probeStatus(DEFAULT_EDGE_ID)).toBe("pending");
 
@@ -235,7 +207,9 @@ describe("SmartEdgeBatchRoutingProvider", () => {
       instance.onerror?.();
     });
 
-    expect(probeStatus(DEFAULT_EDGE_ID)).toBe("routed");
+    await waitFor(() => {
+      expect(probeStatus(DEFAULT_EDGE_ID)).toBe("routed");
+    });
     expect(instance.terminated).toBe(true);
   });
 
