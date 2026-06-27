@@ -1,6 +1,12 @@
-import { Position } from "@xyflow/react";
-import type { XYPosition } from "@xyflow/react";
+import type { Position, XYPosition } from "@xyflow/react";
 import type { EndpointInfo } from "./alignEndpoints";
+
+/**
+ * The four handle sides as plain string literals. `Position`'s enum values are
+ * exactly these strings, so comparing against them avoids importing the
+ * `@xyflow/react` runtime (and pulling React) into the Web Worker bundle.
+ */
+type HandleSide = "top" | "right" | "bottom" | "left";
 
 /**
  * Takes source and target `{x, y}` points, together with an array of number
@@ -27,21 +33,24 @@ export type SVGSimpleBezierDrawFunction = (
 export type DrawEdgeFunction = SVGDrawFunction | SVGSimpleBezierDrawFunction;
 
 interface SimpleBezierPoint extends XYPosition {
-  position: Position;
+  position: Position | HandleSide;
 }
+
+const isHorizontalSide = (position: Position | HandleSide): boolean =>
+  position === "left" || position === "right";
 
 /**
  * Control point for a cubic segment, ported from xyflow's SimpleBezierEdge.
  * @see https://github.com/xyflow/xyflow/blob/main/packages/react/src/components/Edges/SimpleBezierEdge.tsx
  */
 const getSimpleBezierControl = (
-  pos: Position,
+  pos: Position | HandleSide,
   fromX: number,
   fromY: number,
   toX: number,
   toY: number,
 ): [number, number] => {
-  if (pos === Position.Left || pos === Position.Right) {
+  if (isHorizontalSide(pos)) {
     return [0.5 * (fromX + toX), fromY];
   }
 
@@ -52,15 +61,15 @@ const getSimpleBezierControl = (
 const inferHandlePosition = (
   from: XYPosition,
   toward: XYPosition,
-): Position => {
+): HandleSide => {
   const deltaX = toward.x - from.x;
   const deltaY = toward.y - from.y;
 
   if (Math.abs(deltaX) >= Math.abs(deltaY)) {
-    return deltaX >= 0 ? Position.Right : Position.Left;
+    return deltaX >= 0 ? "right" : "left";
   }
 
-  return deltaY >= 0 ? Position.Bottom : Position.Top;
+  return deltaY >= 0 ? "bottom" : "top";
 };
 
 const toSimpleBezierPoint = (

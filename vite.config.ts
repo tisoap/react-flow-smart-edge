@@ -21,6 +21,7 @@ const coverageExclude = [
   "src/demos/**",
   "src/**/*.test.ts",
   "src/**/*.test.tsx",
+  "src/**/*.worker.ts",
   "src/vite-env.d.ts",
 ];
 
@@ -37,6 +38,7 @@ export default defineConfig({
         "src/**/*.test.*",
         "src/**/*.spec.*",
         "src/stories/**",
+        "src/**/*.worker.ts",
       ],
       tsconfigPath: "tsconfig.app.json",
       compilerOptions: {
@@ -46,6 +48,9 @@ export default defineConfig({
       bundleTypes: true,
     }),
   ],
+  worker: {
+    format: "iife",
+  },
   build: {
     lib: {
       entry: "src/index.tsx",

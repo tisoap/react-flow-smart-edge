@@ -12,6 +12,9 @@ export { createSmartEdge } from "./createSmartEdge";
 export { smartEdgePresets } from "./smartEdgePresets";
 export { getSmartEdge } from "./getSmartEdge";
 export { getSmartEdgeWaypoints } from "./getSmartEdge/getSmartEdgeWaypoints";
+export { SmartEdgeBatchRoutingProvider } from "./batchRouting/SmartEdgeBatchRoutingProvider";
+export { useSmartEdgeRoute } from "./batchRouting/useSmartEdgeRoute";
+export { routeSmartEdgesBatch } from "./batchRouting/routeSmartEdgesBatch";
 export {
   svgDrawSmoothLinePath,
   svgDrawStraightLinePath,
@@ -41,6 +44,18 @@ export type { SmartFloatingConnectionLineProps } from "./SmartFloatingConnection
 export type { SmartEdgePreset } from "./smartEdgePresets";
 export type { ConfigureSmartEdgeOptions } from "./createSmartEdge";
 export type { GetSmartEdgeOptions } from "./getSmartEdge";
+export type {
+  SmartEdgeBatchRoutingProviderProps,
+  SmartEdgeBatchOptions,
+  SmartEdgeBatchOverride,
+  SmartEdgeBatchEdgeData,
+} from "./batchRouting/SmartEdgeBatchRoutingProvider";
+export type {
+  SerializableSmartEdgeOptions,
+  BatchEdgeInput,
+  BatchRoutingInput,
+  BatchRoutingResults,
+} from "./batchRouting/routeSmartEdgesBatch";
 export type {
   SVGDrawFunction,
   SVGSimpleBezierDrawFunction,
