@@ -1,18 +1,40 @@
+<div align="center">
+
 # React Flow Smart Edge
 
-Custom edges for [React Flow](https://reactflow.dev) that never intersect with other nodes, using pathfinding.
+**Smart edges for [React Flow](https://reactflow.dev) that route _around_ your nodes instead of straight through them.**
 
+Drop-in custom edges that use grid-based A\* pathfinding to find a clean path between nodes — plus floating endpoints, draggable waypoints, and circuit-style hops over crossing wires.
+
+[![npm version](https://img.shields.io/npm/v/@tisoap/react-flow-smart-edge?logo=npm&color=cb3837)](https://www.npmjs.com/package/@tisoap/react-flow-smart-edge)
+[![npm downloads](https://img.shields.io/npm/dm/@tisoap/react-flow-smart-edge?color=cb3837)](https://www.npmjs.com/package/@tisoap/react-flow-smart-edge)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@tisoap/react-flow-smart-edge?color=success)](https://bundlephobia.com/package/@tisoap/react-flow-smart-edge)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 ![TypeScript](https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=white)
-![Storybook](https://img.shields.io/badge/Storybook-FF4785?logo=storybook&logoColor=white)
-![ESLint](https://img.shields.io/badge/ESLint-3A33D1?logo=eslint&logoColor=white)
 
 ![Smart Edge](./.github/images/example-image.gif)
 
-## Documentation
+</div>
 
-**Full documentation:** [tisoap.github.io/react-flow-smart-edge/docs](https://tisoap.github.io/react-flow-smart-edge/docs)
+## Why?
 
-Interactive Storybook examples are published on [Chromatic](https://main--625ade28911b53003a921739.chromatic.com/?path=/story/smart-edge--smart-bezier).
+React Flow's built-in edges draw a direct line from source to target — which often means edges cut straight across your nodes. **React Flow Smart Edge** computes a path that goes _around_ them, so your graphs stay readable even as they grow and as nodes move.
+
+It's a tiny, dependency-light library (just `@xyflow/react` as a peer) that ships ready-to-use edge components and a low-level API for building your own.
+
+## Features
+
+- **Node-avoiding routing** — grid-based A\* / jump-point pathfinding finds a path that never crosses your nodes.
+- **Five edge styles** — smart equivalents of every React Flow edge: bezier, straight, step, smooth-step, and simple-bezier.
+- **Circuit-style hops** — step edges draw a small bridge arc where they cross each other, so intersections read cleanly. _(new!)_
+- **Floating edges** — connect to the nearest node border instead of a fixed handle.
+- **Editable waypoints** — drag control points to reshape a route; each segment still avoids nodes.
+- **Checkpoints** — route through fixed points without the editing UI.
+- **Avoid areas** — keep edges clear of arbitrary regions (e.g. labels), not just nodes.
+- **Subflow aware** — routes correctly inside React Flow groups/subflows.
+- **Graceful fallback** — drops back to the native React Flow edge if no path is found.
+- **Fully pluggable** — swap the pathfinding or SVG drawing functions, or build custom edges with `getSmartEdge`.
+- **Typed & tested** — written in strict TypeScript, with browser-based interaction tests.
 
 ## Install
 
@@ -22,7 +44,7 @@ npm install @tisoap/react-flow-smart-edge
 
 Requires [**React Flow v12+**](https://reactflow.dev/learn/troubleshooting/migrate-to-v12) (`@xyflow/react`).
 
-## Quick example
+## Quick start
 
 ```tsx
 import { ReactFlow } from "@xyflow/react";
@@ -63,7 +85,41 @@ export function Graph() {
 | `SmartEditableEdge`     | [Editable edge example](https://reactflow.dev/examples/edges/editable-edge)          |
 | `SmartCheckpointEdge`   | No equivalent                                                                        |
 
-Configure options with `createSmartEdge("step", { gridRatio: 5 })` or build custom edges with `getSmartEdge`. See the [docs](https://tisoap.github.io/react-flow-smart-edge/docs) for guides, API reference, and live examples.
+Configure any preset with `createSmartEdge`, or build custom edges with `getSmartEdge`:
+
+```tsx
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  // finer routing grid:
+  fineStep: createSmartEdge("step", { gridRatio: 5 }),
+};
+```
+
+## Circuit-style hops
+
+Give the step variants the `hops` option and crossing wires bridge over each
+other like a schematic — the edge on top draws a small arc over the one beneath:
+
+```tsx
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+
+const edgeTypes = {
+  hop: createSmartEdge("step", { hops: true }),
+  // or smooth-step with rounded corners + bridges:
+  smoothHop: createSmartEdge("smoothstep", { hops: { borderRadius: 8 } }),
+};
+```
+
+See the [`hops` docs](https://tisoap.github.io/react-flow-smart-edge/docs/options/hops) for tuning and a live demo.
+
+## Documentation
+
+**Full documentation:** [tisoap.github.io/react-flow-smart-edge/docs](https://tisoap.github.io/react-flow-smart-edge/docs)
+
+Guides, the full API reference, and live interactive demos for every feature.
+
+Interactive Storybook examples are also published on [Chromatic](https://main--625ade28911b53003a921739.chromatic.com/?path=/story/smart-edge--smart-bezier).
 
 ## Support
 

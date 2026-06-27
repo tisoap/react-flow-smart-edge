@@ -25,6 +25,7 @@ export {
   subFlowGroupEdgesStep,
 } from "./dummyData/subFlow";
 export { floatingNodes, floatingEdges } from "./dummyData/floating";
+export { hopNodes, hopEdgesStep, hopEdgesSmoothStep } from "./dummyData/hop";
 export {
   editableNodes,
   editableEdges,

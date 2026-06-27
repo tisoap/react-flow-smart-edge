@@ -33,6 +33,7 @@ export type {
   SmartEdgeOptions,
   SmartEditableEdgeData,
   SmartCheckpointEdgeData,
+  HopOptions,
 } from "./SmartEdge";
 export type { ControlPointData } from "./SmartEdge/ControlPoint";
 export type { GetSmartEdgeWaypointsParams } from "./getSmartEdge/getSmartEdgeWaypoints";

@@ -1,0 +1,69 @@
+---
+sidebar_position: 9
+---
+
+# `hops`
+
+Circuit-style "hops": where an edge crosses another smart edge of the **same
+type** rendered beneath it, the top edge draws a small bridge arc over the
+crossing so intersecting wires read cleanly, just like a schematic.
+
+|             |                             |
+| ----------- | --------------------------- |
+| **Type**    | `boolean \| HopOptions`     |
+| **Default** | `false`                     |
+| **Applies** | step / smooth-step variants |
+
+Hops only make sense on orthogonal paths, so they apply to the
+[`step`](../edge-types/step) and [`smooth-step`](../edge-types/smooth-step)
+variants. They are ignored on [`editable`](./editable) and
+[`checkpoints`](./checkpoints) edges.
+
+```ts
+import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
+
+// Sharp step corners with default bridge arcs:
+const edgeTypes = {
+  hop: createSmartEdge("step", { hops: true }),
+};
+```
+
+<FlowDemo name="smartStepHop" height={360} />
+
+## Tuning
+
+Pass a `HopOptions` object instead of `true`:
+
+```ts
+import type { HopOptions } from "@tisoap/react-flow-smart-edge";
+
+const hops: HopOptions = {
+  radius: 8, // bridge arc radius (default 6)
+  borderRadius: 8, // round corners too (default 0 = sharp step corners)
+  epsilon: 0.5, // axis-alignment / crossing tolerance in px
+};
+
+createSmartEdge("smoothstep", { hops });
+```
+
+| Field          | Type     | Default | Description                                      |
+| -------------- | -------- | ------- | ------------------------------------------------ |
+| `radius`       | `number` | `6`     | Radius of the bridge arc drawn at each crossing. |
+| `borderRadius` | `number` | `0`     | Corner rounding for a smooth-step look.          |
+| `epsilon`      | `number` | `0.5`   | Tolerance for treating segments as axis-aligned. |
+
+A smooth-step example, with rounded corners and bridges together:
+
+<FlowDemo name="smartSmoothStepHop" height={360} />
+
+## Which edge hops over which?
+
+The edge rendered **on top** (later in your `edges` array) draws the bridge over
+the one beneath it. Reorder your `edges` to control which wire jumps. Only edges
+that share the same `type` are bridged, so their routed geometry matches.
+
+## Performance
+
+Each hop edge re-routes every other same-type edge to find crossings, so this is
+an `O(n²)` pass over same-type edges. It needs no extra setup, but keep hop
+graphs reasonably sized or enable hops only on the edge types that need them.

@@ -33,6 +33,9 @@ import {
   editableEdges,
   checkpointNodes,
   checkpointEdges,
+  hopNodes,
+  hopEdgesStep,
+  hopEdgesSmoothStep,
 } from "./DummyData";
 import type { ReactFlowProps } from "@xyflow/react";
 
@@ -50,6 +53,16 @@ const configuredSmoothStepEdgeTypes = {
 
 const avoidAreaEdgeTypes = {
   smartBezierAvoid: createSmartEdge("bezier", { avoidAreas: demoAvoidAreas }),
+};
+
+const hopEdgeTypes = {
+  smartStepHop: createSmartEdge("step", { hops: true }),
+};
+
+const hopSmoothStepEdgeTypes = {
+  smartSmoothStepHop: createSmartEdge("smoothstep", {
+    hops: { borderRadius: 8 },
+  }),
 };
 
 const smartBezierBase: DemoGraphProps = {
@@ -150,6 +163,16 @@ export const demoRegistry = {
     edgeTypes,
     defaultNodes: checkpointNodes,
     defaultEdges: checkpointEdges,
+  },
+  smartStepHop: {
+    edgeTypes: hopEdgeTypes,
+    defaultNodes: hopNodes,
+    defaultEdges: hopEdgesStep,
+  },
+  smartSmoothStepHop: {
+    edgeTypes: hopSmoothStepEdgeTypes,
+    defaultNodes: hopNodes,
+    defaultEdges: hopEdgesSmoothStep,
   },
 } satisfies Record<string, DemoGraphProps>;
 

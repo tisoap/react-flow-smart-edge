@@ -107,6 +107,10 @@ export async function expectBezierCurves(canvasElement: HTMLElement) {
   return expectEdgePathsMatch(canvasElement, /Q/i, { min: 1 });
 }
 
+export async function expectArcHops(canvasElement: HTMLElement) {
+  return expectEdgePathsMatch(canvasElement, /A\s+\d/, { min: 1 });
+}
+
 export async function expectCubicBezierCurves(canvasElement: HTMLElement) {
   return expectEdgePathsMatch(canvasElement, /C/i, { min: 1 });
 }

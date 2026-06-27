@@ -8,12 +8,20 @@ import { buildControlPoints } from "./controlPointGeometry";
 import { ControlPoint } from "./ControlPoint";
 import type { ControlPointData, SetControlPoints } from "./ControlPoint";
 import { readControlPoints } from "./smartEdgeData";
+import { useHoppedPath } from "./smartEdgeHops";
+import type { HopOptions } from "./smartEdgeHops";
 import {
   applyFloatingEdgeCoordinates,
   resolveWaypointParams,
 } from "./smartEdgeRouting";
 import type { GetSmartEdgeOptions } from "../getSmartEdge";
 import type { EdgeProps, Node, Edge, XYPosition } from "@xyflow/react";
+
+export type { HopOptions } from "./smartEdgeHops";
+
+/** Prefers the hopped path when hops produced one, else the routed path. */
+const resolvePath = (hopped: string | null, routed: string): string =>
+  hopped ?? routed;
 
 export type SmartEdgeOptions = GetSmartEdgeOptions & {
   fallback?: ComponentType<EdgeProps<Edge>>;
@@ -43,6 +51,16 @@ export type SmartEdgeOptions = GetSmartEdgeOptions & {
    * Color used to render the editable control points. Defaults to a blue.
    */
   controlPointColor?: string;
+  /**
+   * Circuit-style "hops": where this edge crosses another smart edge of the
+   * same `type` rendered beneath it, draw a small bridge arc over the crossing
+   * so intersecting wires read cleanly (like a schematic). Only the step and
+   * smooth-step variants are orthogonal enough for this; it is ignored on
+   * editable/checkpoint edges. Pass `true` for defaults or a {@link HopOptions}
+   * object to tune the arc radius, corner rounding, and tolerance.
+   * See https://github.com/tisoap/react-flow-smart-edge/issues/61
+   */
+  hops?: boolean | HopOptions;
 };
 
 /**
@@ -165,6 +183,24 @@ export function SmartEdge<
       ? getSmartEdgeWaypoints({ ...commonParams, waypoints: waypointParams })
       : getSmartEdge(commonParams);
 
+  const hoppedPathString = useHoppedPath({
+    nodes,
+    edgeId: id,
+    edgeType: edgeProps.type,
+    sourceNodeId: edgeProps.source,
+    targetNodeId: edgeProps.target,
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+    options,
+    hops: options.hops,
+    editable: options.editable,
+    checkpoints: options.checkpoints,
+  });
+
   const FallbackEdge = options.fallback ?? BezierEdge;
 
   if (smartResponse instanceof Error) {
@@ -172,10 +208,11 @@ export function SmartEdge<
   }
 
   const { edgeCenterX, edgeCenterY, svgPathString } = smartResponse;
+  const pathString = resolvePath(hoppedPathString, svgPathString);
 
   const baseEdge = (
     <BaseEdge
-      path={svgPathString}
+      path={pathString}
       labelX={edgeCenterX}
       labelY={edgeCenterY}
       label={label}

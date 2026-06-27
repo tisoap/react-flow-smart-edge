@@ -1,6 +1,17 @@
 export { alignEndpoints, type EndpointInfo } from "./alignEndpoints";
 export { createGrid, type PointInfo } from "./createGrid";
 export {
+  computeEdgeHops,
+  toPolyline,
+  DEFAULT_HOP_EPSILON,
+  type Hop,
+} from "./edgeHops";
+export {
+  getEdgeEndpointsFromStore,
+  type EdgeEndpoints,
+  type InternalNodeLike,
+} from "./getEdgeEndpoints";
+export {
   svgDrawSimpleBezierLinePath,
   svgDrawStraightLinePath,
   svgDrawSmoothLinePath,
@@ -10,6 +21,10 @@ export {
   type SVGDrawFunction,
   type SVGSimpleBezierDrawFunction,
 } from "./drawSvgPath";
+export {
+  drawOrthogonalHopPath,
+  type OrthogonalHopOptions,
+} from "./drawHopPath";
 export {
   pathfindingAStarDiagonal,
   pathfindingAStarNoDiagonal,

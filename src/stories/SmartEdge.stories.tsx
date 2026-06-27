@@ -3,6 +3,7 @@ import { GraphWrapper } from "../demos/GraphWrapper";
 import {
   demoStoryPlay,
   dragSmartConnectionPreview,
+  expectArcHops,
   expectBezierCurves,
   expectCubicBezierCurves,
   expectCustomLabelButtons,
@@ -252,5 +253,27 @@ export const SmartCheckpoint: Story = {
       width: 100,
       height: 100,
     });
+  }),
+};
+
+export const SmartStepHop: Story = {
+  args: demoRegistry.smartStepHop,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 4 },
+      edgeCount: { exact: 2 },
+    });
+    await expectArcHops(canvasElement);
+  }),
+};
+
+export const SmartSmoothStepHop: Story = {
+  args: demoRegistry.smartSmoothStepHop,
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 4 },
+      edgeCount: { exact: 2 },
+    });
+    await expectArcHops(canvasElement);
   }),
 };
