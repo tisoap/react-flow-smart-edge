@@ -4,8 +4,8 @@ sidebar_position: 9
 
 # `hops`
 
-Circuit-style "hops": where an edge crosses another smart edge of the **same
-type** rendered beneath it, the top edge draws a small bridge arc over the
+Circuit-style "hops": where an edge crosses another smart edge of the same
+type rendered beneath it, the top edge draws a small bridge arc over the
 crossing so intersecting wires read cleanly, just like a schematic.
 
 |             |                             |
@@ -58,7 +58,7 @@ A smooth-step example, with rounded corners and bridges together:
 
 ## Which edge hops over which?
 
-The edge rendered **on top** (later in your `edges` array) draws the bridge over
+The edge rendered on top (later in your `edges` array) draws the bridge over
 the one beneath it. Reorder your `edges` to control which wire jumps. Only edges
 that share the same `type` are bridged, so their routed geometry matches.
 

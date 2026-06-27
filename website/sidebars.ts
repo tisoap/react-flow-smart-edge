@@ -55,6 +55,7 @@ const sidebars: SidebarsConfig = {
         "options/control-point-color",
         "options/draw-edge",
         "options/generate-path",
+        "options/hops",
       ],
     },
     {

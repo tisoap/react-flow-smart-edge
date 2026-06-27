@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Editable edges
 
-A smart take on React Flow's [editable edge](https://reactflow.dev/examples/edges/editable-edge) example. An editable edge renders draggable **waypoints** (control points) that the path is routed _through_; each segment between consecutive waypoints still avoids nodes with pathfinding.
+A smart take on React Flow's [editable edge](https://reactflow.dev/examples/edges/editable-edge) example. An editable edge renders draggable waypoints (control points) that the path is routed _through_; each segment between consecutive waypoints still avoids nodes with pathfinding.
 
 ## `SmartEditableEdge`
 
@@ -34,9 +34,9 @@ See also: [`editable`](../options/editable) and [`controlPointColor`](../options
 
 Select the edge (or one of its connected nodes) to reveal control points:
 
-- **Add** a waypoint by clicking an inactive (hollow) point at a segment midpoint.
-- **Move** a waypoint by dragging it, or nudge it with arrow keys when focused.
-- **Delete** a waypoint by right-clicking it or pressing `Delete`/`Backspace` while focused.
+- Click an inactive (hollow) point at a segment midpoint to add a waypoint.
+- Drag a waypoint to move it, or nudge it with arrow keys when focused.
+- Right-click a waypoint or press `Delete`/`Backspace` while focused to delete it.
 
 ## Persisting waypoints (`edge.data.points`)
 
@@ -64,4 +64,4 @@ For fully custom edges, see [`getSmartEdgeWaypoints`](../api/get-smart-edge-wayp
 
 ## See also
 
-- [Checkpoint edges](./checkpoint-edges) — fixed waypoints without draggable UI
+- [Checkpoint edges](./checkpoint-edges) for fixed waypoints without draggable UI

@@ -1,16 +1,16 @@
-# AGENTS.md — react-flow-smart-edge
+# AGENTS.md (react-flow-smart-edge)
 
 Guidance for AI agents working in this repository.
 
 ## What this project is
 
-**`@tisoap/react-flow-smart-edge`** is a published npm library (MIT) that provides custom [React Flow](https://reactflow.dev) edges which route around nodes using grid-based A\* pathfinding.
+`@tisoap/react-flow-smart-edge` is a published npm library (MIT) that provides custom [React Flow](https://reactflow.dev) edges which route around nodes using grid-based A\* pathfinding.
 
-- **Consumers**: React apps using `@xyflow/react` v12+ (peer dependency).
-- **This repo**: Library source, Vite library build, Docusaurus docs site, Storybook demos/tests, and browser-based Storybook tests.
-- **Documentation**: https://tisoap.github.io/react-flow-smart-edge/docs (Docusaurus, deployed to gh-pages on release)
-- **Storybook demos**: Chromatic (`.github/workflows/chromatic.yml`); local dev via `npm run storybook`
-- **Package entry**: `src/index.tsx` → `dist/index.{mjs,cjs}` + `dist/index.d.ts`
+- Consumers are React apps using `@xyflow/react` v12+ (peer dependency).
+- This repo contains library source, Vite library build, Docusaurus docs site, Storybook demos/tests, and browser-based Storybook tests.
+- Documentation: https://tisoap.github.io/react-flow-smart-edge/docs (Docusaurus, deployed to gh-pages on release)
+- Storybook demos: Chromatic (`.github/workflows/chromatic.yml`); local dev via `npm run storybook`
+- Package entry: `src/index.tsx` → `dist/index.{mjs,cjs}` + `dist/index.d.ts`
 
 Do not treat Storybook stories or `src/demos/` as part of the public API unless explicitly exporting them.
 
@@ -96,11 +96,11 @@ dist/                    # Build output (gitignored in dev; published to npm)
 | Install browser for tests                      | `npm run install-chromium`                                      |
 | Release (maintainer)                           | `npm run release` (uses `release-it` + `.env` via `dotenv-cli`) |
 
-**Before opening a PR**, run at minimum: `npm run check` and `npm run test`.
+Before opening a PR, run at minimum: `npm run check` and `npm run test`.
 
 ## Testing
 
-- **No unit test files** in `src/**/*.test.*`; tests are **Storybook interaction tests** run in **headless Chromium** via Vitest (`vite.config.ts` → `storybook` project).
+- There are no unit test files in `src/**/*.test.*`. Tests are Storybook interaction tests run in headless Chromium via Vitest (`vite.config.ts` → `storybook` project).
 - Stories live in `src/stories/`; primary file: `SmartEdge.stories.tsx`.
 - Demo fixtures and `demoRegistry` live in `src/demos/` and are shared with the Docusaurus `<FlowDemo />` component.
 - `GraphWrapper` wraps flows with `data-testid="graph-wrapper"`.
@@ -110,23 +110,23 @@ When adding behavior, prefer extending existing stories or adding a focused stor
 
 ## Build & publish
 
-- **Bundler**: Vite library mode (`vite.config.ts`).
-- **Externals** (not bundled): `react`, `react-dom`, `react/jsx-runtime`, `@xyflow/react`.
-- **Types**: `vite-plugin-dts` with `entryRoot: src`, excludes `src/stories/**`.
-- **Published files** (`package.json` `"files"`): `dist`, `src` (source shipped for types convenience).
-- **Chromatic**: `.github/workflows/chromatic.yml` publishes Storybook on every push (public demo host).
-- **Docs site**: Docusaurus in `website/`; `npm run deploy-docs` publishes to gh-pages via `release-it` `after:release` hook.
-- **Rebuild before publish**: `prepublishOnly` runs `build-component`; `.release-it.json` runs the same in `before:npm`. Never publish with an outdated `dist/`—npm does not use `src/` for runtime imports.
+- Bundler: Vite library mode (`vite.config.ts`).
+- Externals (not bundled): `react`, `react-dom`, `react/jsx-runtime`, `@xyflow/react`.
+- Types: `vite-plugin-dts` with `entryRoot: src`, excludes `src/stories/**`.
+- Published files (`package.json` `"files"`): `dist`, `src` (source shipped for types convenience).
+- Chromatic: `.github/workflows/chromatic.yml` publishes Storybook on every push (public demo host).
+- Docs site: Docusaurus in `website/`; `npm run deploy-docs` publishes to gh-pages via `release-it` `after:release` hook.
+- Rebuild before publish: `prepublishOnly` runs `build-component`; `.release-it.json` runs the same in `before:npm`. Never publish with an outdated `dist/`. npm does not use `src/` for runtime imports.
 
 ## Code conventions
 
-- **TypeScript**: strict, `verbatimModuleSyntax`, `erasableSyntaxOnly` (`tsconfig.app.json`).
-- **ESLint**: flat config; `strictTypeChecked` + `@eslint-react` + SonarJS + Prettier (`eslint.config.ts`). Stories use `eslint-plugin-storybook`.
-- **Format**: Prettier (`.prettierrc`).
-- **Spellcheck**: cspell (`.cspell.json`); run via `npm run spellcheck`.
-- **React**: functional components; smart edges use `useNodes()` inside preset components, not in `getSmartEdge`.
-- **Imports**: use `import type` for types; respect `verbatimModuleSyntax`.
-- **Errors**: `getSmartEdge` catches and returns `Error` instances; pathfinding helpers may `throw` internally. `SmartEdge` falls back to `options.fallback` (default `BezierEdge`).
+- TypeScript: strict, `verbatimModuleSyntax`, `erasableSyntaxOnly` (`tsconfig.app.json`).
+- ESLint: flat config; `strictTypeChecked` + `@eslint-react` + SonarJS + Prettier (`eslint.config.ts`). Stories use `eslint-plugin-storybook`.
+- Format: Prettier (`.prettierrc`).
+- Spellcheck: cspell (`.cspell.json`); run via `npm run spellcheck`.
+- React: functional components; smart edges use `useNodes()` inside preset components, not in `getSmartEdge`.
+- Imports: use `import type` for types; respect `verbatimModuleSyntax`.
+- Errors: `getSmartEdge` catches and returns `Error` instances; pathfinding helpers may `throw` internally. `SmartEdge` falls back to `options.fallback` (default `BezierEdge`).
 
 ## Common agent tasks
 
@@ -145,8 +145,8 @@ When adding behavior, prefer extending existing stories or adding a focused stor
 
 ### Configure preset edge options (issue #58)
 
-- **Option-only changes:** `createSmartEdge("step", { gridRatio: 5 })` at module scope.
-- **Custom rendering + options:** exported `SmartEdge` + `smartEdgePresets.step` spread with overrides.
+- For option-only changes, use `createSmartEdge("step", { gridRatio: 5 })` at module scope.
+- For custom rendering plus options, use exported `SmartEdge` + `smartEdgePresets.step` spread with overrides.
 - Do not fork `getSmartEdge` for simple tuning.
 
 ### Add a new smart edge variant
@@ -155,12 +155,12 @@ Add an entry to `smartEdgePresets.ts`, export via `createSmartEdge("newPreset")`
 
 ## Pitfalls
 
-- **React Flow v12 only** (`@xyflow/react` ≥ 12). Do not use legacy `reactflow` import paths in docs or code.
-- **README examples** may show older import names (`reactflow`); library code correctly uses `@xyflow/react`.
-- Changing `getSmartEdge` return shape or option defaults is a **breaking change** for consumers—bump major version via release-it.
+- React Flow v12 only (`@xyflow/react` ≥ 12). Do not use legacy `reactflow` import paths in docs or code.
+- README examples may show older import names (`reactflow`); library code correctly uses `@xyflow/react`.
+- Changing `getSmartEdge` return shape or option defaults is a breaking change for consumers. Bump major version via release-it.
 - `src/stories/` and `src/demos/` must stay out of the dts entry surface (stories are already excluded in Vite dts config).
-- Pathfinding runs on a **discrete grid**; very small `gridRatio` on large graphs can be slow.
-- **Stale `dist/` on npm**: editing `src/index.tsx` alone does not fix consumers; a release must include a fresh `npm run build-component` output.
+- Pathfinding runs on a discrete grid; very small `gridRatio` on large graphs can be slow.
+- Stale `dist/` on npm: editing `src/index.tsx` alone does not fix consumers; a release must include a fresh `npm run build-component` output.
 
 ## Key files (quick reference)
 
@@ -184,4 +184,4 @@ Add an entry to `smartEdgePresets.ts`, export via `createSmartEdge("newPreset")`
 - Add unrelated dependencies or restructure the monolith pipeline without cause.
 - Commit to `dist/`, `storybook-static/`, or `website/build/` (build artifacts).
 - Force-push `main` or skip git hooks.
-- Expand scope into a full app—this is a **library**, not an application repo.
+- Expand scope into a full app. This is a library, not an application repo.

@@ -2,9 +2,9 @@
 
 # React Flow Smart Edge
 
-**Smart edges for [React Flow](https://reactflow.dev) that route _around_ your nodes instead of straight through them.**
+Smart edges for [React Flow](https://reactflow.dev) that route _around_ your nodes instead of straight through them.
 
-Drop-in custom edges that use grid-based A\* pathfinding to find a clean path between nodes — plus floating endpoints, draggable waypoints, and circuit-style hops over crossing wires.
+Drop-in custom edges that use grid-based A\* pathfinding to find a clean path between nodes, plus floating endpoints, draggable waypoints, and circuit-style hops over crossing wires.
 
 [![npm version](https://img.shields.io/npm/v/@tisoap/react-flow-smart-edge?logo=npm&color=cb3837)](https://www.npmjs.com/package/@tisoap/react-flow-smart-edge)
 [![npm downloads](https://img.shields.io/npm/dm/@tisoap/react-flow-smart-edge?color=cb3837)](https://www.npmjs.com/package/@tisoap/react-flow-smart-edge)
@@ -18,23 +18,23 @@ Drop-in custom edges that use grid-based A\* pathfinding to find a clean path be
 
 ## Why?
 
-React Flow's built-in edges draw a direct line from source to target — which often means edges cut straight across your nodes. **React Flow Smart Edge** computes a path that goes _around_ them, so your graphs stay readable even as they grow and as nodes move.
+React Flow's built-in edges draw a direct line from source to target, which often means edges cut straight across your nodes. React Flow Smart Edge computes a path that goes _around_ them, so your graphs stay readable even as they grow and as nodes move.
 
 It's a tiny, dependency-light library (just `@xyflow/react` as a peer) that ships ready-to-use edge components and a low-level API for building your own.
 
 ## Features
 
-- **Node-avoiding routing** — grid-based A\* / jump-point pathfinding finds a path that never crosses your nodes.
-- **Five edge styles** — smart equivalents of every React Flow edge: bezier, straight, step, smooth-step, and simple-bezier.
-- **Circuit-style hops** — step edges draw a small bridge arc where they cross each other, so intersections read cleanly. _(new!)_
-- **Floating edges** — connect to the nearest node border instead of a fixed handle.
-- **Editable waypoints** — drag control points to reshape a route; each segment still avoids nodes.
-- **Checkpoints** — route through fixed points without the editing UI.
-- **Avoid areas** — keep edges clear of arbitrary regions (e.g. labels), not just nodes.
-- **Subflow aware** — routes correctly inside React Flow groups/subflows.
-- **Graceful fallback** — drops back to the native React Flow edge if no path is found.
-- **Fully pluggable** — swap the pathfinding or SVG drawing functions, or build custom edges with `getSmartEdge`.
-- **Typed & tested** — written in strict TypeScript, with browser-based interaction tests.
+- Grid-based A\* / jump-point pathfinding finds a path that never crosses your nodes.
+- Five edge styles: smart equivalents of every React Flow edge (bezier, straight, step, smooth-step, and simple-bezier).
+- Step edges can draw a small bridge arc where they cross each other, so intersections read cleanly. _(new!)_
+- Floating edges connect to the nearest node border instead of a fixed handle.
+- Editable waypoints let you drag control points to reshape a route; each segment still avoids nodes.
+- Checkpoints route through fixed points without the editing UI.
+- Avoid areas keep edges clear of arbitrary regions (e.g. labels), not just nodes.
+- Subflow aware routing works correctly inside React Flow groups/subflows.
+- If no path is found, the edge drops back to the native React Flow edge.
+- Swap the pathfinding or SVG drawing functions, or build custom edges with `getSmartEdge`.
+- Written in strict TypeScript, with browser-based interaction tests.
 
 ## Install
 
@@ -42,7 +42,7 @@ It's a tiny, dependency-light library (just `@xyflow/react` as a peer) that ship
 npm install @tisoap/react-flow-smart-edge
 ```
 
-Requires [**React Flow v12+**](https://reactflow.dev/learn/troubleshooting/migrate-to-v12) (`@xyflow/react`).
+Requires [React Flow v12+](https://reactflow.dev/learn/troubleshooting/migrate-to-v12) (`@xyflow/react`).
 
 ## Quick start
 
@@ -99,7 +99,7 @@ const edgeTypes = {
 ## Circuit-style hops
 
 Give the step variants the `hops` option and crossing wires bridge over each
-other like a schematic — the edge on top draws a small arc over the one beneath:
+other like a schematic. The edge on top draws a small arc over the one beneath:
 
 ```tsx
 import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
@@ -115,7 +115,7 @@ See the [`hops` docs](https://tisoap.github.io/react-flow-smart-edge/docs/option
 
 ## Documentation
 
-**Full documentation:** [tisoap.github.io/react-flow-smart-edge/docs](https://tisoap.github.io/react-flow-smart-edge/docs)
+Full documentation: [tisoap.github.io/react-flow-smart-edge/docs](https://tisoap.github.io/react-flow-smart-edge/docs)
 
 Guides, the full API reference, and live interactive demos for every feature.
 

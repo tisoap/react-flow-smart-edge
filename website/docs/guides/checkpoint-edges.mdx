@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # Checkpoint edges
 
-Route an edge through **fixed waypoints** stored on `edge.data.checkpoints`. Each segment between consecutive checkpoints still uses pathfinding to avoid nodes—same stitching as [editable edges](./editable-edges), but without draggable control points.
+Route an edge through fixed waypoints stored on `edge.data.checkpoints`. Each segment between consecutive checkpoints still uses pathfinding to avoid nodes, with the same stitching as [editable edges](./editable-edges), but without draggable control points.
 
 Use checkpoints when waypoint positions are known up front (imported graphs, programmatic layout, server data). Use [editable edges](./editable-edges) when users should drag waypoints in the UI.
 
@@ -60,4 +60,4 @@ For fully custom edges, call [`getSmartEdgeWaypoints`](../api/get-smart-edge-way
 
 ## See also
 
-- [Editable edges](./editable-edges) — draggable waypoints with the same segment routing
+- [Editable edges](./editable-edges) for draggable waypoints with the same segment routing
