@@ -8,7 +8,9 @@ Drop-in custom edges that use grid-based A\* pathfinding to find a clean path be
 
 [![npm version](https://img.shields.io/npm/v/@tisoap/react-flow-smart-edge?logo=npm&color=cb3837)](https://www.npmjs.com/package/@tisoap/react-flow-smart-edge)
 [![npm downloads](https://img.shields.io/npm/dm/@tisoap/react-flow-smart-edge?color=cb3837)](https://www.npmjs.com/package/@tisoap/react-flow-smart-edge)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@tisoap/react-flow-smart-edge?color=success)](https://bundlephobia.com/package/@tisoap/react-flow-smart-edge)
+[![tests](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/test-ui.yml/badge.svg)](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/test-ui.yml)
+[![Storybook](https://img.shields.io/badge/Storybook-FF4785?logo=storybook&logoColor=white)](https://main--625ade28911b53003a921739.chromatic.com/?path=/story/smart-edge--smart-bezier)
+[![Chromatic](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/chromatic.yml/badge.svg)](https://www.chromatic.com/library?appId=625ade28911b53003a921739)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 ![TypeScript](https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=white)
 
