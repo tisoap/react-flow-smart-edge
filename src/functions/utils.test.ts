@@ -17,6 +17,6 @@ describe("utils", () => {
     expect(toInteger(0.4, 2)).toBe(2);
     expect(toInteger(Number.NaN, 3)).toBe(3);
     expect(toInteger(Number.POSITIVE_INFINITY, 4)).toBe(4);
-    expect(toInteger(5, Number.NaN)).toBe(Number.NaN);
+    expect(toInteger(5, Number.NaN)).toBeNaN();
   });
 });
