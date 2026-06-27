@@ -102,13 +102,20 @@ Before opening a PR, run at minimum: `npm run check` and `npm run test`.
 
 ## Testing
 
-- There are no unit test files in `src/**/*.test.*`. Tests are Storybook interaction tests run in headless Chromium via Vitest (`vite.config.ts` → `storybook` project).
+Vitest runs two projects (`vite.config.ts` → `test.projects`), with 100% coverage thresholds (statements, branches, functions, lines) enforced across both:
+
+- `unit`: co-located `src/**/*.test.{ts,tsx}` files in jsdom. Use these for pure logic (geometry, grid, pathfinding, `getSmartEdge`). Run via `npm run test-unit`.
+- `storybook`: Storybook interaction tests run in headless Chromium. Run via `npm run test-storybook`.
+- `npm run test` runs both; `npm run test:coverage` runs both with the coverage gate.
+
+Other notes:
+
 - Stories live in `src/stories/`; primary file: `SmartEdge.stories.tsx`.
 - Demo fixtures and `demoRegistry` live in `src/demos/` and are shared with the Docusaurus `<FlowDemo />` component.
 - `GraphWrapper` wraps flows with `data-testid="graph-wrapper"`.
 - CI (`.github/workflows/test-ui.yml`): Node 26.3.1 → `npm ci` → `install-chromium` → `npm run test-storybook`.
 
-When adding behavior, prefer extending existing stories or adding a focused story over introducing a parallel test harness.
+When adding behavior, add a focused unit test for pure logic and extend or add a Storybook story for component/interaction behavior, rather than introducing a parallel test harness.
 
 ## Build & publish
 

@@ -1,6 +1,10 @@
 import { Position } from "@xyflow/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeEach } from "vitest";
 import { getSmartEdge } from "./index";
+import {
+  __resetSharedGridCache,
+  __getSharedGridBuildCount,
+} from "./sharedGridCache";
 import {
   pathfindingAStarNoDiagonal,
   svgDrawStraightLinePath,
@@ -129,5 +133,102 @@ describe("getSmartEdge", () => {
     if (result instanceof Error) {
       expect(result.message).toBe("Unknown error: routing exploded");
     }
+  });
+});
+
+describe("getSmartEdge shared grid cache", () => {
+  beforeEach(() => {
+    __resetSharedGridCache();
+  });
+
+  const nodes = [
+    testNode("a", 0, 0),
+    testNode("b", 400, 0),
+    testNode("c", 0, 300),
+    testNode("d", 400, 300),
+  ];
+
+  const baseOptions = {
+    gridRatio: 10,
+    nodePadding: 10,
+    drawEdge: svgDrawStraightLinePath,
+    generatePath: pathfindingAStarNoDiagonal,
+  };
+
+  const edge = (
+    sourceX: number,
+    sourceY: number,
+    targetX: number,
+    targetY: number,
+  ) => ({
+    nodes,
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    sourcePosition: Position.Right,
+    targetPosition: Position.Left,
+    options: baseOptions,
+  });
+
+  it("builds the grid once for many edges sharing nodes and options", () => {
+    const edges = [
+      edge(150, 20, 400, 20),
+      edge(150, 320, 400, 320),
+      edge(150, 20, 400, 320),
+    ];
+
+    const warm = edges.map((params) => getSmartEdge(params));
+
+    expect(__getSharedGridBuildCount()).toBe(1);
+    warm.forEach((result) => {
+      expect(result).not.toBeInstanceOf(Error);
+    });
+  });
+
+  it("produces identical output warm (cached) and cold (rebuilt)", () => {
+    const edges = [
+      edge(150, 20, 400, 20),
+      edge(150, 320, 400, 320),
+      edge(150, 20, 400, 320),
+    ];
+
+    const warm = edges.map((params) => getSmartEdge(params));
+
+    edges.forEach((params, index) => {
+      __resetSharedGridCache();
+      const cold = getSmartEdge(params);
+      expect(cold).toEqual(warm[index]);
+    });
+  });
+
+  it("falls back to a per-edge grid when an endpoint is outside the bounds", () => {
+    // The target sits far beyond every node, so it would have expanded the
+    // graph box: the shared grid cannot be reused for this edge.
+    const farEdge = edge(150, 20, 1000, 500);
+
+    const result = getSmartEdge(farEdge);
+
+    __resetSharedGridCache();
+    const recomputed = getSmartEdge(farEdge);
+
+    expect(result).not.toBeInstanceOf(Error);
+    expect(result).toEqual(recomputed);
+  });
+
+  it("routes directly without a shared grid when there are no nodes", () => {
+    const result = getSmartEdge({
+      nodes: [],
+      sourceX: 0,
+      sourceY: 20,
+      targetX: 200,
+      targetY: 20,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      options: baseOptions,
+    });
+
+    expect(result).not.toBeInstanceOf(Error);
+    expect(__getSharedGridBuildCount()).toBe(0);
   });
 });

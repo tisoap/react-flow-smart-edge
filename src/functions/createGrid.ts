@@ -15,33 +15,82 @@ export interface PointInfo {
   position: Position;
 }
 
-export const createGrid = (
-  graph: GraphBoundingBox,
+/** Grid dimensions (in cells) derived from the graph box and grid ratio. */
+const getGridDimensions = (graph: GraphBoundingBox, gridRatio: number) => ({
+  mapColumns: roundUp(graph.width, gridRatio) / gridRatio + 1,
+  mapRows: roundUp(graph.height, gridRatio) / gridRatio + 1,
+});
+
+/**
+ * Visit every grid cell occupied by a node bounding box. Shared by the live
+ * grid marking and the cacheable obstacle matrix so both stay in sync.
+ */
+const forEachNodeCell = (
   nodes: NodeBoundingBox[],
-  source: PointInfo,
-  target: PointInfo,
-  gridRatio = 2,
+  xMin: number,
+  yMin: number,
+  gridRatio: number,
+  visit: (column: number, row: number) => void,
 ) => {
-  const { xMin, yMin, width, height } = graph;
-
-  // Create a grid representation of the graph box, where each cell is
-  // equivalent to 10x10 pixels (or the grid ratio) on the graph. We'll use
-  // this simplified grid to do pathfinding.
-  const mapColumns = roundUp(width, gridRatio) / gridRatio + 1;
-  const mapRows = roundUp(height, gridRatio) / gridRatio + 1;
-  const grid: Grid = createLocalGrid(mapColumns, mapRows);
-
-  // Update the grid representation with the space the nodes take up
   nodes.forEach((node) => {
     const nodeStart = graphToGridPoint(node.topLeft, xMin, yMin, gridRatio);
     const nodeEnd = graphToGridPoint(node.bottomRight, xMin, yMin, gridRatio);
 
     for (let column = nodeStart.x; column < nodeEnd.x; column++) {
       for (let row = nodeStart.y; row < nodeEnd.y; row++) {
-        grid.setWalkableAt(column, row, false);
+        visit(column, row);
       }
     }
   });
+};
+
+/**
+ * Build the obstacle matrix for a graph box: a `mapRows x mapColumns` grid
+ * where `1` marks a cell covered by a node and `0` marks free space. This is
+ * the endpoint-independent part of {@link createGrid}, so it can be computed
+ * once per frame and reused across every edge that shares the same nodes and
+ * options (see `getSmartEdge`'s shared grid cache).
+ */
+export const buildObstacleMatrix = (
+  graph: GraphBoundingBox,
+  nodes: NodeBoundingBox[],
+  gridRatio: number,
+): number[][] => {
+  const { xMin, yMin } = graph;
+  const { mapColumns, mapRows } = getGridDimensions(graph, gridRatio);
+
+  const matrix: number[][] = Array.from({ length: mapRows }, () =>
+    Array.from<number>({ length: mapColumns }).fill(0),
+  );
+
+  forEachNodeCell(nodes, xMin, yMin, gridRatio, (column, row) => {
+    // Match `Grid.setWalkableAt`, which silently ignores out-of-bounds cells.
+    if (column >= 0 && column < mapColumns && row >= 0 && row < mapRows) {
+      matrix[row][column] = 1;
+    }
+  });
+
+  return matrix;
+};
+
+export const createGrid = (
+  graph: GraphBoundingBox,
+  nodes: NodeBoundingBox[],
+  source: PointInfo,
+  target: PointInfo,
+  gridRatio = 2,
+  obstacleMatrix?: number[][],
+) => {
+  const { xMin, yMin } = graph;
+  const { mapColumns, mapRows } = getGridDimensions(graph, gridRatio);
+
+  // Create a grid representation of the graph box, where each cell is
+  // equivalent to 10x10 pixels (or the grid ratio) on the graph. We'll use
+  // this simplified grid to do pathfinding. When a precomputed obstacle matrix
+  // is supplied (shared across edges in the same frame) we reuse it instead of
+  // re-marking every node; otherwise we build it from the node boxes here.
+  const matrix = obstacleMatrix ?? buildObstacleMatrix(graph, nodes, gridRatio);
+  const grid: Grid = createLocalGrid(mapColumns, mapRows, matrix);
 
   // Convert the starting and ending graph points to grid points
   const startGrid = graphToGridPoint(

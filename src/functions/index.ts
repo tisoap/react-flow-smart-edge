@@ -1,5 +1,5 @@
 export { alignEndpoints, type EndpointInfo } from "./alignEndpoints";
-export { createGrid, type PointInfo } from "./createGrid";
+export { buildObstacleMatrix, createGrid, type PointInfo } from "./createGrid";
 export {
   computeEdgeHops,
   toPolyline,

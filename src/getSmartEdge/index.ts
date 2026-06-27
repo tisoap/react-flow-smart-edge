@@ -11,7 +11,9 @@ import type {
   PointInfo,
   PathFindingFunction,
   DrawEdgeFunction,
+  GraphBoundingBox,
 } from "../functions";
+import { getSharedGrid, isWithinSharedBounds } from "./sharedGridCache";
 import type { Node, EdgeProps, Rect } from "@xyflow/react";
 
 export type EdgeParams = Pick<
@@ -80,21 +82,6 @@ export const getSmartEdge = <
     gridRatio = toInteger(gridRatio);
     nodePadding = toInteger(nodePadding);
 
-    // We use the node's information (plus any consumer-provided avoid areas) to
-    // generate bounding boxes for them and the graph. The source/target points
-    // are included so the grid always covers them, even when an endpoint (e.g.
-    // a dragged waypoint) sits beyond every node.
-    const { graphBox, nodeBoxes, avoidBoxes } = getBoundingBoxes(
-      nodes,
-      nodePadding,
-      gridRatio,
-      avoidAreas,
-      [
-        { x: sourceX, y: sourceY },
-        { x: targetX, y: targetY },
-      ],
-    );
-
     const source: PointInfo = {
       x: sourceX,
       y: sourceY,
@@ -107,15 +94,58 @@ export const getSmartEdge = <
       position: targetPosition,
     };
 
-    // With this information, we can create a 2D grid representation of
-    // our graph, that tells us where in the graph there is a "free" space or not
-    const { grid, start, end } = createGrid(
-      graphBox,
-      [...nodeBoxes, ...avoidBoxes],
-      source,
-      target,
-      gridRatio,
-    );
+    // Reuse one set of node bounding boxes and one obstacle grid across every
+    // edge in the frame that shares these nodes and options. The shared grid
+    // only applies when the edge's endpoints fall inside the obstacle bounds;
+    // if an endpoint sits beyond them it would have expanded the graph box, so
+    // we build that edge's grid from scratch with the endpoints included (the
+    // same result the un-cached path produces).
+    const shared = getSharedGrid(nodes, nodePadding, gridRatio, avoidAreas);
+
+    let graphBox: GraphBoundingBox;
+    let routingGrid: ReturnType<typeof createGrid>;
+
+    if (
+      shared !== null &&
+      isWithinSharedBounds(shared, [
+        { x: sourceX, y: sourceY },
+        { x: targetX, y: targetY },
+      ])
+    ) {
+      graphBox = shared.graphBox;
+      routingGrid = createGrid(
+        shared.graphBox,
+        shared.obstacleBoxes,
+        source,
+        target,
+        gridRatio,
+        shared.obstacleMatrix,
+      );
+    } else {
+      // We use the node's information (plus any consumer-provided avoid areas)
+      // to generate bounding boxes for them and the graph. The source/target
+      // points are included so the grid always covers them, even when an
+      // endpoint (e.g. a dragged waypoint) sits beyond every node.
+      const {
+        graphBox: fullGraphBox,
+        nodeBoxes,
+        avoidBoxes,
+      } = getBoundingBoxes(nodes, nodePadding, gridRatio, avoidAreas, [
+        { x: sourceX, y: sourceY },
+        { x: targetX, y: targetY },
+      ]);
+
+      graphBox = fullGraphBox;
+      routingGrid = createGrid(
+        fullGraphBox,
+        [...nodeBoxes, ...avoidBoxes],
+        source,
+        target,
+        gridRatio,
+      );
+    }
+
+    const { grid, start, end } = routingGrid;
 
     // We then can use the grid representation to do pathfinding
     const generatePathResult = generatePath(grid, start, end);
