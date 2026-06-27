@@ -34,6 +34,7 @@ It's a tiny, dependency-light library (just `@xyflow/react` as a peer) that ship
 - Checkpoints route through fixed points without the editing UI.
 - Avoid areas keep edges clear of arbitrary regions (e.g. labels), not just nodes.
 - Subflow aware routing works correctly inside React Flow groups/subflows.
+- Web Worker batch routing keeps large graphs responsive by routing edges off the main thread. _(new!)_
 - If no path is found, the edge drops back to the native React Flow edge.
 - Swap the pathfinding or SVG drawing functions, or build custom edges with `getSmartEdge`.
 - Written in strict TypeScript, with browser-based interaction tests.
@@ -114,6 +115,57 @@ const edgeTypes = {
 ```
 
 See the [`hops` docs](https://tisoap.github.io/react-flow-smart-edge/docs/options/hops) for tuning and a live demo.
+
+## Web Worker batch routing
+
+For large graphs, route every edge together on a background Web Worker so
+pathfinding stays off the main thread and the canvas stays responsive. Wrap your
+flow in `SmartEdgeBatchRoutingProvider` and read each edge's path with
+`useSmartEdgeRoute`:
+
+```tsx
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  BaseEdge,
+  BezierEdge,
+} from "@xyflow/react";
+import {
+  SmartEdgeBatchRoutingProvider,
+  useSmartEdgeRoute,
+} from "@tisoap/react-flow-smart-edge";
+
+function WorkerEdge(props) {
+  const routed = useSmartEdgeRoute(props);
+  if (!routed) return <BezierEdge {...props} />;
+  return (
+    <BaseEdge
+      id={props.id}
+      path={routed.svgPathString}
+      markerEnd={props.markerEnd}
+    />
+  );
+}
+
+const edgeTypes = { worker: WorkerEdge };
+
+function Flow({ nodes, edges }) {
+  return (
+    <ReactFlowProvider>
+      <SmartEdgeBatchRoutingProvider
+        nodes={nodes}
+        options={{ preset: "bezier" }}
+      >
+        <ReactFlow nodes={nodes} edges={edges} edgeTypes={edgeTypes} />
+      </SmartEdgeBatchRoutingProvider>
+    </ReactFlowProvider>
+  );
+}
+```
+
+It is opt-in and additive: the default edge components are unchanged, and the
+provider falls back to main-thread routing when Web Workers are unavailable. See
+the [Web Worker batch routing docs](https://tisoap.github.io/react-flow-smart-edge/docs/guides/web-worker-routing).
 
 ## Documentation
 

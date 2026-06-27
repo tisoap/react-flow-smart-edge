@@ -1,0 +1,105 @@
+---
+sidebar_position: 7
+---
+
+# Web Worker batch routing
+
+For large graphs, routing every edge on the main thread can make dragging feel sluggish. `SmartEdgeBatchRoutingProvider` routes all of your smart edges together on a background Web Worker, so pathfinding runs off the main thread and the canvas stays responsive. It is opt-in and does not change any of the default edge components.
+
+## When to use it
+
+Reach for it when you have many edges and routing cost shows up as dropped frames while dragging. For small graphs the message round-trip can outweigh the benefit, so the regular [edge components](../edge-types/bezier) are usually the better choice there.
+
+## Setup
+
+Wrap your flow in the provider and render a custom edge that reads its routed path from `useSmartEdgeRoute`. While the worker computes (the first frame, and briefly after a change) the hook returns `null`, so render a React Flow native edge as a fallback.
+
+```tsx
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  BaseEdge,
+  BezierEdge,
+} from "@xyflow/react";
+import {
+  SmartEdgeBatchRoutingProvider,
+  useSmartEdgeRoute,
+} from "@tisoap/react-flow-smart-edge";
+import type { EdgeProps } from "@xyflow/react";
+
+function WorkerEdge(props: EdgeProps) {
+  const routed = useSmartEdgeRoute(props);
+  if (!routed) {
+    return <BezierEdge {...props} />;
+  }
+  return (
+    <BaseEdge
+      id={props.id}
+      path={routed.svgPathString}
+      labelX={routed.edgeCenterX}
+      labelY={routed.edgeCenterY}
+      markerEnd={props.markerEnd}
+    />
+  );
+}
+
+const edgeTypes = { worker: WorkerEdge };
+
+function Flow({ nodes, edges }) {
+  return (
+    <ReactFlowProvider>
+      <SmartEdgeBatchRoutingProvider
+        nodes={nodes}
+        options={{ preset: "bezier" }}
+      >
+        <ReactFlow nodes={nodes} edges={edges} edgeTypes={edgeTypes} />
+      </SmartEdgeBatchRoutingProvider>
+    </ReactFlowProvider>
+  );
+}
+```
+
+Pass the provider the same `nodes` you give React Flow; it uses them as routing obstacles. Each edge reports its own endpoints through `useSmartEdgeRoute`, so the provider can wrap `<ReactFlow>` from anywhere and does not read the flow store.
+
+## Per-edge options
+
+`options` on the provider sets the defaults for every edge. Override them per edge through `edge.data.smartEdge`:
+
+```ts
+const edges = [
+  { id: "e1", source: "a", target: "b", type: "worker" },
+  {
+    id: "e2",
+    source: "a",
+    target: "c",
+    type: "worker",
+    data: { smartEdge: { preset: "step", options: { gridRatio: 5 } } },
+  },
+];
+```
+
+Only serializable options cross to the worker: `preset`, `gridRatio`, `nodePadding`, `avoidAreas`, and `borderRadius` (for the `smoothstep` preset).
+
+## How it works
+
+- Every edge registers its geometry with the provider. On any change the provider routes the whole set in a single message to one Web Worker, then publishes the results back to the edges.
+- Stale responses are ignored, so only the latest routing result is applied.
+- The worker is inlined into the bundle, so consumers need no extra bundler configuration.
+- If Web Workers are unavailable (for example during server-side rendering) or the worker fails to start, the provider routes on the main thread instead, so edges always get a path.
+
+## Limitations
+
+- The worker routes the built-in presets only. Custom `drawEdge` / `generatePath` functions cannot be sent to a worker, so edges that need them should use the main-thread [`getSmartEdge`](./custom-edges) components.
+- Floating, editable, checkpoint, and hop edges are not offloaded; use their dedicated components for those.
+
+## Routing without React
+
+`routeSmartEdgesBatch` is the pure function the worker runs. Call it directly for server-side rendering or your own batching:
+
+```ts
+import { routeSmartEdgesBatch } from "@tisoap/react-flow-smart-edge";
+
+const results = routeSmartEdgesBatch({ nodes, edges });
+```
+
+See the [API reference](../api/web-worker-batch-routing) for full signatures. The "Smart Edge Performance" stories in [Storybook](https://www.chromatic.com/library?appId=625ade28911b53003a921739) compare the worker against main-thread routing on a large graph.

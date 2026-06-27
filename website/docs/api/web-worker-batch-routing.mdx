@@ -1,0 +1,61 @@
+---
+sidebar_position: 6
+---
+
+# Web Worker batch routing
+
+Off-thread batch routing for large graphs. See the [guide](../guides/web-worker-routing) for an overview and setup.
+
+## `SmartEdgeBatchRoutingProvider`
+
+Owns one inlined Web Worker and a per-edge results store. Routes every registered edge together and publishes the results to `useSmartEdgeRoute`. Falls back to synchronous main-thread routing when Web Workers are unavailable or fail.
+
+```tsx
+<SmartEdgeBatchRoutingProvider nodes={nodes} options={{ preset: "bezier" }}>
+  <ReactFlow nodes={nodes} edges={edges} edgeTypes={edgeTypes} />
+</SmartEdgeBatchRoutingProvider>
+```
+
+| Prop       | Description                                                                    |
+| ---------- | ------------------------------------------------------------------------------ |
+| `nodes`    | All graph nodes, used as routing obstacles (pass the same array as React Flow) |
+| `options?` | Default routing options for every edge (`SmartEdgeBatchOptions`)               |
+| `children` | Your flow, containing the edges that call `useSmartEdgeRoute`                  |
+
+## `useSmartEdgeRoute`
+
+Call it from a custom edge with that edge's props. It registers the edge's geometry with the nearest provider and returns the routed result, or `null` while the route is pending (or when used outside a provider).
+
+```tsx
+import { useSmartEdgeRoute } from "@tisoap/react-flow-smart-edge";
+
+function WorkerEdge(props: EdgeProps) {
+  const routed = useSmartEdgeRoute(props);
+  if (!routed) {
+    return <BezierEdge {...props} />;
+  }
+  const { svgPathString, edgeCenterX, edgeCenterY } = routed;
+  // render a BaseEdge with svgPathString
+}
+```
+
+The argument needs `id`, `source`, `target`, `sourceX`, `sourceY`, `targetX`, `targetY`, `sourcePosition`, `targetPosition`, and optional `data` (all present on React Flow `EdgeProps`). Per-edge overrides are read from `data.smartEdge`.
+
+## `routeSmartEdgesBatch`
+
+The pure function the worker runs, also used as the main-thread fallback. Safe to call directly (for example during server-side rendering).
+
+```ts
+import { routeSmartEdgesBatch } from "@tisoap/react-flow-smart-edge";
+
+const results = routeSmartEdgesBatch({ nodes, edges });
+// results: Record<edgeId, { svgPathString, edgeCenterX, edgeCenterY, points }>
+```
+
+`edges` are serializable [`BatchEdgeInput`](../types/exported-types) entries (endpoints plus `preset` and serializable `options`); edges that fail to route are omitted from the result.
+
+## Related
+
+- [Web Worker batch routing guide](../guides/web-worker-routing)
+- [Exported types](../types/exported-types)
+- [`getSmartEdge`](./get-smart-edge) for single, main-thread routing

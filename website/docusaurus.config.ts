@@ -18,6 +18,12 @@ function includeParentSrcPlugin() {
     ) {
       const { getJSLoader } = utils;
       return {
+        // The library ships its routing Web Worker inlined via Vite's
+        // `?worker&inline` query, which webpack does not understand. The docs
+        // bundle the library source but never instantiate the worker, so this
+        // "no exports" warning is benign here. Consumers use the prebuilt
+        // `dist`, where Vite has already inlined the worker.
+        ignoreWarnings: [{ message: /routing\.worker\?worker&inline/ }],
         resolve: {
           alias: {
             "@tisoap/react-flow-smart-edge": path.resolve(
