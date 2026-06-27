@@ -148,5 +148,7 @@ export function SmartEdgeBatchRoutingProvider({
     [store, defaults, registerEdge],
   );
 
-  return <RoutingContext value={value}>{children}</RoutingContext>;
+  return (
+    <RoutingContext.Provider value={value}>{children}</RoutingContext.Provider>
+  );
 }

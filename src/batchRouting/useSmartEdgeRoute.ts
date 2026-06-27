@@ -1,4 +1,4 @@
-import { use, useEffect, useRef, useSyncExternalStore } from "react";
+import { useContext, useEffect, useRef, useSyncExternalStore } from "react";
 import { RoutingContext } from "./routingContext";
 import { buildEdgeInput } from "./edgeOptions";
 import type { EdgeRouteInput } from "./edgeOptions";
@@ -19,7 +19,7 @@ const noopSubscribe = (): (() => void) => {
 export const useSmartEdgeRoute = (
   edge: EdgeRouteInput,
 ): GetSmartEdgeReturn | null => {
-  const context = use(RoutingContext);
+  const context = useContext(RoutingContext);
   const { id } = edge;
 
   const input = context ? buildEdgeInput(edge, context.defaults) : null;

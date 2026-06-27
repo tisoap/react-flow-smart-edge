@@ -40,6 +40,8 @@ export default defineConfig(
     rules: {
       // Disabled
       "react-refresh/only-export-components": "off",
+      "@eslint-react/no-use-context": "off",
+      "@eslint-react/no-context-provider": "off",
       // Errors
       "id-length": ["error", { min: 3, properties: "never" }],
       "react-hooks/exhaustive-deps": ["error"],
