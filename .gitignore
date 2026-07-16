@@ -32,3 +32,5 @@ website/.docusaurus
 
 .temp/
 .cursor/
+.claude/
+CLAUDE.local.md
