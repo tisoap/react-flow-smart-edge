@@ -40,20 +40,18 @@ describe("binaryHeap", () => {
   it("handles interleaved push/pop keeping heap order", () => {
     const heap = createMinHeap();
     const scores = [9, 4, 7, 1, 8, 2, 6, 3, 5, 0];
-    // eslint-disable-next-line id-length -- id is a standard identifier for a node/item id
-    scores.forEach((score, id) => {
-      heap.push(id, score);
+    scores.forEach((score, itemId) => {
+      heap.push(itemId, score);
     });
     heap.push(100, -1);
     expect(heap.pop()).toBe(100);
     const out: number[] = [];
-    // eslint-disable-next-line @typescript-eslint/prefer-for-of, id-length -- simple count iteration with standard counter
-    for (let i = 0; i < scores.length; i++) {
+    for (let itemIndex = 0; itemIndex < scores.length; itemIndex++) {
       out.push(heap.pop());
     }
-    // eslint-disable-next-line id-length -- id is a standard identifier for a node/item id
-    const popped = out.map((id) => scores[id]);
-    // eslint-disable-next-line id-length -- a,b are standard comparison parameter names
-    expect(popped).toEqual([...popped].sort((a, b) => a - b));
+    const popped = out.map((itemId) => scores[itemId]);
+    expect(popped).toEqual(
+      [...popped].sort((indexA, indexB) => indexA - indexB),
+    );
   });
 });

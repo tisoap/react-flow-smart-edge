@@ -35,10 +35,10 @@ describe("flatGrid", () => {
 
   it("blocks a clamped cell range", () => {
     const grid = createFlatGrid(4, 4);
-    blockCellRange(grid, 1, 1, 3, 6); // yEnd clamps to 4
+    blockCellRange(grid, 1, 1, 3, 6); // rowEnd clamps to 4
     expect(isWalkable(grid, 1, 1)).toBe(false);
     expect(isWalkable(grid, 2, 3)).toBe(false);
-    expect(isWalkable(grid, 3, 1)).toBe(true); // xEnd exclusive
+    expect(isWalkable(grid, 3, 1)).toBe(true); // columnEnd exclusive
     expect(isWalkable(grid, 0, 0)).toBe(true);
   });
 

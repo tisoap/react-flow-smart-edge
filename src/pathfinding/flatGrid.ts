@@ -22,46 +22,45 @@ export const cloneFlatGrid = (grid: FlatGrid): FlatGrid => ({
   blocked: grid.blocked.slice(),
 });
 
-// eslint-disable-next-line id-length -- x,y are standard grid coordinate names
-export const isInside = (grid: FlatGrid, x: number, y: number): boolean =>
-  x >= 0 && x < grid.width && y >= 0 && y < grid.height;
+export const isInside = (
+  grid: FlatGrid,
+  column: number,
+  row: number,
+): boolean =>
+  column >= 0 && column < grid.width && row >= 0 && row < grid.height;
 
-// eslint-disable-next-line id-length -- x,y are standard grid coordinate names
-export const isWalkable = (grid: FlatGrid, x: number, y: number): boolean =>
-  isInside(grid, x, y) && grid.blocked[y * grid.width + x] === 0;
+export const isWalkable = (
+  grid: FlatGrid,
+  column: number,
+  row: number,
+): boolean =>
+  isInside(grid, column, row) && grid.blocked[row * grid.width + column] === 0;
 
 /** Out-of-bounds writes are silently ignored, like the old `setWalkableAt`. */
 export const setBlocked = (
   grid: FlatGrid,
-  // eslint-disable-next-line id-length -- x,y are standard grid coordinate names
-  x: number,
-  // eslint-disable-next-line id-length -- x,y are standard grid coordinate names
-  y: number,
+  column: number,
+  row: number,
   blocked: boolean,
 ): void => {
-  if (!isInside(grid, x, y)) return;
-  grid.blocked[y * grid.width + x] = blocked ? 1 : 0;
+  if (!isInside(grid, column, row)) return;
+  grid.blocked[row * grid.width + column] = blocked ? 1 : 0;
 };
 
-/** Blocks every cell in `[xStart, xEnd) × [yStart, yEnd)`, clamped to bounds. */
+/** Blocks every cell in `[columnStart, columnEnd) × [rowStart, rowEnd)`, clamped to bounds. */
 export const blockCellRange = (
   grid: FlatGrid,
-  xStart: number,
-  yStart: number,
-  xEnd: number,
-  yEnd: number,
+  columnStart: number,
+  rowStart: number,
+  columnEnd: number,
+  rowEnd: number,
 ): void => {
-  // eslint-disable-next-line id-length -- x0,y0,x1,y1 are standard clamped boundary names
-  const x0 = Math.max(0, xStart);
-  // eslint-disable-next-line id-length -- x0,y0,x1,y1 are standard clamped boundary names
-  const y0 = Math.max(0, yStart);
-  // eslint-disable-next-line id-length -- x0,y0,x1,y1 are standard clamped boundary names
-  const x1 = Math.min(grid.width, xEnd);
-  // eslint-disable-next-line id-length -- x0,y0,x1,y1 are standard clamped boundary names
-  const y1 = Math.min(grid.height, yEnd);
-  // eslint-disable-next-line id-length -- y is a standard loop variable for grid row iteration
-  for (let y = y0; y < y1; y++) {
-    const rowOffset = y * grid.width;
-    grid.blocked.fill(1, rowOffset + x0, rowOffset + x1);
+  const minColumn = Math.max(0, columnStart);
+  const minRow = Math.max(0, rowStart);
+  const maxColumn = Math.min(grid.width, columnEnd);
+  const maxRow = Math.min(grid.height, rowEnd);
+  for (let row = minRow; row < maxRow; row++) {
+    const rowOffset = row * grid.width;
+    grid.blocked.fill(1, rowOffset + minColumn, rowOffset + maxColumn);
   }
 };

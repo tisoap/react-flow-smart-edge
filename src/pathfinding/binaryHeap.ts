@@ -14,15 +14,13 @@ export const createMinHeap = (): MinHeap => {
   const ids: number[] = [];
   const scores: number[] = [];
 
-  // eslint-disable-next-line id-length -- a,b are standard array index parameter names
-  const swap = (a: number, b: number): void => {
-    // eslint-disable-next-line id-length -- id is a standard identifier for a node/item id
-    const id = ids[a];
-    ids[a] = ids[b];
-    ids[b] = id;
-    const score = scores[a];
-    scores[a] = scores[b];
-    scores[b] = score;
+  const swap = (indexA: number, indexB: number): void => {
+    const itemId = ids[indexA];
+    ids[indexA] = ids[indexB];
+    ids[indexB] = itemId;
+    const score = scores[indexA];
+    scores[indexA] = scores[indexB];
+    scores[indexB] = score;
   };
 
   const siftUp = (start: number): void => {
@@ -51,22 +49,21 @@ export const createMinHeap = (): MinHeap => {
   };
 
   return {
-    // eslint-disable-next-line id-length -- id is a standard identifier for a node/item id
-    push: (id, score) => {
-      ids.push(id);
+    push: (itemId, score) => {
+      ids.push(itemId);
       scores.push(score);
       siftUp(ids.length - 1);
     },
     pop: () => {
       if (ids.length === 0) return -1;
       const top = ids[0];
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- pop() is safe since length > 0 was checked
-      const lastId = ids.pop()!;
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- pop() is safe since length > 0 was checked
-      const lastScore = scores.pop()!;
+      const lastItemId = ids[ids.length - 1];
+      const lastItemScore = scores[ids.length - 1];
+      ids.length -= 1;
+      scores.length -= 1;
       if (ids.length > 0) {
-        ids[0] = lastId;
-        scores[0] = lastScore;
+        ids[0] = lastItemId;
+        scores[0] = lastItemScore;
         siftDown(0);
       }
       return top;
