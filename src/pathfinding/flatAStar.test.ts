@@ -46,4 +46,20 @@ describe("findPathAStar", () => {
     blockCellRange(grid, 0, 0, 1, 1);
     expect(findPathAStar(grid, 0, 0, 2, 2, false)).toEqual([]);
   });
+
+  it("skips stale duplicate heap entries when a node is re-relaxed before pop", () => {
+    // The binary heap has no decrease-key: relaxing an already-open node pushes
+    // a second entry instead of updating the first. A wall at x=3 (rows 0..4,
+    // gap only at row 5) forces two converging diagonal routes toward the
+    // bottom-right gap. One route reaches a shared cell first with a worse g,
+    // then the other reaches the same cell with a better g before the first
+    // entry is ever popped, leaving a stale higher-cost duplicate in the heap
+    // that must be skipped once the cell is already closed.
+    const grid = createFlatGrid(6, 6);
+    blockCellRange(grid, 3, 0, 4, 5);
+    const path = findPathAStar(grid, 0, 0, 5, 5, true);
+    expect(path[0]).toEqual([0, 0]);
+    expect(path[path.length - 1]).toEqual([5, 5]);
+    expect(path.length).toBeGreaterThan(0);
+  });
 });
