@@ -46,9 +46,9 @@ describe("binaryHeap", () => {
     heap.push(100, -1);
     expect(heap.pop()).toBe(100);
     const out: number[] = [];
-    for (let itemIndex = 0; itemIndex < scores.length; itemIndex++) {
+    scores.forEach(() => {
       out.push(heap.pop());
-    }
+    });
     const popped = out.map((itemId) => scores[itemId]);
     expect(popped).toEqual(
       [...popped].sort((indexA, indexB) => indexA - indexB),
