@@ -33,4 +33,5 @@ website/.docusaurus
 .temp/
 .cursor/
 .claude/
-CLAUDE.local.md.superpowers/
+CLAUDE.local.md
+.superpowers/
