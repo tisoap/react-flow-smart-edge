@@ -8,15 +8,15 @@ import {
   guaranteeWalkablePath,
   getNextPointFromPosition,
 } from "./guaranteeWalkablePath";
+import type { Direction } from "./guaranteeWalkablePath";
 import { graphToGridPoint } from "./pointConversion";
 import { round, roundUp } from "./utils";
 import type { NodeBoundingBox, GraphBoundingBox } from "./getBoundingBoxes";
-import type { Position } from "@xyflow/react";
 
 export interface PointInfo {
   x: number;
   y: number;
-  position: Position;
+  position: Direction;
 }
 
 /** Grid dimensions (in cells) derived from the graph box and grid ratio. */

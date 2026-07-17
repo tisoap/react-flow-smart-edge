@@ -1,4 +1,4 @@
-import type { Position, XYPosition } from "@xyflow/react";
+import type { XYPosition } from "@xyflow/react";
 
 type Direction = "top" | "bottom" | "left" | "right";
 
@@ -7,7 +7,7 @@ type Direction = "top" | "bottom" | "left" | "right";
  * node they are attached to (top/bottom/left/right).
  */
 export interface EndpointInfo extends XYPosition {
-  position: Position;
+  position: Direction;
 }
 
 /**

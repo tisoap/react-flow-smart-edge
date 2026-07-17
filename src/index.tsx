@@ -63,6 +63,7 @@ export type {
   SmoothStepOptions,
 } from "./functions/drawSvgPath";
 export type { EndpointInfo } from "./functions/alignEndpoints";
+export type { Direction } from "./functions/guaranteeWalkablePath";
 export type { PathFindingFunction } from "./functions/generatePath";
 export type { FloatingEdgeParams } from "./functions/getFloatingEdgeParams";
 export type { ObstacleBox } from "./routing/obstacleIndex";

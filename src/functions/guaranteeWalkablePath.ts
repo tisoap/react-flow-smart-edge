@@ -1,8 +1,15 @@
 import { isWalkable, setBlocked, isInside } from "../pathfinding/flatGrid";
 import type { FlatGrid } from "../pathfinding/flatGrid";
-import type { Position, XYPosition } from "@xyflow/react";
+import type { XYPosition } from "@xyflow/react";
 
-type Direction = "top" | "bottom" | "left" | "right";
+/**
+ * A `Position`-shaped string union. `Position`'s enum values are exactly
+ * these strings, so working in plain strings here (and letting real
+ * `Position` values widen into this type at call sites) avoids importing the
+ * `@xyflow/react` runtime — this module must stay reachable from the routing
+ * Web Worker. Exported so `createGrid.ts`'s `PointInfo` can reuse it.
+ */
+export type Direction = "top" | "bottom" | "left" | "right";
 
 export const getNextPointFromPosition = (
   point: XYPosition,
@@ -28,7 +35,7 @@ export const getNextPointFromPosition = (
 export const guaranteeWalkablePath = (
   grid: FlatGrid,
   point: XYPosition,
-  position: Position,
+  position: Direction,
 ): void => {
   let current = { x: point.x, y: point.y };
   while (

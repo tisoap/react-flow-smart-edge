@@ -14,6 +14,7 @@ import type {
   DrawEdgeFunction,
   GraphBoundingBox,
   NodeBoundingBox,
+  Direction,
 } from "../functions";
 import {
   CORRIDOR_MARGIN_CELLS,
@@ -21,15 +22,21 @@ import {
 } from "../routing/corridor";
 import type { Node, EdgeProps, Rect } from "@xyflow/react";
 
+/**
+ * `sourceX`/`sourceY`/`targetX`/`targetY` come straight from React Flow's
+ * `EdgeProps`. `sourcePosition`/`targetPosition` are widened from `EdgeProps`'
+ * nominal `Position` enum to the plain `Direction` string union, so callers
+ * that only have a synthetic handle side (no real `Position`, e.g. waypoint
+ * routing's `sideFacing`) can supply one too. Every real `Position` value is
+ * still assignable here, so this is non-breaking for existing callers.
+ */
 export type EdgeParams = Pick<
   EdgeProps,
-  | "sourceX"
-  | "sourceY"
-  | "targetX"
-  | "targetY"
-  | "sourcePosition"
-  | "targetPosition"
->;
+  "sourceX" | "sourceY" | "targetX" | "targetY"
+> & {
+  sourcePosition: Direction;
+  targetPosition: Direction;
+};
 
 export interface GetSmartEdgeOptions {
   gridRatio?: number;

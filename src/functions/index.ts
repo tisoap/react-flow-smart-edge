@@ -46,6 +46,7 @@ export {
 export {
   getNextPointFromPosition,
   guaranteeWalkablePath,
+  type Direction,
 } from "./guaranteeWalkablePath";
 export { graphToGridPoint, gridToGraphPoint } from "./pointConversion";
 export { excludeEdgeAncestorNodes, getAbsoluteNodes } from "./subflow";
