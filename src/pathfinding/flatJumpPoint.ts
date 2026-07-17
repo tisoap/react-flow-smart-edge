@@ -53,17 +53,17 @@ const findNeighbors = (
     (column - parentColumn) / Math.max(Math.abs(column - parentColumn), 1);
   const deltaY = (row - parentRow) / Math.max(Math.abs(row - parentRow), 1);
 
+  // Movement is orthogonal-only, so a node can only ever differ from its
+  // parent along a single axis: deltaX !== 0 XOR deltaY !== 0. The vertical
+  // case is therefore the unconditional fallback rather than an `else if`.
   if (deltaX !== 0) {
     pushNeighbor(grid, neighbors, column, row - 1);
     pushNeighbor(grid, neighbors, column, row + 1);
     pushNeighbor(grid, neighbors, column + deltaX, row);
-  } else if (deltaY !== 0) {
+  } else {
     pushNeighbor(grid, neighbors, column - 1, row);
     pushNeighbor(grid, neighbors, column + 1, row);
     pushNeighbor(grid, neighbors, column, row + deltaY);
-  } else {
-    // Both deltaX and deltaY are 0, which cannot occur since parent !== current,
-    // but this else clause is required for the sonarjs rule.
   }
 
   return neighbors;

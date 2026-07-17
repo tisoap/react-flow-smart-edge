@@ -87,20 +87,27 @@ describe("findPathJumpPoint", () => {
     expect(path[path.length - 1]).toEqual([1, 4]);
   });
 
-  it("handles stale duplicate pops in open list", () => {
+  it("skips a stale duplicate heap entry once its jump point is already closed", () => {
+    // The open list has no decrease-key: relaxing an already-open jump point
+    // pushes a second heap entry instead of updating the first. This scattered
+    // obstacle pattern gives a jump point two converging routes — one reaches
+    // it first with a worse g (worse heap score), then a second route relaxes
+    // it to a better g and re-pushes before the stale entry is ever popped.
+    // The better entry pops first and closes the point; the stale, higher-cost
+    // duplicate pops later and must be skipped via the closed-state check.
+    // Layout found by empirical fuzzing over random obstacle grids, then
+    // shrunk to this minimal reproduction (see task-3 fix-pass notes).
     const grid = createFlatGrid(6, 6);
-    // Create a scenario with multiple paths to the same jump point
-    blockCellRange(grid, 3, 1, 4, 4);
-    const path = findPathJumpPoint(grid, 0, 0, 5, 0);
-    expect(path.length).toBeGreaterThan(0);
-  });
-
-  it("skips already closed jump points", () => {
-    const grid = createFlatGrid(5, 5);
-    // L-shaped obstacle creates multiple potential paths
-    blockCellRange(grid, 2, 0, 3, 3);
-    blockCellRange(grid, 2, 2, 5, 3);
-    const path = findPathJumpPoint(grid, 0, 1, 4, 4);
+    blockCellRange(grid, 4, 1, 5, 2);
+    blockCellRange(grid, 1, 2, 2, 3);
+    blockCellRange(grid, 0, 3, 1, 4);
+    blockCellRange(grid, 3, 3, 4, 4);
+    blockCellRange(grid, 5, 3, 6, 4);
+    blockCellRange(grid, 2, 4, 3, 5);
+    blockCellRange(grid, 4, 4, 5, 5);
+    const path = findPathJumpPoint(grid, 0, 0, 5, 5);
+    expect(path[0]).toEqual([0, 0]);
+    expect(path[path.length - 1]).toEqual([5, 5]);
     expect(path.length).toBeGreaterThan(0);
   });
 
@@ -191,15 +198,6 @@ describe("findPathJumpPoint", () => {
     blockCellRange(grid, 1, 1, 2, 6);
     blockCellRange(grid, 3, 1, 4, 6);
     const path = findPathJumpPoint(grid, 2, 0, 2, 7);
-    expect(path.length).toBeGreaterThan(0);
-  });
-
-  it("handles stale duplicate in open list", () => {
-    const grid = createFlatGrid(7, 7);
-    // Create scenario for multiple paths to same jump point
-    blockCellRange(grid, 3, 1, 4, 5);
-    blockCellRange(grid, 2, 3, 3, 4);
-    const path = findPathJumpPoint(grid, 0, 0, 6, 6);
     expect(path.length).toBeGreaterThan(0);
   });
 
