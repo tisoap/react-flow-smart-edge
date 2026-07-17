@@ -3,6 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import { getSmartEdge } from "./index";
 import { CORRIDOR_MARGIN_CELLS } from "../routing/corridor";
 import {
+  buildObstacleBoxes,
+  isPolylineBlocked,
+} from "../routing/obstacleIndex";
+import {
   NO_PATH_FOUND_ERROR,
   pathfindingAStarNoDiagonal,
   svgDrawStraightLinePath,
@@ -278,6 +282,112 @@ describe("getSmartEdge corridor retry ladder", () => {
       ([, posY]) => Math.abs(posY - 100) > 5,
     );
     expect(deviatesAroundWall).toBe(true);
+  });
+
+  it("surfaces a non-NO_PATH_FOUND error thrown from a corridor rung immediately, without retrying", () => {
+    const generatePath = vi.fn(() => {
+      throw new Error("boom from rung 0");
+    });
+
+    const result = getSmartEdge({
+      nodes: [testNode("source", 0, 0), testNode("target", 200, 0)],
+      sourceX: 50,
+      sourceY: 20,
+      targetX: 150,
+      targetY: 20,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      options: { generatePath },
+    });
+
+    expect(result).toBeInstanceOf(Error);
+    if (result instanceof Error) {
+      expect(result.message).toBe("boom from rung 0");
+    }
+    // The ladder must abort on the first non-NO_PATH_FOUND error instead of
+    // continuing to widen the corridor.
+    expect(generatePath).toHaveBeenCalledTimes(1);
+  });
+
+  it("stops the ladder as soon as the narrowest rung succeeds", () => {
+    const nodes = [testNode("source", 80, 200), testNode("target", 520, 200)];
+    const generatePath = vi.fn(pathfindingAStarNoDiagonal);
+
+    const result = getSmartEdge({
+      nodes,
+      sourceX: 230,
+      sourceY: 220,
+      targetX: 520,
+      targetY: 220,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      options: {
+        gridRatio: 10,
+        nodePadding: 10,
+        drawEdge: svgDrawStraightLinePath,
+        generatePath,
+      },
+    });
+
+    expect(result).not.toBeInstanceOf(Error);
+    // Every obstacle is local, so rung 0 (margin 8) must succeed outright —
+    // the ladder should not fall through to any wider rung.
+    expect(generatePath).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("getSmartEdge corridor obstacle re-selection", () => {
+  it("re-selects an obstacle a large included wall's stretched graph box reaches, instead of silently routing through it", () => {
+    // Regression: `buildCorridorAttempt` used to filter once against the
+    // corridor rect only. A tall wall (`wallA`) merely touching the small
+    // margin-8 corridor gets included whole and stretches the resulting
+    // graph box far past the corridor's own edge; `nodeB` sits outside the
+    // original corridor rect but inside that stretched box. A single filter
+    // pass drops `nodeB`, and the router (finding its space "empty") could
+    // route straight through it. `buildCorridorAttempt` now re-selects
+    // against the box it just built until the selection stabilizes, so
+    // `nodeB` is picked up too and the route goes around it.
+    const wallA = testNode("wallA", 180, -200, 40, 2200);
+    const nodeB = testNode("nodeB", 150, -240, 100, 30);
+    const nodes = [wallA, nodeB];
+
+    const result = getSmartEdge({
+      nodes,
+      sourceX: 0,
+      sourceY: 100,
+      targetX: 400,
+      targetY: 100,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      options: {
+        gridRatio: 10,
+        nodePadding: 10,
+      },
+    });
+
+    expect(result).not.toBeInstanceOf(Error);
+    if (result instanceof Error) return;
+
+    // Check the routed polyline against the *full* obstacle set (both
+    // nodes, regardless of what the corridor ladder selected), so this
+    // assertion would fail if `nodeB` were ever silently skipped.
+    //
+    // Checked against each node's *unpadded* rect, not its padded one:
+    // `segmentIntersectsBox` (which `isPolylineBlocked` uses) treats touching
+    // an edge as blocked, and grid-based routing routinely hugs the padding
+    // boundary exactly (the closest walkable cell to an obstacle) — even the
+    // pre-existing, already-passing "fixture 3: wall obstacle" parity case
+    // above touches its wall's *padded* box this way. That's expected
+    // clearance-hugging, not the bug. What must never happen is the path
+    // crossing into a node's real (unpadded) footprint — that's what a
+    // silently-excluded obstacle would let through.
+    const fullPath: XYPosition[] = [
+      { x: 0, y: 100 },
+      ...result.points.map(([posX, posY]) => ({ x: posX, y: posY })),
+      { x: 400, y: 100 },
+    ];
+    const unpaddedBoxes = buildObstacleBoxes(nodes, 0);
+    expect(isPolylineBlocked(fullPath, unpaddedBoxes)).toBe(false);
   });
 });
 

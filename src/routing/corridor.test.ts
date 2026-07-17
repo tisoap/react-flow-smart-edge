@@ -116,4 +116,31 @@ describe("buildCorridorAttempt", () => {
     expect(attempt.graphBox.xMin).toBeLessThanOrEqual(source.x);
     expect(attempt.graphBox.xMax).toBeGreaterThanOrEqual(target.x);
   });
+
+  it("re-selects an obstacle the corridor rect missed once a large included obstacle stretches the graph box to reach it", () => {
+    // Reviewer repro: a tall wall (A) merely touches the small margin-8
+    // corridor (so it's included whole), and being fully included stretches
+    // the resulting graph box far upward — far enough to reach a second,
+    // small obstacle (B) that sat entirely outside the *original* corridor
+    // rect. A single filter pass would drop B and silently let a route pass
+    // through its space; the fixpoint loop must re-select against the
+    // stretched box and pick B up too.
+    const wallA = testNode("wallA", 180, -200, 40, 2200);
+    const nodeB = testNode("nodeB", 150, -240, 100, 30);
+
+    const attempt = buildCorridorAttempt(
+      point(0, 100),
+      point(400, 100),
+      [wallA, nodeB],
+      10,
+      10,
+      [],
+      8,
+    );
+
+    const includedIds = attempt.nodeBoxes
+      .map((box) => box.id)
+      .sort((left, right) => left.localeCompare(right));
+    expect(includedIds).toEqual(["nodeB", "wallA"]);
+  });
 });
