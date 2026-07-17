@@ -31,6 +31,7 @@ export {
   getNodeIntersection,
   getEdgePosition,
 } from "./functions/getFloatingEdgeParams";
+export { isDirectPathBlocked } from "./routing/obstacleIndex";
 
 export type {
   SmartEdgeOptions,
@@ -64,6 +65,7 @@ export type {
 export type { EndpointInfo } from "./functions/alignEndpoints";
 export type { PathFindingFunction } from "./functions/generatePath";
 export type { FloatingEdgeParams } from "./functions/getFloatingEdgeParams";
+export type { ObstacleBox } from "./routing/obstacleIndex";
 export type { FlatGrid } from "./pathfinding/flatGrid";
 export type { XYPosition } from "@xyflow/react";
 
