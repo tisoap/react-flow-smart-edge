@@ -1,24 +1,25 @@
 import {
-  buildObstacleMatrix,
+  buildBaseGrid,
   getBoundingBoxes,
   type GraphBoundingBox,
   type NodeBoundingBox,
 } from "../functions";
+import type { FlatGrid } from "../pathfinding/flatGrid";
 import type { Node, Rect, XYPosition } from "@xyflow/react";
 
 /**
  * The endpoint-independent part of the routing pipeline for a given set of
  * nodes and options. Every edge in the same render that shares these inputs can
  * reuse this instead of recomputing the node bounding boxes and re-marking the
- * obstacle grid. The mutable per-edge grid is still built fresh from
- * `obstacleMatrix`, so pathfinding side effects stay isolated per edge.
+ * obstacle grid. The mutable per-edge grid is still cloned fresh from
+ * `baseGrid`, so pathfinding side effects stay isolated per edge.
  */
 export interface SharedGrid {
   graphBox: GraphBoundingBox;
   /** Node and avoid-area boxes combined, in the order `createGrid` expects. */
   obstacleBoxes: NodeBoundingBox[];
-  /** `mapRows x mapColumns` grid where `1` marks a blocked cell. */
-  obstacleMatrix: number[][];
+  /** Endpoint-independent flat grid where every node/avoid-area cell is blocked. */
+  baseGrid: FlatGrid;
   /**
    * Bounds of the obstacle boxes before the graph box adds its own padding.
    * Used to decide whether an edge's endpoints would have expanded the graph
@@ -91,17 +92,13 @@ const buildSharedGrid = (
   );
 
   const obstacleBoxes = [...nodeBoxes, ...avoidBoxes];
-  const obstacleMatrix = buildObstacleMatrix(
-    graphBox,
-    obstacleBoxes,
-    gridRatio,
-  );
+  const baseGrid = buildBaseGrid(graphBox, obstacleBoxes, gridRatio);
   const { rawXMin, rawYMin, rawXMax, rawYMax } = rawBoundsOf(obstacleBoxes);
 
   return {
     graphBox,
     obstacleBoxes,
-    obstacleMatrix,
+    baseGrid,
     rawXMin,
     rawYMin,
     rawXMax,
@@ -147,7 +144,7 @@ export const getSharedGrid = (
 /**
  * Whether every given point falls inside the shared grid's pre-padding bounds.
  * When true, the edge's endpoints would not have expanded the graph box, so the
- * shared `graphBox` and `obstacleMatrix` apply to this edge unchanged.
+ * shared `graphBox` and `baseGrid` apply to this edge unchanged.
  */
 export const isWithinSharedBounds = (
   shared: SharedGrid,

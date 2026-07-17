@@ -119,7 +119,7 @@ export const getSmartEdge = <
         source,
         target,
         gridRatio,
-        shared.obstacleMatrix,
+        shared.baseGrid,
       );
     } else {
       // We use the node's information (plus any consumer-provided avoid areas)

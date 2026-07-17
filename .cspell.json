@@ -39,6 +39,7 @@
     "storybook-static",
     "website/build",
     "node_modules",
-    "coverage"
+    "coverage",
+    "bench"
   ]
 }

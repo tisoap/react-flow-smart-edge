@@ -1,12 +1,15 @@
+// Legacy v4 engine kept for A/B benchmarks only — deleted before release.
 // Based on https://github.com/qiao/PathFinding.js
 
 import type { Grid, GridNode } from "./grid";
-import type { DiagonalMovement } from "./types.ts";
 import {
   costFromStartOrInfinity,
   costFromStartOrZero,
   selectNodeWithLowestEstimatedTotalCost,
 } from "./searchMetadata";
+
+/** Diagonal movement policy, inlined here (v4 had a shared `types.ts`). */
+type DiagonalMovement = "Always" | "Never";
 
 export interface AStarOptions {
   diagonalMovement?: DiagonalMovement;

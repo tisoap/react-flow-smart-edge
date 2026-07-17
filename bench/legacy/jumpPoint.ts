@@ -1,3 +1,4 @@
+// Legacy v4 engine kept for A/B benchmarks only — deleted before release.
 // Orthogonal Jump Point Search (no diagonal movement).
 // Algorithm based on PathFinding.js (MIT) — https://github.com/qiao/PathFinding.js
 

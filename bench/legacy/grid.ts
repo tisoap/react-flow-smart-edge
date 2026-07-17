@@ -1,10 +1,13 @@
+// Legacy v4 engine kept for A/B benchmarks only — deleted before release.
 // Based on https://github.com/qiao/PathFinding.js
-import type { DiagonalMovement } from "./types.ts";
 
 // A modern, typed, functional replacement for PathFinding.js Grid
 // Provides the same runtime API shape used by finders/utilities:
 // - width, height, nodes[][]
 // - getNodeAt, isWalkableAt, setWalkableAt, getNeighbors, clone
+
+/** Diagonal movement policy, inlined here (v4 had a shared `types.ts`). */
+type DiagonalMovement = "Always" | "Never";
 
 export interface GridNode {
   x: number;
@@ -88,7 +91,7 @@ export const createGrid = (
   // "Always", "Never", "IfAtMostOneObstacle", "OnlyWhenNoObstacles"
   const getNeighbors = (
     node: GridNode,
-    diagonalMovement: import("./types.ts").DiagonalMovement,
+    diagonalMovement: DiagonalMovement,
   ): GridNode[] => {
     const column = node.x;
     const row = node.y;

@@ -1,4 +1,5 @@
-import type { Grid } from "../pathfinding/grid";
+import { isWalkable, setBlocked, isInside } from "../pathfinding/flatGrid";
+import type { FlatGrid } from "../pathfinding/flatGrid";
 import type { Position, XYPosition } from "@xyflow/react";
 
 type Direction = "top" | "bottom" | "left" | "right";
@@ -21,18 +22,20 @@ export const getNextPointFromPosition = (
 
 /**
  * Guarantee that the path is walkable, even if the point is inside a non
- * walkable area, by adding a walkable path in the direction of the point's
- * Position.
+ * walkable area, by carving a walkable lane in the direction of the point's
+ * Position. Stops at the grid border.
  */
 export const guaranteeWalkablePath = (
-  grid: Grid,
+  grid: FlatGrid,
   point: XYPosition,
   position: Position,
-) => {
-  let node = grid.getNodeAt(point.x, point.y);
-  while (!node.walkable) {
-    grid.setWalkableAt(node.x, node.y, true);
-    const next = getNextPointFromPosition(node, position);
-    node = grid.getNodeAt(next.x, next.y);
+): void => {
+  let current = { x: point.x, y: point.y };
+  while (
+    isInside(grid, current.x, current.y) &&
+    !isWalkable(grid, current.x, current.y)
+  ) {
+    setBlocked(grid, current.x, current.y, false);
+    current = getNextPointFromPosition(current, position);
   }
 };

@@ -1,5 +1,5 @@
 export { alignEndpoints, type EndpointInfo } from "./alignEndpoints";
-export { buildObstacleMatrix, createGrid, type PointInfo } from "./createGrid";
+export { buildBaseGrid, createGrid, type PointInfo } from "./createGrid";
 export {
   computeEdgeHops,
   toPolyline,
@@ -29,6 +29,7 @@ export {
   pathfindingAStarDiagonal,
   pathfindingAStarNoDiagonal,
   pathfindingJumpPointNoDiagonal,
+  NO_PATH_FOUND_ERROR,
   type PathFindingFunction,
 } from "./generatePath";
 export {

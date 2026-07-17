@@ -64,7 +64,7 @@ export type {
 export type { EndpointInfo } from "./functions/alignEndpoints";
 export type { PathFindingFunction } from "./functions/generatePath";
 export type { FloatingEdgeParams } from "./functions/getFloatingEdgeParams";
-export type { Grid, GridNode } from "./pathfinding/grid";
+export type { FlatGrid } from "./pathfinding/flatGrid";
 export type { XYPosition } from "@xyflow/react";
 
 /**

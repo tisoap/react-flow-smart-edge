@@ -1,3 +1,4 @@
+// Legacy v4 engine kept for A/B benchmarks only — deleted before release.
 import type { GridNode } from "./grid";
 
 export const estimatedTotalCostOf = (node: GridNode): number =>
