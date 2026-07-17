@@ -7,6 +7,7 @@ const result: GetSmartEdgeReturn = {
   edgeCenterX: 0,
   edgeCenterY: 0,
   points: [],
+  wasRouted: true,
 };
 
 describe("createRoutingStore", () => {

@@ -271,7 +271,7 @@ export const getSmartEdgeWaypoints = <
     const middle = fullPath[Math.floor(fullPath.length / 2)];
     const [edgeCenterX, edgeCenterY] = middle;
 
-    return { svgPathString, edgeCenterX, edgeCenterY, points };
+    return { svgPathString, edgeCenterX, edgeCenterY, points, wasRouted: true };
   } catch (error) {
     if (error instanceof Error) {
       return error;

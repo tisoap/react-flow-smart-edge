@@ -85,6 +85,7 @@ const routedResult: GetSmartEdgeReturn = {
   edgeCenterX: 1,
   edgeCenterY: 2,
   points: [],
+  wasRouted: true,
 };
 
 function RouteProbe({ edge }: Readonly<{ edge: EdgeRouteInput }>) {

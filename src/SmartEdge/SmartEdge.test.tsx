@@ -20,6 +20,7 @@ const mockWaypointsResponse = {
   edgeCenterX: 50,
   edgeCenterY: 0,
   points: [] satisfies number[][],
+  wasRouted: true as const,
 };
 
 const setEdges = vi.fn<SetEdges>();

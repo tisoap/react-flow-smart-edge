@@ -150,6 +150,7 @@ describe("getSmartEdgeWaypoints", () => {
       edgeCenterX: 0,
       edgeCenterY: 0,
       points: [[300, 220]],
+      wasRouted: true,
     });
 
     const result = getSmartEdgeWaypoints({
