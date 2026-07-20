@@ -43,6 +43,7 @@
     "src"
   ],
   "scripts": {
+    "bench": "vitest bench --config vitest.bench.config.ts",
     "build": "npm run build-component && npm run build-storybook && npm run build-docs",
     "build-component": "vite build",
     "build-docs": "npm run build-component && DOCUSAURUS_BASE_URL=/react-flow-smart-edge/ npm run build -w website",

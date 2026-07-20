@@ -12,7 +12,7 @@ import comments from "@eslint-community/eslint-plugin-eslint-comments/configs";
 import reactYouMightNotNeedAnEffect from "eslint-plugin-react-you-might-not-need-an-effect";
 
 export default defineConfig(
-  globalIgnores(["dist", "storybook-static", "website", "bench"]),
+  globalIgnores(["dist", "storybook-static", "website", "bench/legacy"]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: [
@@ -98,7 +98,7 @@ export default defineConfig(
     },
   },
   {
-    files: ["vite.config.ts"],
+    files: ["vite.config.ts", "vitest.bench.config.ts"],
     languageOptions: {
       parserOptions: {
         project: ["./tsconfig.node.json"],
