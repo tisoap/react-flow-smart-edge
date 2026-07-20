@@ -18,6 +18,7 @@ import {
   expectDemoGraph,
   expectPathAvoidsRect,
   interactWithEditableEdge,
+  waitForRoutedEdge,
 } from "./storyPlayHelpers";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
@@ -77,7 +78,11 @@ export const BidirectionalPair: Story = {
       nodeCount: { exact: 2 },
       edgeCount: { exact: 2 },
     });
-    await expectBezierCurves(canvasElement);
+    // Address each direction of the pair by its own edge id, rather than
+    // pattern-matching across every path on the canvas, so a regression that
+    // only breaks one direction can't hide behind the other's routed path.
+    await waitForRoutedEdge(canvasElement, "e56", /Q/i);
+    await waitForRoutedEdge(canvasElement, "e65", /Q/i);
   }),
 };
 

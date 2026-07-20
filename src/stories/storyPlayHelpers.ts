@@ -251,6 +251,40 @@ export async function interactWithEditableEdge(canvasElement: HTMLElement) {
   await userEvent.keyboard("{Delete}");
 }
 
+/**
+ * Waits until the edge with the given id renders a path whose `d` matches
+ * `pattern` — the asynchronously routed path, not the pending fallback
+ * rendered synchronously before the provider's first batch flush. Addressed
+ * directly by the edge's `rf__edge-${id}` test id rather than by scanning
+ * every path on the canvas, so it stays precise in stories with more than
+ * one edge, where a pattern shared by several edges' fallbacks (e.g. a
+ * fallback `BezierEdge`'s cubic `C` segments can, for some presets, satisfy
+ * the same pattern the routed path would) could otherwise match the wrong
+ * one. A `pattern` argument is required rather than defaulted: unlike
+ * `expectEdgePaths`, presence alone can't distinguish "routed" from
+ * "fallback," since both render through the same `path.react-flow__edge-path`
+ * element from the very first paint.
+ */
+export async function waitForRoutedEdge(
+  canvasElement: HTMLElement,
+  edgeId: string,
+  pattern: RegExp,
+): Promise<SVGPathElement> {
+  return waitFor(() => {
+    const path = canvasElement.querySelector<SVGPathElement>(
+      `[data-testid="rf__edge-${edgeId}"] path.react-flow__edge-path`,
+    );
+    if (!path) throw new Error(`edge ${edgeId} not rendered`);
+    const pathData = path.getAttribute("d") ?? "";
+    if (!pattern.test(pathData)) {
+      throw new Error(
+        `edge ${edgeId} path does not match ${pattern.toString()}: ${pathData}`,
+      );
+    }
+    return path;
+  });
+}
+
 export async function expectDemoGraph(
   canvasElement: HTMLElement,
   options: {
