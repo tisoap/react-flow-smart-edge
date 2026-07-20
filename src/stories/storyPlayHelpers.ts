@@ -80,14 +80,20 @@ export async function expectEdgePathsMatch(
   pattern: RegExp,
   count: CountExpectation = { min: 1 },
 ) {
-  const paths = await expectEdgePaths(canvasElement, count);
-  const matching = paths.filter((path) =>
-    pattern.test(path.getAttribute("d") ?? ""),
-  );
-  if (matching.length === 0) {
-    throw new Error(`no edge path matched ${pattern.toString()}`);
-  }
-  return matching;
+  // v5 routes edges asynchronously through the provider, so the routed path
+  // (with its bezier `Q` / hop-arc `A` commands) replaces the pending fallback
+  // a few frames after mount. Poll until a matching routed path appears rather
+  // than checking once against the first (fallback) render.
+  return waitFor(async () => {
+    const paths = await expectEdgePaths(canvasElement, count);
+    const matching = paths.filter((path) =>
+      pattern.test(path.getAttribute("d") ?? ""),
+    );
+    if (matching.length === 0) {
+      throw new Error(`no edge path matched ${pattern.toString()}`);
+    }
+    return matching;
+  });
 }
 
 export async function expectStraightOrStepPaths(canvasElement: HTMLElement) {
@@ -132,27 +138,32 @@ export async function expectPathAvoidsRect(
   options: { maxInsideRatio?: number; samples?: number } = {},
 ) {
   const { maxInsideRatio = 0.2, samples = 24 } = options;
-  const paths = await expectEdgePaths(canvasElement, { exact: 1 });
-  const path = paths[0];
-  const length = path.getTotalLength();
-  let insideRect = 0;
 
-  for (let index = 0; index <= samples; index += 1) {
-    const point = path.getPointAtLength((length * index) / samples);
-    const inside =
-      point.x >= rect.x &&
-      point.x <= rect.x + rect.width &&
-      point.y >= rect.y &&
-      point.y <= rect.y + rect.height;
-    if (inside) insideRect += 1;
-  }
+  // The pending fallback runs straight through the avoided rect; poll until the
+  // asynchronously routed path (which detours around it) has been published.
+  await waitFor(async () => {
+    const paths = await expectEdgePaths(canvasElement, { exact: 1 });
+    const path = paths[0];
+    const length = path.getTotalLength();
+    let insideRect = 0;
 
-  const insideRatio = insideRect / (samples + 1);
-  if (insideRatio > maxInsideRatio) {
-    throw new Error(
-      `expected path to mostly avoid rect, but ${String(insideRect)}/${String(samples + 1)} samples were inside`,
-    );
-  }
+    for (let index = 0; index <= samples; index += 1) {
+      const point = path.getPointAtLength((length * index) / samples);
+      const inside =
+        point.x >= rect.x &&
+        point.x <= rect.x + rect.width &&
+        point.y >= rect.y &&
+        point.y <= rect.y + rect.height;
+      if (inside) insideRect += 1;
+    }
+
+    const insideRatio = insideRect / (samples + 1);
+    if (insideRatio > maxInsideRatio) {
+      throw new Error(
+        `expected path to mostly avoid rect, but ${String(insideRect)}/${String(samples + 1)} samples were inside`,
+      );
+    }
+  });
 }
 
 export async function dragSmartConnectionPreview(

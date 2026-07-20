@@ -176,4 +176,15 @@ describe("getSmartEdgeWaypoints", () => {
 
     expect(result).not.toBeInstanceOf(Error);
   });
+
+  it("uses a downward side-facing handle for steep descending segments", () => {
+    const result = getSmartEdgeWaypoints({
+      ...baseParams,
+      sourceX: 235,
+      sourceY: 60,
+      waypoints: [{ x: 235, y: 360 }],
+    });
+
+    expect(result).not.toBeInstanceOf(Error);
+  });
 });
