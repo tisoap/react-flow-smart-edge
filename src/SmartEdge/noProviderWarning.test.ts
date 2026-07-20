@@ -50,4 +50,20 @@ describe("warnOnceNoProvider", () => {
 
     expect(console.warn).toHaveBeenCalledTimes(1);
   });
+
+  it("warns when the process global is not an object (e.g. null)", () => {
+    vi.stubGlobal("process", null);
+
+    warnOnceNoProvider();
+
+    expect(console.warn).toHaveBeenCalledTimes(1);
+  });
+
+  it("warns when process.env is missing", () => {
+    vi.stubGlobal("process", {});
+
+    warnOnceNoProvider();
+
+    expect(console.warn).toHaveBeenCalledTimes(1);
+  });
 });

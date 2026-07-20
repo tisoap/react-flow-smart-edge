@@ -9,13 +9,23 @@ const NO_PROVIDER_MESSAGE =
 
 let hasWarned = false;
 
+/** Narrows an unknown value to a plain, indexable object shape. */
+const isRecord = (value: unknown): value is Record<PropertyKey, unknown> =>
+  typeof value === "object" && value !== null;
+
 /**
  * True when running in a production bundle, where the developer warning must
- * stay silent. Guards the `process` reference behind a `typeof` check so
- * browser ESM builds without a `process` global do not throw.
+ * stay silent. Reads the ambient `process` global (if any) through
+ * `Reflect.get` rather than referencing the bare `process` identifier, so
+ * this file type-checks without a dependency on `@types/node` (the app
+ * tsconfig deliberately has no Node types) and so browser ESM builds without
+ * a `process` global do not throw.
  */
-const isProduction = (): boolean =>
-  typeof process !== "undefined" && process.env["NODE_ENV"] === "production";
+const isProduction = (): boolean => {
+  const maybeProcess: unknown = Reflect.get(globalThis, "process");
+  const env: unknown = isRecord(maybeProcess) ? maybeProcess["env"] : undefined;
+  return isRecord(env) && env["NODE_ENV"] === "production";
+};
 
 /**
  * Warns exactly once per module lifetime that a smart edge rendered outside a
