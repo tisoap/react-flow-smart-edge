@@ -7,13 +7,23 @@ import {
   useNodesState,
   useEdgesState,
 } from "@xyflow/react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { expect, waitFor } from "storybook/test";
+import { buildLargeNetwork } from "../demos/dummyData/largeNetwork";
+import { edgeTypes as smartEdgeTypes } from "../demos/DummyData";
+import { GraphWrapper } from "../demos/GraphWrapper";
 import { SmartEdgeProvider } from "../routing/SmartEdgeProvider";
 import { useSmartEdgePath } from "../routing/useSmartEdgePath";
 import { SmartBezierEdge } from "../SmartBezierEdge";
-import { demoStoryPlay, expectDemoGraph } from "./storyPlayHelpers";
+import {
+  demoStoryPlay,
+  expectDemoGraph,
+  NODE_SELECTOR,
+} from "./storyPlayHelpers";
+import type { SmartEdgeMetrics } from "../routing/scheduler";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { EdgeProps, Node, Edge } from "@xyflow/react";
+import type { CSSProperties } from "react";
 
 const GAP_X = 220;
 const GAP_Y = 160;
@@ -219,5 +229,147 @@ export const MainThreadRouting: Story = {
       nodeCount: { exact: nodeCount },
       edgeCount: { exact: edgeCount },
     });
+  }),
+};
+
+// --- 750-node (#69) train-network fixture ---------------------------------
+
+const metricsOverlayContainerStyle: CSSProperties = { position: "relative" };
+
+const metricsOverlayStyle: CSSProperties = {
+  position: "absolute",
+  top: 8,
+  left: 8,
+  zIndex: 10,
+  margin: 0,
+  padding: "8px 12px",
+  background: "rgba(255, 255, 255, 0.92)",
+  border: "1px solid #ccc",
+  borderRadius: 4,
+  fontSize: 12,
+  maxWidth: 360,
+  maxHeight: 260,
+  overflow: "auto",
+  pointerEvents: "none",
+};
+
+interface LargeNetworkArgs {
+  nodeCount: number;
+  seed: number;
+}
+
+/**
+ * Renders a `buildLargeNetwork` graph through `GraphWrapper` (v5 defaults,
+ * `routeOnlyWhenBlocked: true` — passed explicitly since `GraphWrapper`
+ * itself defaults it `false` for other demos), reporting every completed
+ * routing batch's `SmartEdgeMetrics` into a visible
+ * `<pre data-testid="metrics">` overlay so a story's play function can
+ * assert on real batch latency and routing outcomes instead of only
+ * checking that nodes rendered.
+ */
+function LargeNetworkDemo({ nodeCount, seed }: Readonly<LargeNetworkArgs>) {
+  const { nodes, edges } = useMemo(
+    () => buildLargeNetwork(nodeCount, seed),
+    [nodeCount, seed],
+  );
+  const [metrics, setMetrics] = useState<SmartEdgeMetrics | null>(null);
+
+  return (
+    <div style={metricsOverlayContainerStyle}>
+      <GraphWrapper
+        defaultNodes={nodes}
+        defaultEdges={edges}
+        edgeTypes={smartEdgeTypes}
+        providerOptions={{ routeOnlyWhenBlocked: true }}
+        onMetrics={setMetrics}
+        minZoom={0.02}
+        fitView
+      />
+      <pre data-testid="metrics" style={metricsOverlayStyle}>
+        {JSON.stringify(metrics)}
+      </pre>
+    </div>
+  );
+}
+
+/** Reads the `data-testid="metrics"` overlay's latest reported
+ * `SmartEdgeMetrics`, throwing until at least one batch has been reported. */
+const readLatestMetrics = (canvasElement: HTMLElement): SmartEdgeMetrics => {
+  const element = canvasElement.querySelector('[data-testid="metrics"]');
+  if (!element) throw new Error("metrics overlay not rendered");
+  const parsed: unknown = JSON.parse(element.textContent);
+  if (parsed === null) throw new Error("no routing batch reported yet");
+  return parsed as SmartEdgeMetrics;
+};
+
+/** Asserts the routing-batch budget the brief calls for: at least one batch
+ * reported some routed/cleared/cache-hit outcome, and that batch completed
+ * well under the 5s ceiling. Deliberately checks sums and bounds only (never
+ * exact counts), since the mix of routed/cleared/deferred/cache-hit edges is
+ * sensitive to timing and CI hardware. */
+const expectMetricsBudget = async (
+  canvasElement: HTMLElement,
+  timeout: number,
+) => {
+  await waitFor(
+    async () => {
+      const metrics = readLatestMetrics(canvasElement);
+      await expect(
+        metrics.routed + metrics.clear + metrics.cacheHits,
+      ).toBeGreaterThan(0);
+      await expect(metrics.batchLatencyMs).toBeLessThan(5000);
+    },
+    { timeout },
+  );
+};
+
+const largeNetworkMeta = { nodeCount: 750, seed: 1 };
+
+/**
+ * The #69-style 750-node "train network" fixture (`buildLargeNetwork`),
+ * routed through the real worker pipeline. Proves three things end to end in
+ * a real browser: (1) React Flow paints every node immediately on mount —
+ * before any routing batch has run — since smart edges fall back to their
+ * native path until routed; (2) the first completed batch reports some
+ * routed/cleared/cache-hit outcome within a generous 30s CI budget, and that
+ * batch's own `batchLatencyMs` stays under 5s; (3) `buildLargeNetwork` is
+ * deterministic — building the same `(nodeCount, seed)` twice yields
+ * identical graphs.
+ *
+ * Kept as a real interaction test (not render-only): measured locally in the
+ * Storybook Vitest browser runner, the 750-node/~1125-edge batch reports
+ * `batchLatencyMs` around 2.2s (roughly 336 routed, 789 clear, 0 deferred),
+ * and the whole play function — including React Flow's initial render,
+ * measurement, and `fitView` — finishes in around 11-12s, so the 30s
+ * `waitFor` budget and the 5s per-batch ceiling both have wide headroom for
+ * CI variance. See `.superpowers/sdd/task-19-report.md` for the full
+ * observed numbers.
+ */
+export const LargeNetwork750: Story = {
+  render: () => (
+    <LargeNetworkDemo
+      nodeCount={largeNetworkMeta.nodeCount}
+      seed={largeNetworkMeta.seed}
+    />
+  ),
+  play: demoStoryPlay(async (canvasElement) => {
+    // Fallback-first paint: every node is already in the DOM the instant the
+    // story mounts, before the provider's first routing batch has even been
+    // scheduled (registration → microtask → rAF → debounce timer → worker).
+    const paintedNodes = canvasElement.querySelectorAll(NODE_SELECTOR);
+    await expect(paintedNodes.length).toBe(largeNetworkMeta.nodeCount);
+
+    await expectMetricsBudget(canvasElement, 30_000);
+
+    // Determinism: the same (nodeCount, seed) always produces the same graph.
+    const first = buildLargeNetwork(
+      largeNetworkMeta.nodeCount,
+      largeNetworkMeta.seed,
+    );
+    const second = buildLargeNetwork(
+      largeNetworkMeta.nodeCount,
+      largeNetworkMeta.seed,
+    );
+    await expect(second).toEqual(first);
   }),
 };
