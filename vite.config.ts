@@ -107,6 +107,14 @@ export default defineConfig({
         ],
         test: {
           name: "storybook",
+          // The heaviest interaction test (`LargeNetwork750`, a 750-node/
+          // ~1,125-edge fixture) documents an intentional ~30s `waitFor`
+          // budget for its routing batch (see its docstring in
+          // `SmartEdgePerformance.stories.tsx`), on top of React Flow's own
+          // render/measurement/`fitView` time. Vitest's default per-test
+          // timeout is far short of that, so raise it repo-wide for this
+          // project rather than leaving that documented budget unreachable.
+          testTimeout: 45_000,
           browser: {
             enabled: true,
             headless: true,

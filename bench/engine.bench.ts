@@ -1,7 +1,9 @@
-// A/B benchmarks between the legacy v4 object-grid engine (bench/legacy/,
-// copied verbatim in Task 4) and the v5 flat-grid engine, on identical
-// fixture inputs. Four groups: grid construction, A* (orthogonal + diagonal),
+// v5 engine benchmarks: grid construction, A* (orthogonal + diagonal),
 // jump-point search, and getSmartEdge's corridor ladder vs a full-grid pass.
+// These ran alongside legacy v4 object-grid A/B comparisons through Task 21;
+// the legacy engine (bench/legacy/) and its comparison lanes were removed at
+// Task 22 (release preflight) once the final A/B numbers were recorded in
+// bench/RESULTS.md. See that file for the historical legacy-vs-v5 figures.
 import { bench, describe } from "vitest";
 import {
   alignEndpoints,
@@ -21,9 +23,7 @@ import {
   graph750,
   sampleEdges,
 } from "./fixtures";
-import { createAStarFinder } from "./legacy/aStar";
-import { createJumpPointFinder } from "./legacy/jumpPoint";
-import { buildLegacyGridFromBoxes, buildRouteSetup } from "./legacyPipeline";
+import { buildRouteSetup } from "./routeSetup";
 import type { PointInfo } from "../src/functions";
 import type { GetSmartEdgeParams } from "../src/getSmartEdge";
 
@@ -41,20 +41,12 @@ const toPointInfo = (
 
 // --- Grid construction ------------------------------------------------------
 
-describe("grid build: legacy object grid vs v5 flat grid", () => {
+describe("grid build: v5 flat grid", () => {
   const boxes100 = getBoundingBoxes(graph100.nodes, NODE_PADDING, GRID_RATIO);
   const boxes750 = getBoundingBoxes(graph750.nodes, NODE_PADDING, GRID_RATIO);
 
-  bench("legacy createGrid (100-node fixture)", () => {
-    buildLegacyGridFromBoxes(boxes100.graphBox, boxes100.nodeBoxes, GRID_RATIO);
-  });
-
   bench("flat buildBaseGrid (100-node fixture)", () => {
     buildBaseGrid(boxes100.graphBox, boxes100.nodeBoxes, GRID_RATIO);
-  });
-
-  bench("legacy createGrid (750-node fixture)", () => {
-    buildLegacyGridFromBoxes(boxes750.graphBox, boxes750.nodeBoxes, GRID_RATIO);
   });
 
   bench("flat buildBaseGrid (750-node fixture)", () => {
@@ -71,21 +63,7 @@ const sampledSetups = sampleEdges(graph100.edges, SAMPLE_SIZE).map((edge) => {
   return buildRouteSetup(graph100.nodes, source, target, NODE_PADDING, GRID_RATIO);
 });
 
-describe("A* orthogonal: legacy vs flat (100-node fixture, 8 sampled edges)", () => {
-  const legacyFinder = createAStarFinder({ diagonalMovement: "Never" });
-
-  bench("legacy createAStarFinder (Never)", () => {
-    for (const setup of sampledSetups) {
-      legacyFinder.findPath(
-        setup.start.x,
-        setup.start.y,
-        setup.end.x,
-        setup.end.y,
-        setup.legacyGrid.clone(),
-      );
-    }
-  });
-
+describe("A* orthogonal (100-node fixture, 8 sampled edges)", () => {
   bench("flat findPathAStar (orthogonal)", () => {
     for (const setup of sampledSetups) {
       findPathAStar(
@@ -100,21 +78,7 @@ describe("A* orthogonal: legacy vs flat (100-node fixture, 8 sampled edges)", ()
   });
 });
 
-describe("A* diagonal: legacy vs flat (100-node fixture, 8 sampled edges)", () => {
-  const legacyFinder = createAStarFinder({ diagonalMovement: "Always" });
-
-  bench("legacy createAStarFinder (Always)", () => {
-    for (const setup of sampledSetups) {
-      legacyFinder.findPath(
-        setup.start.x,
-        setup.start.y,
-        setup.end.x,
-        setup.end.y,
-        setup.legacyGrid.clone(),
-      );
-    }
-  });
-
+describe("A* diagonal (100-node fixture, 8 sampled edges)", () => {
   bench("flat findPathAStar (diagonal)", () => {
     for (const setup of sampledSetups) {
       findPathAStar(
@@ -131,30 +95,7 @@ describe("A* diagonal: legacy vs flat (100-node fixture, 8 sampled edges)", () =
 
 // --- Jump point search --------------------------------------------------------
 
-// One of the 8 sampled edges (index 6) returns a different jump-point count
-// between engines — 32 (legacy) vs 36 (flat) points — even though both grids
-// and start/end cells are identical. This is not a routing bug: JPS returns
-// jump points, not full cell paths, and orthogonal JPS can find multiple
-// equal-cost optimal paths when open-list ties break differently (the two
-// engines use different tie-breaking: the legacy open list is a linear
-// min-scan over insertion order, the flat engine uses a binary min-heap).
-// Both paths are valid, equal-cost routes; only their jump-point counts
-// differ.
-describe("JPS orthogonal: legacy vs flat (100-node fixture, 8 sampled edges)", () => {
-  const legacyFinder = createJumpPointFinder();
-
-  bench("legacy createJumpPointFinder", () => {
-    for (const setup of sampledSetups) {
-      legacyFinder.findPath(
-        setup.start.x,
-        setup.start.y,
-        setup.end.x,
-        setup.end.y,
-        setup.legacyGrid.clone(),
-      );
-    }
-  });
-
+describe("JPS orthogonal (100-node fixture, 8 sampled edges)", () => {
   bench("flat findPathJumpPoint", () => {
     for (const setup of sampledSetups) {
       findPathJumpPoint(

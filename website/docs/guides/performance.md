@@ -38,25 +38,25 @@ Pass `onMetrics` to `SmartEdgeProvider` to observe every completed batch: `batch
 
 ## Benchmarks
 
-`npm run bench` (`vitest bench`) tracks the v5 pipeline against the old object-based grid implementation on the same fixtures. Numbers below are from a single dev machine (AMD Ryzen 9 5900X, WSL2), not a CI-controlled environment; expect run-to-run variance, especially on the smaller/noisier groups. Full methodology and raw numbers: [`bench/RESULTS.md`](https://github.com/tisoap/react-flow-smart-edge/blob/main/bench/RESULTS.md).
+`npm run bench` (`vitest bench`) measured the v5 pipeline against the old (pre-v5) object-based grid implementation on the same fixtures before that legacy engine was deleted from the repo; the table below is now a historical record (the legacy engine no longer exists to re-run against), while the v5-only benchmarks further down remain reproducible. Numbers are from a single dev machine (AMD Ryzen 9 5900X, WSL2), not a CI-controlled environment; expect run-to-run variance, especially on the smaller/noisier groups. Full methodology and raw numbers: [`bench/RESULTS.md`](https://github.com/tisoap/react-flow-smart-edge/blob/main/bench/RESULTS.md).
 
 | Comparison                                         | Legacy (v4 object grid) | v5 (flat grid) | Speedup   |
 | -------------------------------------------------- | ----------------------: | -------------: | --------- |
-| Grid build, 100-node fixture                       |             273.9 ops/s |    6,279 ops/s | **22.9x** |
-| Grid build, 750-node fixture                       |              46.0 ops/s |    885.8 ops/s | **19.3x** |
-| A\* orthogonal, 100-node fixture (8 edges/call)    |              46.6 ops/s |    443.8 ops/s | **9.5x**  |
-| A\* diagonal, 100-node fixture (8 edges/call)      |              44.5 ops/s |    262.3 ops/s | **5.9x**  |
-| Jump Point Search, 100-node fixture (8 edges/call) |              51.1 ops/s |    353.9 ops/s | **6.9x**  |
+| Grid build, 100-node fixture                       |             273.3 ops/s |  6,617.3 ops/s | **24.2x** |
+| Grid build, 750-node fixture                       |              44.9 ops/s |    889.7 ops/s | **19.8x** |
+| A\* orthogonal, 100-node fixture (8 edges/call)    |              47.2 ops/s |    463.2 ops/s | **9.8x**  |
+| A\* diagonal, 100-node fixture (8 edges/call)      |              46.6 ops/s |    253.3 ops/s | **5.4x**  |
+| Jump Point Search, 100-node fixture (8 edges/call) |              52.8 ops/s |    357.6 ops/s | **6.8x**  |
 
-The corridor ladder alone (v5 engine, corridor-cropped vs. always building the full 750-node grid, same post-routing work on both sides) is **1.64x** faster.
+The corridor ladder alone (v5 engine, corridor-cropped vs. always building the full 750-node grid, same post-routing work on both sides) is **1.7x** faster — this comparison stays reproducible since both sides are v5 engine code.
 
-`routeSmartEdgeBatch` end-to-end (v5 engine, corridor-cropped, `bezier` preset), measured with `vitest bench`:
+`routeSmartEdgeBatch` end-to-end (v5 engine, corridor-cropped, `bezier` preset), measured with `vitest bench` (also reproducible):
 
 | Fixture                 | ops/s | Mean batch time |
 | ----------------------- | ----: | --------------: |
-| 10 nodes / 15 edges     | 364.3 |          2.75ms |
-| 100 nodes / 150 edges   |  18.4 |         54.35ms |
-| 750 nodes / 1,125 edges | 0.372 |           2.69s |
+| 10 nodes / 15 edges     | 375.8 |          2.66ms |
+| 100 nodes / 150 edges   |  17.9 |         55.95ms |
+| 750 nodes / 1,125 edges | 0.360 |           2.78s |
 
 Separately, a Storybook interaction test drives the real browser pipeline (React Flow render, measurement, `fitView`, then the provider's real worker) against the same #69-style 750-node / ~1,125-edge fixture: every node paints in the DOM before the first routing batch is even scheduled, and that first batch reports `batchLatencyMs` around 2.2s (roughly 336 routed, 789 clear, 0 deferred). See `SmartEdgePerformance.stories.tsx`'s `LargeNetwork750` story.
 
