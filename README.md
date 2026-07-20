@@ -28,15 +28,17 @@ It's a tiny, dependency-light library (just `@xyflow/react` as a peer) that ship
 
 - Grid-based A\* / jump-point pathfinding finds a path that never crosses your nodes.
 - Five edge styles: smart equivalents of every React Flow edge (bezier, straight, step, smooth-step, and simple-bezier).
-- Step edges can draw a small bridge arc where they cross each other, so intersections read cleanly. _(new!)_
+- Every smart edge routes through one shared `SmartEdgeProvider`, off the main thread on a Web Worker by default, so large graphs stay responsive. _(new!)_
+- Edges whose direct line is already clear skip pathfinding entirely (`routeOnlyWhenBlocked`, on by default). _(new!)_
+- Moving a node only re-routes the edges whose corridor it actually entered or left; everything else is served from an LRU route cache. _(new!)_
+- Step edges can draw a small bridge arc where they cross each other, so intersections read cleanly.
 - Floating edges connect to the nearest node border instead of a fixed handle.
 - Editable waypoints let you drag control points to reshape a route; each segment still avoids nodes.
 - Checkpoints route through fixed points without the editing UI.
 - Avoid areas keep edges clear of arbitrary regions (e.g. labels), not just nodes.
 - Subflow aware routing works correctly inside React Flow groups/subflows.
-- Web Worker batch routing keeps large graphs responsive by routing edges off the main thread. _(new!)_
-- If no path is found, the edge drops back to the native React Flow edge.
-- Swap the pathfinding or SVG drawing functions, or build custom edges with `getSmartEdge`.
+- If no path is found, or while a route is deferred, the edge drops back to the native React Flow edge.
+- Swap the pathfinding or SVG drawing functions, or build custom edges with `useSmartEdgePath` or `getSmartEdge`.
 - Written in strict TypeScript, with browser-based interaction tests.
 
 ## Install
@@ -49,12 +51,17 @@ Requires [React Flow v12+](https://reactflow.dev/learn/troubleshooting/migrate-t
 
 ## Quick start
 
+Smart edges route through a `SmartEdgeProvider`, which owns the routing worker and needs your current `nodes` to know what to route around. That means `nodes` must be controlled (`useNodesState`, or your own state), not just handed to React Flow as `defaultNodes`:
+
 ```tsx
-import { ReactFlow } from "@xyflow/react";
-import { SmartBezierEdge } from "@tisoap/react-flow-smart-edge";
+import { ReactFlow, useNodesState } from "@xyflow/react";
+import {
+  SmartEdgeProvider,
+  SmartBezierEdge,
+} from "@tisoap/react-flow-smart-edge";
 import "@xyflow/react/dist/style.css";
 
-const nodes = [
+const initialNodes = [
   { id: "1", data: { label: "Node 1" }, position: { x: 300, y: 100 } },
   { id: "2", data: { label: "Node 2" }, position: { x: 300, y: 200 } },
 ];
@@ -64,16 +71,23 @@ const edges = [{ id: "e21", source: "2", target: "1", type: "smart" }];
 const edgeTypes = { smart: SmartBezierEdge };
 
 export function Graph() {
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+
   return (
-    <ReactFlow
-      defaultNodes={nodes}
-      defaultEdges={edges}
-      edgeTypes={edgeTypes}
-      fitView
-    />
+    <SmartEdgeProvider nodes={nodes}>
+      <ReactFlow
+        nodes={nodes}
+        onNodesChange={onNodesChange}
+        defaultEdges={edges}
+        edgeTypes={edgeTypes}
+        fitView
+      />
+    </SmartEdgeProvider>
   );
 }
 ```
+
+Without a `SmartEdgeProvider` ancestor, smart edges warn once in development and render their native (non-routed) fallback edge, so a graph without one still renders, just without routing.
 
 ## Edge components
 
@@ -88,7 +102,7 @@ export function Graph() {
 | `SmartEditableEdge`     | [Editable edge example](https://reactflow.dev/examples/edges/editable-edge)          |
 | `SmartCheckpointEdge`   | No equivalent                                                                        |
 
-Configure any preset with `createSmartEdge`, or build custom edges with `getSmartEdge`:
+Configure any preset with `createSmartEdge`, or see [Custom edges](#custom-edges) below to build your own:
 
 ```tsx
 import { createSmartEdge } from "@tisoap/react-flow-smart-edge";
@@ -116,56 +130,61 @@ const edgeTypes = {
 
 See the [`hops` docs](https://tisoap.github.io/react-flow-smart-edge/docs/options/hops) for tuning and a live demo.
 
-## Web Worker batch routing
+## Custom edges
 
-For large graphs, route every edge together on a background Web Worker so
-pathfinding stays off the main thread and the canvas stays responsive. Wrap your
-flow in `SmartEdgeBatchRoutingProvider` and read each edge's path with
-`useSmartEdgeRoute`:
+Build a fully custom edge with `useSmartEdgePath`. It registers your edge's geometry with the nearest `SmartEdgeProvider` and returns its routed path, or `null`/`"clear"` while there is nothing to draw yet:
 
 ```tsx
-import {
-  ReactFlow,
-  ReactFlowProvider,
-  BaseEdge,
-  BezierEdge,
-} from "@xyflow/react";
-import {
-  SmartEdgeBatchRoutingProvider,
-  useSmartEdgeRoute,
-} from "@tisoap/react-flow-smart-edge";
+import { BaseEdge, BezierEdge } from "@xyflow/react";
+import { useSmartEdgePath } from "@tisoap/react-flow-smart-edge";
+import type { EdgeProps } from "@xyflow/react";
 
-function WorkerEdge(props) {
-  const routed = useSmartEdgeRoute(props);
-  if (!routed) return <BezierEdge {...props} />;
+function MySmartEdge(props: EdgeProps) {
+  const { route } = useSmartEdgePath({ ...props, preset: "bezier" });
+
+  if (!route || route.kind === "clear") {
+    return <BezierEdge {...props} />;
+  }
+
   return (
     <BaseEdge
       id={props.id}
-      path={routed.svgPathString}
+      path={route.svgPathString}
       markerEnd={props.markerEnd}
     />
   );
 }
 
-const edgeTypes = { worker: WorkerEdge };
-
-function Flow({ nodes, edges }) {
-  return (
-    <ReactFlowProvider>
-      <SmartEdgeBatchRoutingProvider
-        nodes={nodes}
-        options={{ preset: "bezier" }}
-      >
-        <ReactFlow nodes={nodes} edges={edges} edgeTypes={edgeTypes} />
-      </SmartEdgeBatchRoutingProvider>
-    </ReactFlowProvider>
-  );
-}
+const edgeTypes = { custom: MySmartEdge };
 ```
 
-It is opt-in and additive: the default edge components are unchanged, and the
-provider falls back to main-thread routing when Web Workers are unavailable. See
-the [Web Worker batch routing docs](https://tisoap.github.io/react-flow-smart-edge/docs/guides/web-worker-routing).
+For synchronous, main-thread routing outside a provider (SSR, tests, your own batching), call `getSmartEdge` directly. See the [custom edges guide](https://tisoap.github.io/react-flow-smart-edge/docs/guides/custom-edges).
+
+## Performance
+
+Every smart edge registers with the nearest `SmartEdgeProvider`, which batches every registered edge's routing together and, by default, runs that batch on a background Web Worker so pathfinding never blocks the main thread:
+
+- Web Worker routing runs by default. Nodes and edges paint immediately on mount, before the first routing batch has even run (smart edges fall back to their native path until routed), so a large graph never freezes the tab while it computes routes.
+- Edges route only when blocked (`routeOnlyWhenBlocked: true` by default). An edge whose straight line between endpoints is already clear skips pathfinding and renders the preset's native path, so a typical graph only pays for A\* on the edges that actually need it.
+- Each edge routes on a corridor-cropped, typed-array grid: a small `Uint8Array` grid cropped around its own endpoints first, widening the crop only if that fails, instead of always rebuilding a grid over the whole graph.
+- Node moves invalidate incrementally, into an LRU route cache. Moving one node only re-routes the edges whose corridor it actually entered or left; every other edge's cached route (keyed by its own obstacle set) is reused untouched.
+- A dragged edge renders a dashed fallback and routes on drop. By default it shows its native path styled with `dragFallbackStyle` (a dashed stroke) instead of re-routing every frame, then routes for real once the drag ends. Both are configurable (`routeWhileDragging`, `dragFallbackStyle`).
+- `onMetrics` reports runtime metrics for every completed batch: `batchLatencyMs`, `routed`/`clear`/`cacheHits`/`deferred`/`unchanged` counts, and whether it ran on the worker or the main thread.
+- A benchmark suite (`npm run bench`) tracks the pipeline against the old object-based grid. Measured on a dev machine, see [`bench/RESULTS.md`](./bench/RESULTS.md): grid construction is roughly 19-23x faster, A\* pathfinding is 5.9x (diagonal) to 9.5x (orthogonal) faster, and jump-point search is 6.9x faster; the corridor-cropped grid cuts routing on a 750-node graph to about 1.64x over always building the full grid. On the [#69](https://github.com/tisoap/react-flow-smart-edge/issues/69) 750-node / 1,125-edge scenario that used to freeze the tab, every node still paints instantly, and the first routing batch completes off the main thread in about 2.2s.
+
+```tsx
+<SmartEdgeProvider nodes={nodes} onMetrics={(metrics) => console.log(metrics)}>
+  <ReactFlow nodes={nodes} edges={edges} edgeTypes={edgeTypes} />
+</SmartEdgeProvider>
+```
+
+See the [performance guide](https://tisoap.github.io/react-flow-smart-edge/docs/guides/performance) and the [`SmartEdgeProvider` reference](https://tisoap.github.io/react-flow-smart-edge/docs/api/smart-edge-provider) for every option.
+
+## Migrating from v4
+
+v5 makes `SmartEdgeProvider` required: every smart edge needs one as an ancestor to route (it warns once and falls back to its native edge without one). Nodes are passed straight to the provider, so apps using uncontrolled `defaultNodes` need to lift that state, as shown in [Quick start](#quick-start). `routeOnlyWhenBlocked` also now defaults to `true`, so an edge with a clear direct line renders its native path unless you opt back into always routing.
+
+See the [migration guide](https://tisoap.github.io/react-flow-smart-edge/docs/migration/v5) for the full before/after, the options that restore v4 behavior, and the mapping from the removed 4.13 batch-routing API to `SmartEdgeProvider` / `useSmartEdgePath`.
 
 ## Documentation
 
