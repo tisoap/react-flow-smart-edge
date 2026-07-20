@@ -113,6 +113,13 @@ const createController = (
   let activeScheduler: RoutingScheduler | null = null;
   const registrations = new Map<string, RegisteredSmartEdge>();
   const schedulerUnregisterFns = new Map<string, () => void>();
+  // First-seen paint order per edge id. Never evicted for the lifetime of
+  // this provider: edge ids are expected to be stable within a flow, so an
+  // edge that unregisters (endpoint change, brief unmount) and re-registers
+  // under the same id keeps its original hop layering instead of jumping to
+  // the end — re-minting on every call would flip Task 15's hop order every
+  // time an edge's props merely change.
+  const orders = new Map<string, number>();
 
   const store = createSmartEdgeStore();
 
@@ -121,11 +128,22 @@ const createController = (
     schedulerUnregisterFns.set(edge.id, activeScheduler.registerEdge(edge));
   };
 
+  const orderFor = (edgeId: string): number => {
+    const existing = orders.get(edgeId);
+    if (existing !== undefined) return existing;
+
+    nextOrder += 1;
+    orders.set(edgeId, nextOrder);
+    return nextOrder;
+  };
+
   const registerEdge = (
     edge: Omit<RegisteredSmartEdge, "order">,
   ): (() => void) => {
-    nextOrder += 1;
-    const registered: RegisteredSmartEdge = { ...edge, order: nextOrder };
+    const registered: RegisteredSmartEdge = {
+      ...edge,
+      order: orderFor(edge.id),
+    };
     registrations.set(registered.id, registered);
     registerWithActiveScheduler(registered);
 

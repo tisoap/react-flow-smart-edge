@@ -99,6 +99,20 @@ function EdgeRegistrar({
   return null;
 }
 
+/** Reports the resolved context back to the test via `onContext`, without
+ * registering any edge of its own — for tests that drive `registerEdge`
+ * manually to control exact call order. */
+function ContextCapture({
+  onContext,
+}: Readonly<{
+  onContext: (context: SmartEdgeContextValue | null) => void;
+}>) {
+  const context = useContext(SmartEdgeRoutingContext);
+  onContext(context);
+
+  return null;
+}
+
 const flushDebounce = async (): Promise<void> => {
   await act(async () => {
     await vi.runAllTimersAsync();
@@ -337,5 +351,40 @@ describe("SmartEdgeProvider", () => {
       contextBox.current?.getRegistrationsInOrder().map((edge) => edge.id),
     ).toEqual(["e1", "e2"]);
     expect(contextBox.current?.getNodesSnapshot()).toEqual(nodes);
+  });
+
+  it("keeps an edge's paint order stable across unregister and re-register under the same id", () => {
+    vi.stubGlobal("Worker", undefined);
+    const contextBox = createContextBox();
+
+    render(
+      <SmartEdgeProvider nodes={nodes}>
+        <ContextCapture
+          onContext={(context) => {
+            contextBox.current = context;
+          }}
+        />
+      </SmartEdgeProvider>,
+    );
+    const context = contextBox.current;
+    if (!context) throw new Error("expected a context value");
+
+    const unregisterA = context.registerEdge(edgeA);
+    context.registerEdge(edgeB);
+    expect(context.getRegistrationsInOrder().map((edge) => edge.id)).toEqual([
+      "e1",
+      "e2",
+    ]);
+
+    // Unregister and re-register e1 under the same id, with different
+    // endpoints. It should keep its original (first) position rather than
+    // jumping after e2, which would flip Task 15's hop layering.
+    unregisterA();
+    context.registerEdge({ ...edgeA, sourceX: 999 });
+
+    expect(context.getRegistrationsInOrder().map((edge) => edge.id)).toEqual([
+      "e1",
+      "e2",
+    ]);
   });
 });
