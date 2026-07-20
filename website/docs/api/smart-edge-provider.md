@@ -73,9 +73,9 @@ function MySmartEdge(props: EdgeProps) {
 
 `id`, `source`, `target`, `sourceX`, `sourceY`, `targetX`, `targetY`, `sourcePosition`, `targetPosition` (all present on React Flow's `EdgeProps`), plus:
 
-- `preset?` — defaults to the provider's `options.preset`.
-- `options?` — per-edge overrides: `gridRatio`, `nodePadding`, `avoidAreas`, `borderRadius`.
-- `waypoints?` — intermediate graph-coordinate points the edge must pass through, in order.
+- `preset?` (defaults to the provider's `options.preset`).
+- `options?` (per-edge overrides: `gridRatio`, `nodePadding`, `avoidAreas`, `borderRadius`).
+- `waypoints?` (intermediate graph-coordinate points the edge must pass through, in order).
 
 ### Result (`UseSmartEdgePathResult`)
 

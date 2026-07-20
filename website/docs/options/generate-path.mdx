@@ -35,10 +35,12 @@ const result = getSmartEdge({
 
 ```ts
 type PathFindingFunction = (
-  grid: Grid,
+  grid: FlatGrid,
   start: XYPosition,
   end: XYPosition,
 ) => number[][];
 ```
 
-See [`generatePath.ts` source](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/functions/generatePath.ts).
+The `grid` parameter is a `FlatGrid`: a flat typed-array obstacle grid where `blocked` is a `Uint8Array` indexed as `y * width + x`, with `1` = blocked and `0` = walkable. Helper functions are exported from the package: `createFlatGrid`, `cloneFlatGrid`, `isWalkable`, `setBlocked`, and `blockCellRange`. See the [v5 migration guide](../migration/v5) for details on upgrading custom `generatePath` implementations from v4.
+
+For reference: [`generatePath.ts` source](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/functions/generatePath.ts) and [`flatGrid.ts` type and helpers](https://github.com/tisoap/react-flow-smart-edge/blob/main/src/pathfinding/flatGrid.ts).
