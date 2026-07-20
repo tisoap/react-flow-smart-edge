@@ -12,9 +12,10 @@ export { createSmartEdge } from "./createSmartEdge";
 export { smartEdgePresets } from "./smartEdgePresets";
 export { getSmartEdge } from "./getSmartEdge";
 export { getSmartEdgeWaypoints } from "./getSmartEdge/getSmartEdgeWaypoints";
-export { SmartEdgeBatchRoutingProvider } from "./batchRouting/SmartEdgeBatchRoutingProvider";
-export { useSmartEdgeRoute } from "./batchRouting/useSmartEdgeRoute";
-export { routeSmartEdgesBatch } from "./batchRouting/routeSmartEdgesBatch";
+export { SmartEdgeProvider } from "./routing/SmartEdgeProvider";
+export { useSmartEdgePath } from "./routing/useSmartEdgePath";
+export { isDirectPathBlocked } from "./routing/obstacleIndex";
+export { routeSmartEdgeBatch } from "./routing/routeBatch";
 export {
   svgDrawSmoothLinePath,
   svgDrawStraightLinePath,
@@ -31,7 +32,6 @@ export {
   getNodeIntersection,
   getEdgePosition,
 } from "./functions/getFloatingEdgeParams";
-export { isDirectPathBlocked } from "./routing/obstacleIndex";
 
 export type {
   SmartEdgeOptions,
@@ -45,17 +45,22 @@ export type { SmartFloatingConnectionLineProps } from "./SmartFloatingConnection
 export type { SmartEdgePreset } from "./smartEdgePresets";
 export type { ConfigureSmartEdgeOptions } from "./createSmartEdge";
 export type { GetSmartEdgeOptions } from "./getSmartEdge";
-export type { SmartEdgeBatchRoutingProviderProps } from "./batchRouting/SmartEdgeBatchRoutingProvider";
-export type { EdgeRouteInput } from "./batchRouting/edgeOptions";
+export type { SmartEdgeProviderProps } from "./routing/SmartEdgeProvider";
 export type {
-  SerializableSmartEdgeOptions,
-  SmartEdgeBatchOptions,
-  SmartEdgeBatchOverride,
-  SmartEdgeBatchEdgeData,
-  BatchEdgeInput,
-  BatchRoutingInput,
-  BatchRoutingResults,
-} from "./batchRouting/routeSmartEdgesBatch";
+  SmartEdgeProviderOptions,
+  SmartEdgeContextValue,
+  ResolvedProviderOptions,
+} from "./routing/routingContext";
+export type {
+  UseSmartEdgePathInput,
+  UseSmartEdgePathResult,
+} from "./routing/useSmartEdgePath";
+export type { SmartEdgeRouteResult } from "./routing/providerStore";
+export type {
+  SmartEdgeMetrics,
+  RegisteredSmartEdge,
+} from "./routing/scheduler";
+export type { SmartEdgeBatchItem } from "./routing/routeBatch";
 export type {
   SVGDrawFunction,
   SVGSimpleBezierDrawFunction,

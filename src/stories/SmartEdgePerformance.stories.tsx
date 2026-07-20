@@ -8,8 +8,8 @@ import {
   useEdgesState,
 } from "@xyflow/react";
 import { useMemo } from "react";
-import { SmartEdgeBatchRoutingProvider } from "../batchRouting/SmartEdgeBatchRoutingProvider";
-import { useSmartEdgeRoute } from "../batchRouting/useSmartEdgeRoute";
+import { SmartEdgeProvider } from "../routing/SmartEdgeProvider";
+import { useSmartEdgePath } from "../routing/useSmartEdgePath";
 import { SmartBezierEdge } from "../SmartBezierEdge";
 import { demoStoryPlay, expectDemoGraph } from "./storyPlayHelpers";
 import type { Meta, StoryObj } from "@storybook/react-vite";
@@ -72,16 +72,26 @@ const makeGraph = (
 
 /** Worker-routed edge: renders the routed path, or a bezier while pending. */
 function WorkerEdge(props: EdgeProps) {
-  const routed = useSmartEdgeRoute(props);
-  if (!routed) {
+  const { route } = useSmartEdgePath({
+    id: props.id,
+    source: props.source,
+    target: props.target,
+    sourceX: props.sourceX,
+    sourceY: props.sourceY,
+    targetX: props.targetX,
+    targetY: props.targetY,
+    sourcePosition: props.sourcePosition,
+    targetPosition: props.targetPosition,
+  });
+  if (route?.kind !== "routed") {
     return <BezierEdge {...props} />;
   }
   return (
     <BaseEdge
       id={props.id}
-      path={routed.svgPathString}
-      labelX={routed.edgeCenterX}
-      labelY={routed.edgeCenterY}
+      path={route.svgPathString}
+      labelX={route.edgeCenterX}
+      labelY={route.edgeCenterY}
       markerEnd={props.markerEnd}
     />
   );
@@ -112,10 +122,7 @@ function WorkerPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
 
   return (
     <ReactFlowProvider>
-      <SmartEdgeBatchRoutingProvider
-        nodes={nodes}
-        options={{ preset: "bezier" }}
-      >
+      <SmartEdgeProvider nodes={nodes} options={{ preset: "bezier" }}>
         <div data-testid="graph-wrapper" style={wrapperStyle}>
           <ReactFlow
             nodes={nodes}
@@ -127,7 +134,7 @@ function WorkerPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
             fitView
           />
         </div>
-      </SmartEdgeBatchRoutingProvider>
+      </SmartEdgeProvider>
     </ReactFlowProvider>
   );
 }

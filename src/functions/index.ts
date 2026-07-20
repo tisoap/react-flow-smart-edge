@@ -7,11 +7,6 @@ export {
   type Hop,
 } from "./edgeHops";
 export {
-  getEdgeEndpointsFromStore,
-  type EdgeEndpoints,
-  type InternalNodeLike,
-} from "./getEdgeEndpoints";
-export {
   svgDrawSimpleBezierLinePath,
   svgDrawStraightLinePath,
   svgDrawSmoothLinePath,
