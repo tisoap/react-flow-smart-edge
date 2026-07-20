@@ -4,10 +4,13 @@
 // jump-point search, and getSmartEdge's corridor ladder vs a full-grid pass.
 import { bench, describe } from "vitest";
 import {
+  alignEndpoints,
   buildBaseGrid,
   createGrid,
   getBoundingBoxes,
+  gridToGraphPoint,
   pathfindingAStarDiagonal,
+  svgDrawSmoothLinePath,
 } from "../src/functions";
 import { getSmartEdge } from "../src/getSmartEdge";
 import { findPathAStar } from "../src/pathfinding/flatAStar";
@@ -128,6 +131,15 @@ describe("A* diagonal: legacy vs flat (100-node fixture, 8 sampled edges)", () =
 
 // --- Jump point search --------------------------------------------------------
 
+// One of the 8 sampled edges (index 6) returns a different jump-point count
+// between engines — 32 (legacy) vs 36 (flat) points — even though both grids
+// and start/end cells are identical. This is not a routing bug: JPS returns
+// jump points, not full cell paths, and orthogonal JPS can find multiple
+// equal-cost optimal paths when open-list ties break differently (the two
+// engines use different tie-breaking: the legacy open list is a linear
+// min-scan over insertion order, the flat engine uses a binary min-heap).
+// Both paths are valid, equal-cost routes; only their jump-point counts
+// differ.
 describe("JPS orthogonal: legacy vs flat (100-node fixture, 8 sampled edges)", () => {
   const legacyFinder = createJumpPointFinder();
 
@@ -158,11 +170,24 @@ describe("JPS orthogonal: legacy vs flat (100-node fixture, 8 sampled edges)", (
 
 // --- getSmartEdge: corridor ladder vs full-grid -------------------------------
 
-/** Replicates `getSmartEdge`'s final full-graph rung directly (see
- * `routeFullGraph` in `src/getSmartEdge/index.ts`), skipping the corridor
- * ladder entirely, so the comparison isolates the corridor's benefit on the
- * v5 engine rather than comparing two different engines. */
-const routeFullGridNoCorridor = (params: GetSmartEdgeParams): number[][] => {
+/**
+ * Replicates `getSmartEdge`'s full pipeline end-to-end — route, then
+ * `alignEndpoints`, `drawEdge` (the `bezier` preset's default
+ * `svgDrawSmoothLinePath`, matching `getSmartEdge`'s own default when no
+ * `drawEdge` option is passed), and the edge-center `gridToGraphPoint`
+ * lookup — over the full 750-node graph instead of `routeWithCorridorLadder`
+ * (see `src/getSmartEdge/index.ts`). Doing the *same* post-processing as the
+ * corridor side keeps the comparison below a clean corridor-only toggle: the
+ * only difference between `getSmartEdge(params)` and this function is
+ * whether routing runs on a cropped sub-grid (widening on retry) or the
+ * whole graph every time. Stopping at the raw grid path here would instead
+ * credit the corridor ladder for skipping `alignEndpoints`/`drawEdge`/point
+ * conversion too, work every route pays for regardless of corridor vs.
+ * full-grid.
+ */
+const routeFullGridNoCorridor = (
+  params: GetSmartEdgeParams,
+): { svgPathString: string; edgeCenterX: number; edgeCenterY: number } => {
   const { source, target } = toPointInfo(params);
   const { graphBox, nodeBoxes } = getBoundingBoxes(
     params.nodes,
@@ -181,7 +206,32 @@ const routeFullGridNoCorridor = (params: GetSmartEdgeParams): number[][] => {
     target,
     GRID_RATIO,
   );
-  return pathfindingAStarDiagonal(grid, start, end);
+  const fullPath = pathfindingAStarDiagonal(grid, start, end);
+
+  const graphPath = fullPath.map((gridPoint) => {
+    const [posX, posY] = gridPoint;
+    const graphPoint = gridToGraphPoint(
+      { x: posX, y: posY },
+      graphBox.xMin,
+      graphBox.yMin,
+      GRID_RATIO,
+    );
+    return [graphPoint.x, graphPoint.y];
+  });
+
+  const alignedPath = alignEndpoints(source, target, graphPath);
+  const svgPathString = svgDrawSmoothLinePath(source, target, alignedPath);
+
+  const index = Math.floor(fullPath.length / 2);
+  const [middleX, middleY] = fullPath[index];
+  const { x: edgeCenterX, y: edgeCenterY } = gridToGraphPoint(
+    { x: middleX, y: middleY },
+    graphBox.xMin,
+    graphBox.yMin,
+    GRID_RATIO,
+  );
+
+  return { svgPathString, edgeCenterX, edgeCenterY };
 };
 
 const corridorSampleParams = sampleEdges(

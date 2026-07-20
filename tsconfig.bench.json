@@ -1,7 +1,26 @@
 {
+  // Extends the app config (strict settings, same target/module/etc.) but
+  // intentionally does NOT put "src" in `include`: bench files reach the
+  // `src/` modules they need via ordinary imports, so those files are
+  // type-checked as dependencies of this program either way — adding "src"
+  // to `include` would instead make every `src/**` file a *root* of this
+  // program too, meaning `tsc --build` (via the project reference in the
+  // root tsconfig.json) would re-typecheck the whole library a second time
+  // on every `npm run typecheck`, on top of `tsconfig.app.json`'s own build.
+  //
+  // Without `"src"` in `include`, TypeScript's automatic inclusion of
+  // `@types/node`'s ambient globals (e.g. `process`, referenced by
+  // `src/SmartEdge/noProviderWarning.ts`, reached transitively from
+  // `bench/fixtures.ts` via a type-only import chain: routeBatch ->
+  // routingRegistry -> smartEdgePresets -> SmartEdge/index.tsx ->
+  // noProviderWarning.ts) does not kick in, and compilation fails with
+  // "Cannot find name 'process'". Since bench runs under Node, explicitly
+  // listing `"node"` in `types` restores those globals without pulling all
+  // of `src` in as root files.
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.bench.tsbuildinfo"
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.bench.tsbuildinfo",
+    "types": ["node"]
   },
-  "include": ["bench", "src"]
+  "include": ["bench"]
 }
