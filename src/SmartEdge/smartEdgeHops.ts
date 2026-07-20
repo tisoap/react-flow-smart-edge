@@ -1,20 +1,15 @@
-import { useStore } from "@xyflow/react";
-import { getSmartEdge } from "../getSmartEdge";
+import { useCallback, useContext, useSyncExternalStore } from "react";
+import { SmartEdgeRoutingContext } from "../routing/routingContext";
+import { nativeStepPolyline } from "../routing/obstacleIndex";
 import {
   computeEdgeHops,
   drawOrthogonalHopPath,
-  excludeEdgeAncestorNodes,
-  getAbsoluteNodes,
-  getEdgeEndpointsFromStore,
   toPolyline,
 } from "../functions";
-import type { EndpointInfo, InternalNodeLike } from "../functions";
-import type { GetSmartEdgeOptions } from "../getSmartEdge";
-import type { Edge, Node, Position, XYPosition } from "@xyflow/react";
-
-/** Stable empties so disabled hop subscriptions never trigger re-renders. */
-const EMPTY_EDGES: Edge[] = [];
-const EMPTY_NODE_LOOKUP = new Map<string, InternalNodeLike>();
+import type { RegisteredSmartEdge } from "../routing/scheduler";
+import type { SmartEdgeRouteResult } from "../routing/providerStore";
+import type { SmartEdgePreset } from "../smartEdgePresets";
+import type { XYPosition } from "@xyflow/react";
 
 /**
  * Configuration for circuit-style "hops": small bridge arcs drawn where a
@@ -58,191 +53,191 @@ const resolveHopConfig = (hops: HopSetting): ResolvedHopConfig => {
   };
 };
 
-/**
- * Routes a single underlying edge from the store and returns its orthogonal
- * polyline, or `null` if its endpoints or route cannot be resolved.
- */
-const routeEdgePolyline = (
-  edge: Edge,
-  nodeLookup: Map<string, InternalNodeLike>,
-  absoluteNodes: Node[],
-  options: GetSmartEdgeOptions,
-): XYPosition[] | null => {
-  const endpoints = getEdgeEndpointsFromStore(nodeLookup, edge);
-  if (!endpoints) return null;
-
-  const route = getSmartEdge({
-    ...endpoints,
-    nodes: excludeEdgeAncestorNodes(absoluteNodes, edge.source, edge.target),
-    options,
-  });
-  if (route instanceof Error) return null;
-
-  return toPolyline(
-    { x: endpoints.sourceX, y: endpoints.sourceY },
-    { x: endpoints.targetX, y: endpoints.targetY },
-    route.points,
-  );
-};
-
-export interface ComputeHoppedPathParams<
-  NodeType extends Node = Node,
-  EdgeType extends Edge = Edge,
-> {
-  /** All edges from the React Flow store, in paint order. */
-  edges: EdgeType[];
-  /** The React Flow store's `nodeLookup`. */
-  nodeLookup: Map<string, InternalNodeLike>;
-  /** All nodes (used as routing obstacles). */
-  nodes: NodeType[];
-  /** This edge's id, used to find its paint order and crossings to bridge. */
-  edgeId: string;
-  /** This edge's `type`; only same-type edges underneath are bridged. */
-  edgeType: string | undefined;
-  /** This edge's source/target node ids (to exclude subflow ancestors). */
-  sourceNodeId: string;
-  targetNodeId: string;
-  /** This edge's resolved source/target endpoints. */
-  source: EndpointInfo;
-  target: EndpointInfo;
-  /** The routing options shared by edges of this type. */
-  options: GetSmartEdgeOptions;
+export interface ComputeHoppedPathParams {
+  /** This edge's own routed polyline, already resolved from its published
+   * route (see `resolveOwnPolyline`). */
+  ownPolyline: XYPosition[];
+  /** The polylines of every same-preset edge painted underneath this one
+   * that currently has a resolvable route. */
+  underneathPolylines: XYPosition[][];
   /** The hop configuration (`true` for defaults, or an object to tune). */
   hops: HopSetting;
 }
 
 /**
- * Recomputes the SVG path for an orthogonal smart edge with circuit-style hops:
- * every other same-type edge rendered underneath this one (lower array index)
- * is re-routed, crossings are detected against this edge's routed polyline, and
- * a small bridge arc is drawn at each one.
- *
- * Returns the redrawn path string (even when there are no crossings, so corner
- * rounding stays consistent across hop edges), or `null` when hops cannot be
- * computed (this edge is missing, or its own route failed) — in which case the
- * caller should keep the edge's normal path.
- *
- * This is intentionally a per-edge recompute (O(n^2) over same-type edges); it
- * needs no consumer setup but can get expensive on large graphs.
+ * Draws this edge's SVG path with circuit-style hops: a small bridge arc at
+ * every crossing between `ownPolyline` and one of `underneathPolylines`.
+ * Pure geometry — every polyline is already resolved from published routes
+ * by the caller, so this does no pathfinding and no store reads.
  */
-export const computeHoppedPath = <
-  NodeType extends Node = Node,
-  EdgeType extends Edge = Edge,
->(
-  params: ComputeHoppedPathParams<NodeType, EdgeType>,
-): string | null => {
-  const {
-    edges,
-    nodeLookup,
-    nodes,
-    edgeId,
-    edgeType,
-    sourceNodeId,
-    targetNodeId,
-    source,
-    target,
-    options,
-  } = params;
+export const computeHoppedPath = (params: ComputeHoppedPathParams): string => {
   const config = resolveHopConfig(params.hops);
+  const hops = computeEdgeHops(
+    params.ownPolyline,
+    params.underneathPolylines,
+    config.epsilon,
+  );
 
-  const meIndex = edges.findIndex((edge) => edge.id === edgeId);
-  if (meIndex < 0) return null;
-
-  const absoluteNodes = getAbsoluteNodes(nodes);
-
-  // Re-route this edge here so the hop segment indices line up exactly with the
-  // polyline the drawer walks (rather than reusing the render's path string).
-  const myRoute = getSmartEdge({
-    sourceX: source.x,
-    sourceY: source.y,
-    sourcePosition: source.position,
-    targetX: target.x,
-    targetY: target.y,
-    targetPosition: target.position,
-    nodes: excludeEdgeAncestorNodes(absoluteNodes, sourceNodeId, targetNodeId),
-    options,
-  });
-  if (myRoute instanceof Error) return null;
-
-  const myPolyline = toPolyline(source, target, myRoute.points);
-
-  // Route every same-type edge painted underneath this one so we know where it
-  // crosses us; only those produce a bridge, keeping the top wire's bump visible.
-  const otherPolylines: XYPosition[][] = [];
-  for (let index = 0; index < meIndex; index++) {
-    const other = edges[index];
-    const polyline =
-      other.type === edgeType
-        ? routeEdgePolyline(other, nodeLookup, absoluteNodes, options)
-        : null;
-    if (polyline) otherPolylines.push(polyline);
-  }
-
-  const hops = computeEdgeHops(myPolyline, otherPolylines, config.epsilon);
-
-  return drawOrthogonalHopPath(myPolyline, hops, {
+  return drawOrthogonalHopPath(params.ownPolyline, hops, {
     hopRadius: config.radius,
     borderRadius: config.borderRadius,
   });
 };
 
-export interface UseHoppedPathParams<NodeType extends Node = Node> {
-  nodes: NodeType[];
+/**
+ * Resolves this edge's own rendered polyline from its published route.
+ * Returns `null` while the route is still pending or was cleared (no smart
+ * path to bridge) — hops only ever apply once a real routed path exists,
+ * matching the fallback edge the component itself renders in that case.
+ */
+const resolveOwnPolyline = (
+  source: XYPosition,
+  target: XYPosition,
+  route: SmartEdgeRouteResult | undefined,
+): XYPosition[] | null => {
+  if (route?.kind !== "routed") return null;
+  return toPolyline(source, target, route.points);
+};
+
+/**
+ * Resolves one underneath registration's rendered polyline from its
+ * published route: a routed edge walks its actual path points, a clear edge
+ * falls back to the native step skeleton between its registered endpoints
+ * (still enough geometry to detect a crossing). Returns `null` when that
+ * edge has no published route yet, in which case it contributes no
+ * crossing rather than a stale one.
+ */
+const resolveUnderneathPolyline = (
+  registration: RegisteredSmartEdge,
+  route: SmartEdgeRouteResult | undefined,
+): XYPosition[] | null => {
+  if (route === undefined) return null;
+
+  const source: XYPosition = {
+    x: registration.sourceX,
+    y: registration.sourceY,
+  };
+  const target: XYPosition = {
+    x: registration.targetX,
+    y: registration.targetY,
+  };
+
+  if (route.kind === "routed") return toPolyline(source, target, route.points);
+
+  return nativeStepPolyline(
+    registration.sourceX,
+    registration.sourceY,
+    registration.sourcePosition,
+    registration.targetX,
+    registration.targetY,
+    registration.targetPosition,
+  );
+};
+
+/** Every same-preset registration painted strictly underneath `ownOrder`,
+ * resolved to a polyline via `getRoute` and filtered down to the ones with a
+ * resolvable route. */
+const collectUnderneathPolylines = (
+  registrations: RegisteredSmartEdge[],
+  ownOrder: number,
+  ownPreset: SmartEdgePreset,
+  getRoute: (edgeId: string) => SmartEdgeRouteResult | undefined,
+): XYPosition[][] => {
+  const isPolyline = (
+    polyline: XYPosition[] | null,
+  ): polyline is XYPosition[] => polyline !== null;
+
+  return registrations
+    .filter(
+      (registration) =>
+        registration.order < ownOrder && registration.preset === ownPreset,
+    )
+    .map((registration) =>
+      resolveUnderneathPolyline(registration, getRoute(registration.id)),
+    )
+    .filter(isPolyline);
+};
+
+/** No provider, hops disabled, or nothing to watch: never notifies. */
+const inertUnsubscribe = (): void => {
+  // Nothing to unsubscribe from.
+};
+
+const getInertRoutesVersion = (): number => 0;
+
+export interface UseHoppedPathParams {
   edgeId: string;
-  edgeType: string | undefined;
-  sourceNodeId: string;
-  targetNodeId: string;
   sourceX: number;
   sourceY: number;
-  sourcePosition: Position;
   targetX: number;
   targetY: number;
-  targetPosition: Position;
-  options: GetSmartEdgeOptions;
+  /** The hop configuration (`true` for defaults, or an object to tune). */
   hops: HopSetting;
   /** Editable/checkpoint edges use a different draw pipeline and skip hops. */
-  editable: boolean | undefined;
-  checkpoints: boolean | undefined;
+  editable?: boolean;
+  checkpoints?: boolean;
 }
 
 /**
- * Subscribes to the edges and node geometry hops need and returns the hopped
- * SVG path for this edge, or `null` when hops are disabled or cannot be
- * computed. Hops only apply to the orthogonal step variants, so they are
- * skipped for editable/checkpoint edges; subscriptions stay inert (a stable
- * empty list / `null`) while disabled.
+ * Returns the hopped SVG path for this edge, or `null` when hops are
+ * disabled, there is no provider, this edge's own route is not yet
+ * published (or was cleared), or its registration cannot be found.
+ *
+ * Reads only already-published routes from the provider's store —
+ * `getRegistrationsInOrder`/`getRoute` are imperative getters, so a
+ * `subscribeAllRoutes` subscription (via `useSyncExternalStore`, keyed off a
+ * version counter) drives re-renders whenever any edge's route changes, own
+ * or a neighbor's. This makes hop cost pure geometry over cached polylines
+ * instead of a per-edge re-route.
  */
-export const useHoppedPath = <NodeType extends Node = Node>(
-  params: UseHoppedPathParams<NodeType>,
-): string | null => {
-  const enabled =
+export const useHoppedPath = (params: UseHoppedPathParams): string | null => {
+  const context = useContext(SmartEdgeRoutingContext);
+  const hopsRequested =
     Boolean(params.hops) && !params.editable && !params.checkpoints;
-  const edges = useStore((store) => (enabled ? store.edges : EMPTY_EDGES));
-  const nodeLookup = useStore((store) =>
-    enabled ? store.nodeLookup : EMPTY_NODE_LOOKUP,
+  const store = hopsRequested && context !== null ? context.store : undefined;
+
+  const subscribe = useCallback(
+    (listener: () => void): (() => void) => {
+      if (!store) return inertUnsubscribe;
+      return store.subscribeAllRoutes(listener);
+    },
+    [store],
+  );
+  const getSnapshot = useCallback(
+    () => store?.getRoutesVersion() ?? 0,
+    [store],
   );
 
-  if (!enabled) return null;
+  useSyncExternalStore(subscribe, getSnapshot, getInertRoutesVersion);
+
+  if (!hopsRequested || context === null) return null;
+
+  const source: XYPosition = { x: params.sourceX, y: params.sourceY };
+  const target: XYPosition = { x: params.targetX, y: params.targetY };
+
+  const ownPolyline = resolveOwnPolyline(
+    source,
+    target,
+    context.store.getRoute(params.edgeId),
+  );
+  if (!ownPolyline) return null;
+
+  const registrations = context.getRegistrationsInOrder();
+  const ownRegistration = registrations.find(
+    (registration) => registration.id === params.edgeId,
+  );
+  if (!ownRegistration) return null;
+
+  const underneathPolylines = collectUnderneathPolylines(
+    registrations,
+    ownRegistration.order,
+    ownRegistration.preset,
+    (edgeId) => context.store.getRoute(edgeId),
+  );
 
   return computeHoppedPath({
-    edges,
-    nodeLookup,
-    nodes: params.nodes,
-    edgeId: params.edgeId,
-    edgeType: params.edgeType,
-    sourceNodeId: params.sourceNodeId,
-    targetNodeId: params.targetNodeId,
-    source: {
-      x: params.sourceX,
-      y: params.sourceY,
-      position: params.sourcePosition,
-    },
-    target: {
-      x: params.targetX,
-      y: params.targetY,
-      position: params.targetPosition,
-    },
-    options: params.options,
+    ownPolyline,
+    underneathPolylines,
     hops: params.hops,
   });
 };

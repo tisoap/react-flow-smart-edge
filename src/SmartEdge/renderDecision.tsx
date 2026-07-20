@@ -46,16 +46,16 @@ export const applyControlPointsUpdate = (
  * provider node snapshot: floating-resolved endpoints, the active editable
  * waypoints, and the waypoint list registered for routing. */
 export interface PreparedEdge {
-  absoluteNodes: Node[];
   endpoints: EdgeEndpointCoordinates;
   activePoints: ControlPointData[];
   waypoints: XYPosition[];
 }
 
 /**
- * Resolves an edge's routable geometry: absolute node snapshot (empty without
- * a provider), floating endpoint override, and the editable/checkpoint
- * waypoints. Pure — no hooks — so the component stays a thin orchestrator.
+ * Resolves an edge's routable geometry: floating endpoint override (using the
+ * provider's absolute node snapshot, empty without a provider) and the
+ * editable/checkpoint waypoints. Pure — no hooks — so the component stays a
+ * thin orchestrator.
  */
 export const prepareEdge = (
   context: SmartEdgeContextValue | null,
@@ -84,7 +84,7 @@ export const prepareEdge = (
     activePoints,
   );
 
-  return { absoluteNodes, endpoints, activePoints, waypoints };
+  return { endpoints, activePoints, waypoints };
 };
 
 export interface RoutedSmartEdgeProps {

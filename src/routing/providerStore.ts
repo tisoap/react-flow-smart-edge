@@ -29,6 +29,18 @@ export interface SmartEdgeStore {
   /** Deletes the stored route for each id and notifies its listeners (who
    * will then read `undefined` from `getRoute`). */
   removeRoutes(edgeIds: string[]): void;
+  /** Subscribes to every route change: any `mergeRoutes`/`removeRoutes` call
+   * that actually changed at least one stored route. Coarser than
+   * `subscribeEdge` (fires for any edge's change, not just one id) — used by
+   * consumers that need to react to a neighbor's route without tracking
+   * every neighbor individually (e.g. hop bridges). Returns an unsubscribe
+   * function. */
+  subscribeAllRoutes(listener: () => void): () => void;
+  /** A counter incremented once per actual route change (any id). Read
+   * through `useSyncExternalStore` alongside `subscribeAllRoutes`: a bare
+   * number is trivially stable-by-value, so snapshots never need a custom
+   * equality check. */
+  getRoutesVersion(): number;
   /** Subscribes to changes in dragging/selected node state. Returns an
    * unsubscribe function. */
   subscribeNodeState(listener: () => void): () => void;
@@ -80,10 +92,21 @@ const notifyAll = (listeners: Set<() => void> | undefined): void => {
 export const createSmartEdgeStore = (): SmartEdgeStore => {
   const routes = new Map<string, SmartEdgeRouteResult>();
   const edgeListeners = new Map<string, Set<() => void>>();
+  const allRoutesListeners = new Set<() => void>();
   const nodeStateListeners = new Set<() => void>();
 
   let draggingNodeIds: ReadonlySet<string> = new Set();
   let selectedNodeIds: ReadonlySet<string> = new Set();
+  let routesVersion = 0;
+
+  /** Bumps `routesVersion` and notifies `subscribeAllRoutes` listeners.
+   * Called once per `mergeRoutes`/`removeRoutes` call that changed at least
+   * one route — never per individual id — so a batch touching many edges
+   * still only produces one version bump. */
+  const notifyRoutesChanged = (): void => {
+    routesVersion += 1;
+    notifyAll(allRoutesListeners);
+  };
 
   return {
     subscribeEdge(edgeId, listener) {
@@ -105,19 +128,41 @@ export const createSmartEdgeStore = (): SmartEdgeStore => {
     },
 
     mergeRoutes(patch) {
-      Object.entries(patch).forEach(([edgeId, value]) => {
-        if (routes.get(edgeId) === value) return;
+      let changed = false;
+
+      for (const [edgeId, value] of Object.entries(patch)) {
+        if (routes.get(edgeId) === value) continue;
 
         routes.set(edgeId, value);
         notifyAll(edgeListeners.get(edgeId));
-      });
+        changed = true;
+      }
+
+      if (changed) notifyRoutesChanged();
     },
 
     removeRoutes(edgeIds) {
-      edgeIds.forEach((edgeId) => {
+      let changed = false;
+
+      for (const edgeId of edgeIds) {
+        if (routes.has(edgeId)) changed = true;
         routes.delete(edgeId);
         notifyAll(edgeListeners.get(edgeId));
-      });
+      }
+
+      if (changed) notifyRoutesChanged();
+    },
+
+    subscribeAllRoutes(listener) {
+      allRoutesListeners.add(listener);
+
+      return () => {
+        allRoutesListeners.delete(listener);
+      };
+    },
+
+    getRoutesVersion() {
+      return routesVersion;
     },
 
     subscribeNodeState(listener) {

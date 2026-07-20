@@ -118,7 +118,7 @@ export function SmartEdge<EdgeType extends Edge = Edge>({
   const { id, source, target } = edgeProps;
   const context = useContext(SmartEdgeRoutingContext);
 
-  const { absoluteNodes, endpoints, activePoints, waypoints } = prepareEdge(
+  const { endpoints, activePoints, waypoints } = prepareEdge(
     context,
     options,
     edgeProps,
@@ -140,18 +140,11 @@ export function SmartEdge<EdgeType extends Edge = Edge>({
   });
 
   const hoppedPathString = useHoppedPath({
-    nodes: absoluteNodes,
     edgeId: id,
-    edgeType: edgeProps.type,
-    sourceNodeId: source,
-    targetNodeId: target,
     sourceX: endpoints.sourceX,
     sourceY: endpoints.sourceY,
-    sourcePosition: endpoints.sourcePosition,
     targetX: endpoints.targetX,
     targetY: endpoints.targetY,
-    targetPosition: endpoints.targetPosition,
-    options,
     hops: options.hops,
     editable: options.editable,
     checkpoints: options.checkpoints,

@@ -104,6 +104,86 @@ describe("createSmartEdgeStore edge routes", () => {
     }).not.toThrow();
   });
 
+  it("notifies subscribeAllRoutes when a merge actually changes a route", () => {
+    const store = createSmartEdgeStore();
+    const listener = vi.fn();
+    store.subscribeAllRoutes(listener);
+
+    store.mergeRoutes({ alpha: routedResult("M0,0 L1,1") });
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(store.getRoutesVersion()).toBe(1);
+  });
+
+  it("does not notify subscribeAllRoutes on a no-op merge", () => {
+    const store = createSmartEdgeStore();
+    const result = routedResult("M0,0 L1,1");
+    store.mergeRoutes({ alpha: result });
+    const versionBefore = store.getRoutesVersion();
+    const listener = vi.fn();
+    store.subscribeAllRoutes(listener);
+
+    store.mergeRoutes({ alpha: result });
+
+    expect(listener).not.toHaveBeenCalled();
+    expect(store.getRoutesVersion()).toBe(versionBefore);
+  });
+
+  it("notifies subscribeAllRoutes once for a multi-id merge", () => {
+    const store = createSmartEdgeStore();
+    const listener = vi.fn();
+    store.subscribeAllRoutes(listener);
+
+    store.mergeRoutes({
+      alpha: routedResult("M0,0 L1,1"),
+      beta: routedResult("M2,2 L3,3"),
+    });
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(store.getRoutesVersion()).toBe(1);
+  });
+
+  it("notifies subscribeAllRoutes when removeRoutes actually removes a route", () => {
+    const store = createSmartEdgeStore();
+    store.mergeRoutes({ alpha: routedResult("M0,0 L1,1") });
+    const versionBefore = store.getRoutesVersion();
+    const listener = vi.fn();
+    store.subscribeAllRoutes(listener);
+
+    store.removeRoutes(["alpha"]);
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(store.getRoutesVersion()).toBe(versionBefore + 1);
+  });
+
+  it("does not notify subscribeAllRoutes when removeRoutes removes nothing", () => {
+    const store = createSmartEdgeStore();
+    const listener = vi.fn();
+    store.subscribeAllRoutes(listener);
+
+    store.removeRoutes(["unheard"]);
+
+    expect(listener).not.toHaveBeenCalled();
+    expect(store.getRoutesVersion()).toBe(0);
+  });
+
+  it("stops notifying subscribeAllRoutes after unsubscribe", () => {
+    const store = createSmartEdgeStore();
+    const listener = vi.fn();
+    const unsubscribe = store.subscribeAllRoutes(listener);
+
+    unsubscribe();
+    store.mergeRoutes({ alpha: routedResult("M0,0 L1,1") });
+
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("starts with a routes version of 0", () => {
+    const store = createSmartEdgeStore();
+
+    expect(store.getRoutesVersion()).toBe(0);
+  });
+
   it("stops notifying after unsubscribe", () => {
     const store = createSmartEdgeStore();
     const listener = vi.fn();
