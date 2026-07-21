@@ -4,6 +4,7 @@ import { snapshotNodes, diffNodeSnapshots } from "./invalidation";
 import { runFlush } from "./schedulerFlush";
 import type { CachedRoute } from "./schedulerFlush";
 import type { RouteCache } from "./routeCache";
+import type { EdgeRect } from "./invalidationCorridor";
 import type { SmartEdgeStore, SmartEdgeRouteResult } from "./providerStore";
 import type { SmartEdgeBatchItem } from "./routeBatch";
 import type { Node, Rect } from "@xyflow/react";
@@ -70,6 +71,12 @@ type NodeSnapshotList = ReturnType<typeof snapshotNodes>;
 export interface SchedulerState {
   edges: Map<string, RegisteredSmartEdge>;
   signatures: Map<string, string>;
+  /** Each edge's actual-path invalidation corridor (bbox of the path it last
+   * routed or cleared to, inflated by nodePadding + one grid cell), keyed by
+   * edge id and kept alongside `signatures` for the same lifetime: set
+   * whenever a route is produced, read by `isEdgeUnchanged` instead of a
+   * fixed guess based only on the endpoints. See `schedulerFlush.ts`. */
+  pathCorridors: Map<string, EdgeRect>;
   cache: RouteCache<CachedRoute>;
   deferredEdgeIds: Set<string>;
   draggingWasActive: boolean;
@@ -144,6 +151,7 @@ const registerEdge = (
   return () => {
     state.edges.delete(edge.id);
     state.signatures.delete(edge.id);
+    state.pathCorridors.delete(edge.id);
     state.deferredEdgeIds.delete(edge.id);
   };
 };
@@ -186,6 +194,7 @@ export const createRoutingScheduler = (
   const state: SchedulerState = {
     edges: new Map(),
     signatures: new Map(),
+    pathCorridors: new Map(),
     cache: createRouteCache<CachedRoute>(deps.options.cacheSize),
     deferredEdgeIds: new Set(),
     draggingWasActive: false,

@@ -2,6 +2,11 @@ import { Position } from "@xyflow/react";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { createRoutingScheduler } from "./scheduler";
 import { createSmartEdgeStore } from "./providerStore";
+import { routeSmartEdgeBatch } from "./routeBatch";
+import { corridorTouchesRects } from "./invalidation";
+import { boundsOfPolyline } from "./invalidationCorridor";
+import { CORRIDOR_MARGIN_CELLS } from "./corridor";
+import { getSmartEdge } from "../getSmartEdge";
 import type {
   RegisteredSmartEdge,
   SchedulerDeps,
@@ -29,25 +34,46 @@ const deferred = <T>(): Deferred<T> => {
 
 type DispatchResult = Awaited<ReturnType<SchedulerDeps["dispatch"]>>;
 
-const routedResult = (svgPathString: string): SmartEdgeRouteResult => ({
+/** `points` for a "routed" result now feeds the actual-path invalidation
+ * corridor (see `schedulerFlush.ts`'s `actualPathCorridor`), so it can no
+ * longer be an arbitrary placeholder: an empty array collapses the corridor
+ * to `[Infinity, -Infinity]`, which never touches anything and silently
+ * defeats invalidation. This default matches `makeEdge`'s own default
+ * source/target, so `routedResult(svg)` stays a valid stand-in wherever a
+ * test uses the default-coordinate edge; `autoDispatch` below always passes
+ * the real per-edge coordinates instead of relying on this default. */
+const DEFAULT_EDGE_POINTS: number[][] = [
+  [50, 25],
+  [300, 25],
+];
+
+const routedResult = (
+  svgPathString: string,
+  points: number[][] = DEFAULT_EDGE_POINTS,
+): SmartEdgeRouteResult => ({
   kind: "routed",
   wasRouted: true,
   svgPathString,
   edgeCenterX: 0,
   edgeCenterY: 0,
-  points: [],
+  points,
 });
 
 const clearResult: SmartEdgeRouteResult = { kind: "clear", wasRouted: false };
 
 /** A dispatch stub that behaves like the real thing: every edge handed to it
- * gets routed successfully, keyed by its own id. */
+ * gets routed successfully, keyed by its own id, with a straight-line
+ * `points` between its own source/target (no simulated detour) so the
+ * actual-path corridor it produces lines up with that specific edge. */
 const autoDispatch = (executedOn: "worker" | "main" = "main", durationMs = 1) =>
   vi.fn(
     (_nodes: Node[], edges: SmartEdgeBatchItem[]): Promise<DispatchResult> => {
       const results: Record<string, SmartEdgeRouteResult> = {};
       edges.forEach((item) => {
-        results[item.id] = routedResult(`M-${item.id}`);
+        results[item.id] = routedResult(`M-${item.id}`, [
+          [item.sourceX, item.sourceY],
+          [item.targetX, item.targetY],
+        ]);
       });
       return Promise.resolve({ results, executedOn, durationMs });
     },
@@ -694,6 +720,114 @@ describe("createRoutingScheduler: registration lifecycle and edge cases", () => 
     scheduler.setNodes([makeNode("a", 0, 0), makeNode("b", 300, 0)]);
     scheduler.registerEdge(makeEdge({ id: "e1" }));
     await vi.runAllTimersAsync();
+
+    expect(dispatch).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("createRoutingScheduler: actual-path corridor invalidation (task 23 regression)", () => {
+  // A wall tall enough that routing around it (over the top, the only way
+  // through) lands the path well outside the OLD fixed rung-0 invalidation
+  // corridor (the endpoint bbox +/- CORRIDOR_MARGIN_CELLS[0] * gridRatio =
+  // 80px at these defaults), while still being resolvable by
+  // `buildCorridorAttempt`'s own reselect-fixpoint growth of the routing
+  // grid box (see `corridor.ts`) — i.e. a real detour, not a contrived one.
+  const WALL_NODE_OVERRIDES = { measured: { width: 20, height: 300 } };
+  const wallFixtureNodes = (moverX: number, moverY: number): Node[] => [
+    makeNode("a", 0, 0),
+    makeNode("b", 300, 0),
+    makeNode("wall", 140, -125, WALL_NODE_OVERRIDES),
+    makeNode("mover", moverX, moverY),
+  ];
+
+  const realDispatch = (): SchedulerDeps["dispatch"] =>
+    vi.fn(
+      (nodes: Node[], edges: SmartEdgeBatchItem[]): Promise<DispatchResult> =>
+        Promise.resolve({
+          results: routeSmartEdgeBatch(nodes, edges),
+          executedOn: "main",
+          durationMs: 1,
+        }),
+    );
+
+  it("verifies the fixture: getSmartEdge bulges more than 80px beyond the endpoint bbox to get around the wall", () => {
+    const direct = getSmartEdge({
+      sourceX: 50,
+      sourceY: 25,
+      targetX: 300,
+      targetY: 25,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      nodes: [
+        makeNode("a", 0, 0),
+        makeNode("b", 300, 0),
+        makeNode("wall", 140, -125, WALL_NODE_OVERRIDES),
+      ],
+      options: { nodePadding: 10, gridRatio: 10 },
+    });
+
+    if (direct instanceof Error) {
+      throw direct;
+    }
+
+    const bulge = Math.max(...direct.points.map(([, pointY]) => pointY)) - 25;
+    expect(bulge).toBeGreaterThan(80);
+  });
+
+  it("re-routes an edge when a node moves into its actual detour band, even though that spot never touched the old rung-0 corridor", async () => {
+    const dispatch = realDispatch();
+    const deps = makeDeps({ dispatch });
+    const scheduler = createRoutingScheduler(deps);
+
+    scheduler.setNodes(wallFixtureNodes(2000, 2000));
+    scheduler.registerEdge(makeEdge({ id: "e1" }));
+    await scheduler.flush();
+
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    const firstRoute = deps.store.getRoute("e1");
+    if (firstRoute?.kind !== "routed") {
+      throw new Error("expected e1 to be routed on the first flush");
+    }
+
+    // The old (buggy) invalidation region: the endpoint bbox inflated by
+    // just the rung-0 margin, with no knowledge of the actual detour.
+    const oldRung0Corridor = {
+      xMin: Math.min(50, 300) - CORRIDOR_MARGIN_CELLS[0] * 10,
+      xMax: Math.max(50, 300) + CORRIDOR_MARGIN_CELLS[0] * 10,
+      yMin: Math.min(25, 25) - CORRIDOR_MARGIN_CELLS[0] * 10,
+      yMax: Math.max(25, 25) + CORRIDOR_MARGIN_CELLS[0] * 10,
+    };
+    // The fixed region this task makes the scheduler use instead: the bbox
+    // of the path `e1` actually drew, inflated by nodePadding + gridRatio.
+    const actualPathCorridor = boundsOfPolyline(
+      firstRoute.points.map(([pointX, pointY]) => ({ x: pointX, y: pointY })),
+      20,
+    );
+
+    const moverRect = { xMin: 140, yMin: 140, xMax: 210, yMax: 210 };
+    expect(corridorTouchesRects(oldRung0Corridor, [moverRect])).toBe(false);
+    expect(corridorTouchesRects(actualPathCorridor, [moverRect])).toBe(true);
+
+    scheduler.setNodes(wallFixtureNodes(150, 150));
+    await scheduler.flush();
+
+    expect(dispatch).toHaveBeenCalledTimes(2);
+    expect(deps.store.getRoute("e1")).not.toBe(firstRoute);
+  });
+
+  it("companion: still skips the edge when a node moves far from its actual routed path, proving invalidation isn't just disabled", async () => {
+    const dispatch = realDispatch();
+    const deps = makeDeps({ dispatch });
+    const scheduler = createRoutingScheduler(deps);
+
+    scheduler.setNodes(wallFixtureNodes(2000, 2000));
+    scheduler.registerEdge(makeEdge({ id: "e1" }));
+    await scheduler.flush();
+    expect(dispatch).toHaveBeenCalledTimes(1);
+
+    // Moves, but stays far from both the endpoints and the wall detour.
+    scheduler.setNodes(wallFixtureNodes(5000, 5000));
+    await scheduler.flush();
 
     expect(dispatch).toHaveBeenCalledTimes(1);
   });

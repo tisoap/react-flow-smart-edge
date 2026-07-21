@@ -2,13 +2,18 @@ import {
   buildObstacleBoxes,
   isPolylineBlocked,
   nativeStepPolyline,
-  rectIntersectsBox,
 } from "./obstacleIndex";
 import { routeCacheKey } from "./routeCache";
 import { CORRIDOR_MARGIN_CELLS } from "./corridor";
 import { diffNodeSnapshots, corridorTouchesRects } from "./invalidation";
+import {
+  boundsOfPolyline,
+  filterObstaclesInCorridor,
+  obstaclesSignatureOf,
+} from "./invalidationCorridor";
 import type { RouteCache } from "./routeCache";
 import type { ObstacleBox } from "./obstacleIndex";
+import type { EdgeRect } from "./invalidationCorridor";
 import type { SmartEdgeRouteResult } from "./providerStore";
 import type {
   SchedulerDeps,
@@ -19,12 +24,13 @@ import type {
 } from "./scheduler";
 import type { XYPosition } from "@xyflow/react";
 
-/** Axis-aligned rect in graph coordinates — an `ObstacleBox` without the id
- * it doesn't need here. */
-type EdgeRect = Omit<ObstacleBox, "id">;
-
-/** A cached route plus enough to detect a cache-key hash collision: the raw
- * obstacle signature (before hashing) the key's hash was built from. */
+/** A cached route plus enough to detect a cache-key hash collision (the raw
+ * obstacle signature the key's hash was built from) and to re-validate the
+ * hit against the current graph: `corridor` is the bbox of the actual path
+ * this route drew (not the fixed rung-0 guess used only to bucket the
+ * cache's key — see `buildEdgeCorridor`), and `obstaclesSignature` is the
+ * raw signature of the obstacles that were local to that corridor when this
+ * entry was stored. */
 export interface CachedRoute {
   result: SmartEdgeRouteResult;
   obstaclesSignature: string;
@@ -47,6 +53,11 @@ interface FlushContext {
   options: ResolvedProviderOptions;
   cache: RouteCache<CachedRoute>;
   signatures: Map<string, string>;
+  /** Each edge's actual-path invalidation corridor, mirroring `signatures`'
+   * lifecycle: set whenever a route is produced (clear, cache hit, or
+   * dispatch), left untouched for deferred/unchanged edges, and read by
+   * `isEdgeUnchanged` instead of a freshly-guessed one. */
+  pathCorridors: Map<string, EdgeRect>;
 }
 
 interface FlushAccumulators {
@@ -75,9 +86,10 @@ const edgeSignature = (edge: RegisteredSmartEdge): string =>
   });
 
 /** The endpoint bounding box inflated by the first (narrowest) corridor
- * rung's margin — a conservative invalidation region: a wider search that
- * later succeeds on a bigger rung is still safely invalidated because the
- * wider corridor contains this one. */
+ * rung's margin. Kept only to bucket the route cache's key: a wider search
+ * that succeeds on a bigger rung can physically traverse space well outside
+ * this box, so it is deliberately NOT used as an invalidation region (see
+ * `pathCorridors` / `actualPathCorridor` for the region that actually is). */
 const buildEdgeCorridor = (
   edge: RegisteredSmartEdge,
   gridRatio: number,
@@ -92,48 +104,52 @@ const buildEdgeCorridor = (
   };
 };
 
-/** Raw obstacle signature (before hashing) for a corridor's obstacle list,
- * kept alongside the hashed cache key so a hash collision on the key can
- * still be caught by comparing this full string on a hit. */
-const obstaclesSignatureOf = (boxes: ObstacleBox[]): string =>
-  boxes
-    .map((box) => [box.id, box.xMin, box.yMin, box.xMax, box.yMax].join(","))
-    .join("|");
-
-const buildCacheKeyInfo = (
-  edge: RegisteredSmartEdge,
+/** The bbox of an edge's actual rendered path (routed points or the native
+ * polyline), inflated by `nodePadding` plus one grid cell — the edge's real
+ * invalidation corridor. */
+const actualPathCorridor = (
+  points: readonly XYPosition[],
   context: FlushContext,
-) => {
-  const corridor = buildEdgeCorridor(edge, context.options.gridRatio);
-  const corridorObstacles = context.obstacleBoxes.filter((box) =>
-    rectIntersectsBox(
-      corridor.xMin,
-      corridor.yMin,
-      corridor.xMax,
-      corridor.yMax,
-      box,
-    ),
+): EdgeRect =>
+  boundsOfPolyline(
+    points,
+    context.options.nodePadding + context.options.gridRatio,
   );
 
-  return {
-    key: routeCacheKey(edge, context.optionsKey, corridorObstacles),
+/** Builds the route-cache key for one edge: coordinates/options plus a hash
+ * of the obstacles local to the rung-0 corridor (a fast bucket only — a
+ * cache-key hit is re-validated against the actual-path corridor by
+ * `findCacheHit` before being trusted). */
+const buildCacheKey = (
+  edge: RegisteredSmartEdge,
+  context: FlushContext,
+): string => {
+  const corridor = buildEdgeCorridor(edge, context.options.gridRatio);
+  const corridorObstacles = filterObstaclesInCorridor(
     corridor,
-    corridorObstacles,
-  };
+    context.obstacleBoxes,
+  );
+
+  return routeCacheKey(edge, context.optionsKey, corridorObstacles);
 };
 
-/** A cache hit only counts if the raw obstacle list it was built from still
- * matches — guards against the (extremely rare) djb2 hash collision the key
- * itself can't detect on its own. */
+/** A cache-key hit only counts if the obstacles local to the cached route's
+ * actual-path corridor still match what it was stored with — this is what
+ * catches both a (extremely rare) djb2 hash collision the key can't detect
+ * on its own, and a real obstacle change in the band the path traverses
+ * that the rung-0 key bucket never saw. */
 const findCacheHit = (
   edge: RegisteredSmartEdge,
   context: FlushContext,
 ): CachedRoute | undefined => {
-  const { key, corridorObstacles } = buildCacheKeyInfo(edge, context);
-  const cached = context.cache.get(key);
+  const cached = context.cache.get(buildCacheKey(edge, context));
   if (cached === undefined) return undefined;
 
-  return cached.obstaclesSignature === obstaclesSignatureOf(corridorObstacles)
+  const currentObstacles = filterObstaclesInCorridor(
+    cached.corridor,
+    context.obstacleBoxes,
+  );
+  return cached.obstaclesSignature === obstaclesSignatureOf(currentObstacles)
     ? cached
     : undefined;
 };
@@ -145,23 +161,32 @@ const isEdgeDragging = (
 ): boolean =>
   draggingNodeIds.has(edge.source) || draggingNodeIds.has(edge.target);
 
-/** Whether `edge` can skip this flush entirely: not forced past this check
+/** Whether `edge` can skip this flush entirely: it has a stored actual-path
+ * corridor from a previous flush (absent means it was never routed, or its
+ * last result never produced one — e.g. a non-routed dispatch response —
+ * either way it cannot be "unchanged"), it isn't forced past this check
  * (e.g. by a just-ended drag), its registration signature is exactly what it
- * was last time it was processed, and no changed rect this flush touches its
- * routing corridor. */
+ * was last time it was processed, and no changed rect this flush touches
+ * that stored corridor. */
 const isEdgeUnchanged = (
   edgeId: string,
   currentSignature: string,
-  corridor: EdgeRect,
   context: FlushContext,
-): boolean =>
-  !context.forcedEdgeIds.has(edgeId) &&
-  context.signatures.get(edgeId) === currentSignature &&
-  !corridorTouchesRects(corridor, context.changedRects);
+): boolean => {
+  const corridor = context.pathCorridors.get(edgeId);
+
+  return (
+    corridor !== undefined &&
+    !context.forcedEdgeIds.has(edgeId) &&
+    context.signatures.get(edgeId) === currentSignature &&
+    !corridorTouchesRects(corridor, context.changedRects)
+  );
+};
 
 /** The polyline this edge would render natively (no smart routing): a
  * straight segment for bezier/straight/simplebezier presets, the Z/L step
- * skeleton for step/smoothstep. Used only to answer "is it already clear?" */
+ * skeleton for step/smoothstep. Used to answer "is it already clear?" and,
+ * when it is, doubles as its actual-path corridor. */
 const nativePolylineFor = (edge: RegisteredSmartEdge): XYPosition[] =>
   STEP_LIKE_PRESETS.has(edge.preset)
     ? nativeStepPolyline(
@@ -184,7 +209,10 @@ const nativePolylineFor = (edge: RegisteredSmartEdge): XYPosition[] =>
  * `deferred` and `unchanged` updates the edge's last-processed signature;
  * leaving it stale while deferred is what lets a drag-end force a real
  * re-decision even though the edge's own registration never changed while
- * it was being skipped. */
+ * it was being skipped. Every outcome that produces a route (cache hit,
+ * clear) also records its actual-path corridor for the next flush; a
+ * dispatched edge's corridor is recorded later, once its route arrives (see
+ * `dispatchAndMerge`). */
 const processEdge = (
   edge: RegisteredSmartEdge,
   context: FlushContext,
@@ -200,8 +228,7 @@ const processEdge = (
   }
 
   const currentSignature = edgeSignature(edge);
-  const corridor = buildEdgeCorridor(edge, context.options.gridRatio);
-  if (isEdgeUnchanged(edge.id, currentSignature, corridor, context)) {
+  if (isEdgeUnchanged(edge.id, currentSignature, context)) {
     accumulators.counts.unchanged += 1;
     return;
   }
@@ -212,20 +239,17 @@ const processEdge = (
   if (cachedRoute) {
     accumulators.counts.cacheHits += 1;
     accumulators.routeMerges[edge.id] = cachedRoute.result;
+    context.pathCorridors.set(edge.id, cachedRoute.corridor);
     return;
   }
 
   if (context.options.routeOnlyWhenBlocked) {
+    const polyline = nativePolylineFor(edge);
     const excludeIds = new Set([edge.source, edge.target]);
-    if (
-      !isPolylineBlocked(
-        nativePolylineFor(edge),
-        context.obstacleBoxes,
-        excludeIds,
-      )
-    ) {
+    if (!isPolylineBlocked(polyline, context.obstacleBoxes, excludeIds)) {
       accumulators.counts.clear += 1;
       accumulators.routeMerges[edge.id] = { kind: "clear", wasRouted: false };
+      context.pathCorridors.set(edge.id, actualPathCorridor(polyline, context));
       return;
     }
   }
@@ -264,6 +288,7 @@ const buildFlushContext = (
     options: deps.options,
     cache: state.cache,
     signatures: state.signatures,
+    pathCorridors: state.pathCorridors,
   };
 };
 
@@ -303,13 +328,19 @@ const dispatchAndMerge = async (
   Object.entries(outcome.results).forEach(([edgeId, result]) => {
     dispatchMerges[edgeId] = result;
     const dispatchedEdge = state.edges.get(edgeId);
-    if (!dispatchedEdge) return;
+    if (!dispatchedEdge || result.kind !== "routed") return;
 
-    const info = buildCacheKeyInfo(dispatchedEdge, context);
-    state.cache.set(info.key, {
+    const corridor = actualPathCorridor(
+      result.points.map(([pointX, pointY]) => ({ x: pointX, y: pointY })),
+      context,
+    );
+    state.pathCorridors.set(edgeId, corridor);
+    state.cache.set(buildCacheKey(dispatchedEdge, context), {
       result,
-      obstaclesSignature: obstaclesSignatureOf(info.corridorObstacles),
-      corridor: info.corridor,
+      corridor,
+      obstaclesSignature: obstaclesSignatureOf(
+        filterObstaclesInCorridor(corridor, context.obstacleBoxes),
+      ),
     });
   });
 
