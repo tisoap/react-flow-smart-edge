@@ -5,6 +5,7 @@ import { createSmartEdgeStore } from "./providerStore";
 import { createRoutingScheduler } from "./scheduler";
 import {
   SmartEdgeRoutingContext,
+  diffResolvedProviderOptions,
   resolveProviderOptions,
 } from "./routingContext";
 import { dispatchOnMainThread, createWorkerDispatcher } from "./workerDispatch";
@@ -100,6 +101,17 @@ interface Controller extends SmartEdgeContextValue {
   ) => void;
   /** Replaces the absolute-node snapshot `getNodesSnapshot` returns. */
   setAbsoluteNodes: (nodes: Node[]) => void;
+  /** Applies a newly resolved options object in place. Returns true when
+   * anything changed (so React context can re-render). Routing-affecting
+   * changes also drop the route cache. */
+  setOptions: (options: ResolvedProviderOptions) => boolean;
+  /** Subscribes to options changes applied by `setOptions`. The listener
+   * runs synchronously right after the live object is mutated, receiving a
+   * shallow copy of the now-current options. Returns an unsubscribe
+   * function. */
+  subscribeOptions: (
+    listener: (options: ResolvedProviderOptions) => void,
+  ) => () => void;
 }
 
 const createController = (
@@ -111,6 +123,9 @@ const createController = (
   let routingNodes: Node[] = [];
   let nextOrder = 0;
   let activeScheduler: RoutingScheduler | null = null;
+  const optionsListeners = new Set<
+    (options: ResolvedProviderOptions) => void
+  >();
   const registrations = new Map<string, RegisteredSmartEdge>();
   const schedulerUnregisterFns = new Map<string, () => void>();
   // First-seen paint order per edge id. Never evicted for the lifetime of
@@ -184,6 +199,7 @@ const createController = (
   return {
     store,
     options: resolvedOptions,
+    optionsEpoch: resolvedOptions,
     registerEdge,
     getRegistrationsInOrder: () =>
       [...registrations.values()].sort(
@@ -204,6 +220,23 @@ const createController = (
     },
     setAbsoluteNodes: (nodes) => {
       absoluteNodes = nodes;
+    },
+    setOptions: (next) => {
+      const diff = diffResolvedProviderOptions(resolvedOptions, next);
+      if (!diff.any) return false;
+      Object.assign(resolvedOptions, next);
+      if (diff.routing) activeScheduler?.invalidateRoutes();
+      const snapshot = { ...resolvedOptions };
+      optionsListeners.forEach((listener) => {
+        listener(snapshot);
+      });
+      return true;
+    },
+    subscribeOptions: (listener) => {
+      optionsListeners.add(listener);
+      return () => {
+        optionsListeners.delete(listener);
+      };
     },
   };
 };
@@ -226,10 +259,35 @@ export function SmartEdgeProvider({
   const [controller] = useState(() =>
     createController(resolveProviderOptions(options)),
   );
+  // Version tag for the context value. `setOptions` mutates the controller's
+  // options object in place (the scheduler closes over that exact
+  // reference), so a changed `options` prop leaves the object identity
+  // intact. This tag is what changes identity instead, so memoized
+  // descendants re-read `controller.options` after a live update.
+  const [optionsEpoch, setOptionsEpoch] = useState<ResolvedProviderOptions>(
+    () => controller.options,
+  );
 
   useEffect(() => {
     controller.setOnMetrics(onMetrics);
   }, [controller, onMetrics]);
+
+  // The controller's options object is external, mutable state from React's
+  // perspective, so syncing the `options` prop into it is a genuine effect.
+  useEffect(() => {
+    controller.setOptions(resolveProviderOptions(options));
+  }, [controller, options]);
+
+  // The epoch update lives in a subscription callback, not in the sync
+  // effect above: effects may only call setState in response to an external
+  // system's notification, and the controller is that system here.
+  useEffect(
+    () =>
+      controller.subscribeOptions((appliedOptions) => {
+        setOptionsEpoch(appliedOptions);
+      }),
+    [controller],
+  );
 
   useEffect(() => {
     controller.setAbsoluteNodes(getAbsoluteNodes(nodes));
@@ -269,8 +327,9 @@ export function SmartEdgeProvider({
       registerEdge: controller.registerEdge,
       getRegistrationsInOrder: controller.getRegistrationsInOrder,
       getNodesSnapshot: controller.getNodesSnapshot,
+      optionsEpoch,
     }),
-    [controller],
+    [controller, optionsEpoch],
   );
 
   return (

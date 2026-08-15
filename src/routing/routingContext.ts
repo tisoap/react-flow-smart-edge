@@ -33,6 +33,12 @@ export type SmartEdgeProviderOptions = Partial<ResolvedProviderOptions>;
 export interface SmartEdgeContextValue {
   store: SmartEdgeStore;
   options: ResolvedProviderOptions;
+  /** Version tag identifying the current `options` contents. The provider
+   * mutates its live options object in place (the scheduler closes over
+   * that reference), so `options` identity alone never changes; this tag
+   * does, whenever an options update lands. Internal: descendants should
+   * read `options`, not this field. */
+  optionsEpoch: ResolvedProviderOptions;
   /** Registers one edge's routing geometry, assigning it the next
    * registration order. Returns an unregister function. */
   registerEdge: (edge: Omit<RegisteredSmartEdge, "order">) => () => void;

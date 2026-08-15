@@ -66,6 +66,23 @@ const nodes: Node[] = [
   },
 ];
 
+/** Two nodes with nothing between them, so `routeOnlyWhenBlocked: true`
+ * yields `kind: "clear"` for the edge that joins them. */
+const clearPair: Node[] = [
+  {
+    id: "a",
+    position: { x: 0, y: 0 },
+    measured: { width: 50, height: 50 },
+    data: {},
+  },
+  {
+    id: "b",
+    position: { x: 300, y: 0 },
+    measured: { width: 50, height: 50 },
+    data: {},
+  },
+];
+
 const edgeA: Omit<RegisteredSmartEdge, "order"> = {
   id: "e1",
   source: "a",
@@ -386,5 +403,139 @@ describe("SmartEdgeProvider", () => {
       "e1",
       "e2",
     ]);
+  });
+
+  it("applies a live options update without remounting", async () => {
+    vi.stubGlobal("Worker", undefined);
+    const onMetrics = vi.fn<(metrics: SmartEdgeMetrics) => void>();
+    const contextBox = createContextBox();
+
+    const { rerender } = render(
+      <SmartEdgeProvider
+        nodes={clearPair}
+        options={{ routeOnlyWhenBlocked: true }}
+        onMetrics={onMetrics}
+      >
+        <EdgeRegistrar
+          edge={edgeA}
+          onContext={(context) => {
+            contextBox.current = context;
+          }}
+        />
+      </SmartEdgeProvider>,
+    );
+
+    await flushDebounce();
+    expect(contextBox.current?.store.getRoute("e1")).toEqual({
+      kind: "clear",
+      wasRouted: false,
+    });
+    const metricsAfterClear = onMetrics.mock.calls.length;
+
+    rerender(
+      <SmartEdgeProvider
+        nodes={clearPair}
+        options={{ routeOnlyWhenBlocked: false }}
+        onMetrics={onMetrics}
+      >
+        <EdgeRegistrar
+          edge={edgeA}
+          onContext={(context) => {
+            contextBox.current = context;
+          }}
+        />
+      </SmartEdgeProvider>,
+    );
+
+    await flushDebounce();
+
+    expect(contextBox.current?.store.getRoute("e1")).toMatchObject({
+      kind: "routed",
+      wasRouted: true,
+    });
+    expect(onMetrics.mock.calls.length).toBeGreaterThan(metricsAfterClear);
+  });
+
+  it("does not extra-invalidate when options values are unchanged", async () => {
+    vi.stubGlobal("Worker", undefined);
+    const onMetrics = vi.fn<(metrics: SmartEdgeMetrics) => void>();
+    const contextBox = createContextBox();
+
+    const { rerender } = render(
+      <SmartEdgeProvider
+        nodes={clearPair}
+        options={{ gridRatio: 10 }}
+        onMetrics={onMetrics}
+      >
+        <EdgeRegistrar
+          edge={edgeA}
+          onContext={(context) => {
+            contextBox.current = context;
+          }}
+        />
+      </SmartEdgeProvider>,
+    );
+
+    await flushDebounce();
+    const callsAfterFirst = onMetrics.mock.calls.length;
+
+    rerender(
+      <SmartEdgeProvider
+        nodes={clearPair}
+        options={{ gridRatio: 10 }}
+        onMetrics={onMetrics}
+      >
+        <EdgeRegistrar
+          edge={edgeA}
+          onContext={(context) => {
+            contextBox.current = context;
+          }}
+        />
+      </SmartEdgeProvider>,
+    );
+
+    await flushDebounce();
+
+    expect(onMetrics.mock.calls).toHaveLength(callsAfterFirst);
+    expect(contextBox.current?.options.gridRatio).toBe(10);
+  });
+
+  it("updates dragFallbackStyle on context without remounting", async () => {
+    vi.stubGlobal("Worker", undefined);
+    const contextBox = createContextBox();
+
+    const { rerender } = render(
+      <SmartEdgeProvider nodes={clearPair}>
+        <EdgeRegistrar
+          edge={edgeA}
+          onContext={(context) => {
+            contextBox.current = context;
+          }}
+        />
+      </SmartEdgeProvider>,
+    );
+
+    await flushDebounce();
+    expect(contextBox.current?.options.dragFallbackStyle).toEqual({
+      strokeDasharray: "5 5",
+    });
+
+    rerender(
+      <SmartEdgeProvider
+        nodes={clearPair}
+        options={{ dragFallbackStyle: { opacity: 0.4 } }}
+      >
+        <EdgeRegistrar
+          edge={edgeA}
+          onContext={(context) => {
+            contextBox.current = context;
+          }}
+        />
+      </SmartEdgeProvider>,
+    );
+
+    expect(contextBox.current?.options.dragFallbackStyle).toEqual({
+      opacity: 0.4,
+    });
   });
 });
