@@ -1,6 +1,7 @@
 import { Position } from "@xyflow/react";
 import { act, render, screen } from "@testing-library/react";
 import { StrictMode, useContext, useEffect } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { SmartEdgeProvider } from "./SmartEdgeProvider";
 import { SmartEdgeRoutingContext } from "./routingContext";
@@ -537,5 +538,24 @@ describe("SmartEdgeProvider", () => {
     expect(contextBox.current?.options.dragFallbackStyle).toEqual({
       opacity: 0.4,
     });
+  });
+
+  it("renders on the server, reading options from the server snapshot", () => {
+    const contextBox = createContextBox();
+
+    // Server rendering has no DOM and no effects: `useSyncExternalStore`
+    // reads its `getServerSnapshot` argument instead of subscribing. Without
+    // that third argument this render throws "Missing getServerSnapshot".
+    renderToStaticMarkup(
+      <SmartEdgeProvider nodes={clearPair} options={{ gridRatio: 7 }}>
+        <ContextCapture
+          onContext={(context) => {
+            contextBox.current = context;
+          }}
+        />
+      </SmartEdgeProvider>,
+    );
+
+    expect(contextBox.current?.options.gridRatio).toBe(7);
   });
 });

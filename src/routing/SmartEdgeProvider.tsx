@@ -283,6 +283,10 @@ export function SmartEdgeProvider({
   const optionsSnapshot = useSyncExternalStore(
     controller.subscribeOptions,
     controller.getOptionsSnapshot,
+    // Server rendering never subscribes, and the snapshot is immutable until
+    // a real options change (which effects-only `setOptions` cannot cause on
+    // the server), so the same getter is a valid server snapshot.
+    controller.getOptionsSnapshot,
   );
 
   useEffect(() => {
