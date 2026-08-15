@@ -44,6 +44,15 @@ describe("public export surface (v5)", () => {
     expect(typeof pkg.getEdgePosition).toBe("function");
   });
 
+  it("exports FlatGrid helpers for custom generatePath", () => {
+    expect(typeof pkg.createFlatGrid).toBe("function");
+    expect(typeof pkg.cloneFlatGrid).toBe("function");
+    expect(typeof pkg.isInside).toBe("function");
+    expect(typeof pkg.isWalkable).toBe("function");
+    expect(typeof pkg.setBlocked).toBe("function");
+    expect(typeof pkg.blockCellRange).toBe("function");
+  });
+
   it("no longer exports the retired 4.13 batch-routing API", () => {
     expect(pkg).not.toHaveProperty("SmartEdgeBatchRoutingProvider");
     expect(pkg).not.toHaveProperty("useSmartEdgeRoute");

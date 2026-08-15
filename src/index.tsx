@@ -32,6 +32,14 @@ export {
   getNodeIntersection,
   getEdgePosition,
 } from "./functions/getFloatingEdgeParams";
+export {
+  createFlatGrid,
+  cloneFlatGrid,
+  isInside,
+  isWalkable,
+  setBlocked,
+  blockCellRange,
+} from "./pathfinding/flatGrid";
 
 export type {
   SmartEdgeOptions,
