@@ -76,6 +76,12 @@ interface RouteCacheEdge {
   targetPosition: string;
   preset: string;
   waypoints?: { x: number; y: number }[];
+  options?: {
+    gridRatio?: number;
+    nodePadding?: number;
+    avoidAreas?: { x: number; y: number; width: number; height: number }[];
+    borderRadius?: number;
+  };
 }
 
 const quantize = (value: number): number => Math.round(value);
@@ -91,9 +97,11 @@ const waypointKeyPart = (point: { x: number; y: number }): string =>
  * are quantized with `Math.round` so sub-pixel layout jitter still hits the
  * cache, while the corridor's obstacle list is hashed so any change to the
  * *local* obstacle set (an added, removed, or moved node) busts it.
- * `corridorObstacles` is expected to already be filtered to the routing
- * corridor by the caller — an obstacle outside it is simply absent from the
- * list and cannot affect the key.
+ * Per-edge options (`gridRatio`, `nodePadding`, `avoidAreas`, `borderRadius`)
+ * are serialized so `createSmartEdge(..., { gridRatio: 5 })` cannot reuse a
+ * path computed under different overrides. `corridorObstacles` is expected
+ * to already be filtered to the routing corridor by the caller — an obstacle
+ * outside it is simply absent from the list and cannot affect the key.
  */
 export const routeCacheKey = (
   edge: RouteCacheEdge,
@@ -115,6 +123,7 @@ export const routeCacheKey = (
     edge.preset,
     waypointsKey,
     optionsKey,
+    JSON.stringify(edge.options ?? null),
     obstaclesKey,
   ].join("|");
 };

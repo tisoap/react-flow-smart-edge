@@ -204,4 +204,21 @@ describe("routeCacheKey", () => {
     expect(keyWithWaypoint).toBe(keyWithJitteredWaypoint);
     expect(keyWithWaypoint).not.toBe(keyWithoutWaypoint);
   });
+
+  it("changes when per-edge options change", () => {
+    const keyDefault = routeCacheKey(baseEdge, optionsKey, []);
+    const keyFineGrid = routeCacheKey(
+      { ...baseEdge, options: { gridRatio: 5 } },
+      optionsKey,
+      [],
+    );
+    const keyFineGridAgain = routeCacheKey(
+      { ...baseEdge, options: { gridRatio: 5 } },
+      optionsKey,
+      [],
+    );
+
+    expect(keyDefault).not.toBe(keyFineGrid);
+    expect(keyFineGrid).toBe(keyFineGridAgain);
+  });
 });

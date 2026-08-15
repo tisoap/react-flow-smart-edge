@@ -243,6 +243,39 @@ describe("createRoutingScheduler: per-edge decisions (behavior 3)", () => {
     expect(deps.store.getRoute("hit")).toBe(deps.store.getRoute("seed"));
   });
 
+  it("does not cache-hit an edge whose per-edge gridRatio differs", async () => {
+    const dispatch = autoDispatch();
+    const deps = makeDeps({ dispatch });
+    const scheduler = createRoutingScheduler(deps);
+
+    scheduler.setNodes([makeNode("a", 0, 0), makeNode("b", 300, 0)]);
+    scheduler.registerEdge(makeEdge({ id: "seed" }));
+    await scheduler.flush();
+    expect(dispatch).toHaveBeenCalledTimes(1);
+
+    scheduler.registerEdge(makeEdge({ id: "fine", options: { gridRatio: 5 } }));
+    await scheduler.flush();
+
+    expect(dispatch).toHaveBeenCalledTimes(2);
+  });
+
+  it("still cache-hits a second edge with the same per-edge options", async () => {
+    const dispatch = autoDispatch();
+    const deps = makeDeps({ dispatch });
+    const scheduler = createRoutingScheduler(deps);
+
+    scheduler.setNodes([makeNode("a", 0, 0), makeNode("b", 300, 0)]);
+    scheduler.registerEdge(makeEdge({ id: "seed", options: { gridRatio: 5 } }));
+    await scheduler.flush();
+    expect(dispatch).toHaveBeenCalledTimes(1);
+
+    scheduler.registerEdge(makeEdge({ id: "hit", options: { gridRatio: 5 } }));
+    await scheduler.flush();
+
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(deps.store.getRoute("hit")).toBe(deps.store.getRoute("seed"));
+  });
+
   it("publishes a clear result when the native (bezier) polyline is unblocked and routeOnlyWhenBlocked is set", async () => {
     const dispatch = autoDispatch();
     const deps = makeDeps({
