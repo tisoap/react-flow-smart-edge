@@ -347,13 +347,20 @@ const largeNetworkMeta = { nodeCount: 750, seed: 1 };
  * Kept as a real interaction test (not render-only): measured locally in the
  * Storybook Vitest browser runner, the 750-node/~1125-edge batch reports
  * `batchLatencyMs` around 2.2s (roughly 336 routed, 789 clear, 0 deferred),
- * and the whole play function — including React Flow's initial render,
- * measurement, and `fitView` — finishes in around 11-12s. Shared CI runners
+ * and the whole play function finishes in around 11-12s. Shared CI runners
  * have measured ~6.5s batch latency for the same fixture, so the per-batch
- * ceiling is 10s when `process.env.CI` is set. See
- * `.superpowers/sdd/task-19-report.md` for the full observed numbers.
+ * ceiling is 10s when `process.env.CI` is set. Chromatic skips this story
+ * (`chromatic.disableSnapshot`): a 750-node interaction is too heavy and
+ * race-prone for Chromatic's capture pipeline; coverage stays in Storybook
+ * Vitest. See `.superpowers/sdd/task-19-report.md` for the full observed
+ * numbers.
  */
 export const LargeNetwork750: Story = {
+  parameters: {
+    // Turns off Chromatic snapshots and interaction runs for this story.
+    // The play function still runs under Storybook Vitest (`npm run test`).
+    chromatic: { disableSnapshot: true },
+  },
   render: () => (
     <LargeNetworkDemo
       nodeCount={largeNetworkMeta.nodeCount}
