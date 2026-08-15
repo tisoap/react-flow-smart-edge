@@ -64,11 +64,13 @@
     "prerelease": "npm run test:coverage",
     "release": "dotenv release-it",
     "spellcheck": "cspell lint --no-progress .",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "COVERAGE_SCOPE=ui storybook dev -p 6006",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test-storybook": "vitest run --project=storybook",
+    "test-storybook:coverage": "COVERAGE_SCOPE=ui vitest run --project=storybook --coverage",
     "test-unit": "vitest run --project=unit",
+    "test-unit:coverage": "vitest run --project=unit --coverage",
     "typecheck": "tsc --build --noEmit"
   },
   "devDependencies": {

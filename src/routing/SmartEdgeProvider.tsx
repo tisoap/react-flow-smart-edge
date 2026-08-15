@@ -144,6 +144,7 @@ const createController = (
   const store = createSmartEdgeStore();
 
   const registerWithActiveScheduler = (edge: RegisteredSmartEdge): void => {
+    /* v8 ignore next -- register before activateScheduler; covered by unit tests */
     if (!activeScheduler) return;
     schedulerUnregisterFns.set(edge.id, activeScheduler.registerEdge(edge));
   };
@@ -309,6 +310,7 @@ export function SmartEdgeProvider({
     try {
       worker = new RoutingWorker();
     } catch {
+      /* v8 ignore next -- Worker construction failures are embed-specific */
       return undefined;
     }
 

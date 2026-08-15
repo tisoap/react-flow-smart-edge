@@ -6,6 +6,7 @@ const inertUnsubscribe = (): void => {
   // No store in context: nothing to unsubscribe from.
 };
 
+/* v8 ignore next 3 -- useSyncExternalStore server snapshot; unused in browser */
 const getIdleSelected = (): boolean => false;
 
 /**

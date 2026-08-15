@@ -11,8 +11,8 @@ import {
   expectEdgePaths,
   expectPathAvoidsRect,
   expectStraightOrStepPaths,
-  interactWithEditableEdge,
 } from "./storyPlayHelpers";
+import { interactWithEditableEdge } from "./storyEditablePlay";
 import { demoAvoidAreas } from "../demos/DummyData";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 

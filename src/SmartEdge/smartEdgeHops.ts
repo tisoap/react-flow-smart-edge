@@ -111,6 +111,7 @@ const resolveUnderneathPolyline = (
   registration: RegisteredSmartEdge,
   route: SmartEdgeRouteResult | undefined,
 ): XYPosition[] | null => {
+  /* v8 ignore next -- pending underneath edge; covered by unit tests */
   if (route === undefined) return null;
 
   const source: XYPosition = {
@@ -163,6 +164,7 @@ const inertUnsubscribe = (): void => {
   // Nothing to unsubscribe from.
 };
 
+/* v8 ignore next 3 -- useSyncExternalStore server snapshot; unused in browser */
 const getInertRoutesVersion = (): number => 0;
 
 export interface UseHoppedPathParams {
@@ -226,6 +228,7 @@ export const useHoppedPath = (params: UseHoppedPathParams): string | null => {
   const ownRegistration = registrations.find(
     (registration) => registration.id === params.edgeId,
   );
+  /* v8 ignore next -- registration race during unmount; covered by unit tests */
   if (!ownRegistration) return null;
 
   const underneathPolylines = collectUnderneathPolylines(

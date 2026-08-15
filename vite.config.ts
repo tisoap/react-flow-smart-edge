@@ -14,8 +14,34 @@ const dirname =
 
 const storybookBrowserProvider = playwright({});
 
-/** Source files counted toward library coverage (excludes Storybook-only fixtures). */
-const coverageInclude = ["src/**/*.{ts,tsx}"];
+/**
+ * Source files counted toward library coverage (excludes Storybook-only
+ * fixtures). `COVERAGE_SCOPE=ui` narrows the report to the React edge surface
+ * that stories are responsible for; leave unset for the full-library gate.
+ * Pure helpers under `SmartEdge/` that stories only reach defensively stay on
+ * the unit project's full-include gate instead.
+ */
+const coverageInclude =
+  process.env["COVERAGE_SCOPE"] === "ui"
+    ? [
+        "src/SmartEdge/**/*.{ts,tsx}",
+        "src/SmartBezierEdge/**/*.{ts,tsx}",
+        "src/SmartStraightEdge/**/*.{ts,tsx}",
+        "src/SmartStepEdge/**/*.{ts,tsx}",
+        "src/SmartSmoothStepEdge/**/*.{ts,tsx}",
+        "src/SmartSimpleBezierEdge/**/*.{ts,tsx}",
+        "src/SmartEditableEdge/**/*.{ts,tsx}",
+        "src/SmartCheckpointEdge/**/*.{ts,tsx}",
+        "src/SmartFloatingEdge/**/*.{ts,tsx}",
+        "src/SmartFloatingConnectionLine/**/*.{ts,tsx}",
+        "src/createSmartEdge/**/*.{ts,tsx}",
+        "src/smartEdgePresets.ts",
+        "src/index.tsx",
+        "src/routing/SmartEdgeProvider.tsx",
+        "src/routing/routingContext.ts",
+        "src/routing/useSmartEdgePath.ts",
+      ]
+    : ["src/**/*.{ts,tsx}"];
 const coverageExclude = [
   "src/stories/**",
   "src/demos/**",
@@ -23,6 +49,13 @@ const coverageExclude = [
   "src/**/*.test.tsx",
   "src/**/*.worker.ts",
   "src/vite-env.d.ts",
+  ...(process.env["COVERAGE_SCOPE"] === "ui"
+    ? [
+        "src/SmartEdge/controlPointGeometry.ts",
+        "src/SmartEdge/smartEdgeData.ts",
+        "src/SmartEdge/noProviderWarning.ts",
+      ]
+    : []),
 ];
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon

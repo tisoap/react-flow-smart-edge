@@ -1,4 +1,4 @@
-import { expect, userEvent, waitFor } from "storybook/test";
+import { userEvent, waitFor } from "storybook/test";
 
 export interface DemoStoryPlayContext {
   canvasElement: HTMLElement;
@@ -203,52 +203,6 @@ export async function dragSmartConnectionPreview(
       throw new Error("smart connection preview path not rendered");
     return path;
   });
-}
-
-export async function interactWithEditableEdge(canvasElement: HTMLElement) {
-  await expectGraphRendered(canvasElement);
-
-  const controlPoints = await waitFor(() => {
-    const circles = canvasElement.querySelectorAll<SVGCircleElement>(
-      CONTROL_POINT_SELECTOR,
-    );
-    if (circles.length === 0) throw new Error("control points not rendered");
-    return circles;
-  });
-
-  await expect(controlPoints.length).toBeGreaterThanOrEqual(3);
-
-  const activePoint = canvasElement.querySelector<SVGCircleElement>(
-    "circle.active[data-testid='smart-edge-control-point']",
-  );
-  if (!activePoint) throw new Error("active control point not found");
-
-  const edgePath =
-    canvasElement.querySelector<SVGPathElement>(EDGE_PATH_SELECTOR);
-  if (!edgePath) throw new Error("edge path not rendered");
-  const initialPath = edgePath.getAttribute("d");
-
-  await userEvent.click(activePoint);
-  await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
-
-  await waitFor(() => {
-    const path =
-      canvasElement.querySelector<SVGPathElement>(EDGE_PATH_SELECTOR);
-    if (!path) throw new Error("edge path not rendered");
-    if (path.getAttribute("d") === initialPath) {
-      throw new Error("edge path did not change after moving the waypoint");
-    }
-  });
-
-  const inactivePoint = canvasElement.querySelector<SVGCircleElement>(
-    `${CONTROL_POINT_SELECTOR}:not(.active)`,
-  );
-  if (inactivePoint) {
-    await userEvent.click(inactivePoint);
-  }
-
-  activePoint.focus();
-  await userEvent.keyboard("{Delete}");
 }
 
 /**

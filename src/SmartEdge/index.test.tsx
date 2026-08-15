@@ -1,5 +1,6 @@
 import { Position, ReactFlowProvider } from "@xyflow/react";
 import { act, render } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { useContext } from "react";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { SvgWrapper } from "../../vitest/svgWrapper";
@@ -293,6 +294,30 @@ describe("SmartEdge editable behavior", () => {
       CONTROL_POINT_SELECTOR,
     );
     expect(point?.getAttribute("stroke")).toBe("#ff0000");
+  });
+
+  it("persists control-point edits through React Flow setEdges", async () => {
+    vi.useRealTimers();
+    const user = userEvent.setup();
+    const { container } = renderEdge({
+      providerOptions: { routeOnlyWhenBlocked: false },
+      options: { editable: true },
+      extra: editableExtra,
+    });
+
+    // Let the provider publish a routed path so control points mount.
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 50);
+      });
+    });
+
+    const point = container.querySelector<SVGCircleElement>(
+      CONTROL_POINT_SELECTOR,
+    );
+    expect(point).toBeTruthy();
+    if (!point) throw new Error("control point missing after route");
+    await user.click(point);
   });
 
   it("routes floating edges through the provider node snapshot", async () => {

@@ -17,9 +17,9 @@ import {
   expectBezierCurves,
   expectDemoGraph,
   expectPathAvoidsRect,
-  interactWithEditableEdge,
   waitForRoutedEdge,
 } from "./storyPlayHelpers";
+import { interactWithEditableEdge } from "./storyEditablePlay";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const avoidAreaEdgeTypes = {

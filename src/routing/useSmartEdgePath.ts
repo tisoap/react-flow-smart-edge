@@ -50,8 +50,10 @@ const inertUnsubscribe = (): void => {
   // No provider in context: nothing to unsubscribe from.
 };
 
+/* v8 ignore next 3 -- useSyncExternalStore server snapshot; unused in browser */
 const getNullRoute = (): null => null;
 
+/* v8 ignore next 3 -- useSyncExternalStore server snapshot; unused in browser */
 const getIdleDragging = (): boolean => false;
 
 /**

@@ -102,11 +102,12 @@ Before opening a PR, run at minimum: `npm run check` and `npm run test`.
 
 ## Testing
 
-Vitest runs two projects (`vite.config.ts` → `test.projects`), with 100% coverage thresholds (statements, branches, functions, lines) enforced across both:
+Vitest runs two projects (`vite.config.ts` → `test.projects`), with 100% coverage thresholds (statements, branches, functions, lines):
 
-- `unit`: co-located `src/**/*.test.{ts,tsx}` files in jsdom. Use these for pure logic (geometry, grid, pathfinding, `getSmartEdge`). Run via `npm run test-unit`.
-- `storybook`: Storybook interaction tests run in headless Chromium. Run via `npm run test-storybook`.
-- `npm run test` runs both; `npm run test:coverage` runs both with the coverage gate.
+- `unit`: co-located `src/**/*.test.{ts,tsx}` files in jsdom. Use these for pure logic (geometry, grid, pathfinding, `getSmartEdge`). Run via `npm run test-unit`. Coverage alone: `npm run test-unit:coverage` (full `src/**` include).
+- `storybook`: Storybook interaction tests run in headless Chromium. Run via `npm run test-storybook`. UI-slice coverage alone: `npm run test-storybook:coverage` (`COVERAGE_SCOPE=ui`, edge components + provider only; pure helpers like `controlPointGeometry` / `smartEdgeData` / `noProviderWarning` stay on the unit gate).
+- `npm run test` runs both; `npm run test:coverage` runs both with the full-library coverage gate.
+- `npm run storybook` sets `COVERAGE_SCOPE=ui` so `http://localhost:6006/coverage` matches the storybook UI slice, not the full library.
 
 Other notes:
 
