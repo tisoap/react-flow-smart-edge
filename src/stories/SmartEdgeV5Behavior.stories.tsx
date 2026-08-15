@@ -153,6 +153,7 @@ export const NoProvider: Story = {
           defaultNodes={noProviderNodes}
           defaultEdges={noProviderEdges}
           edgeTypes={edgeTypes}
+          proOptions={{ hideAttribution: true }}
         />
       </div>
     </ReactFlowProvider>

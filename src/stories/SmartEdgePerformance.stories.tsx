@@ -142,6 +142,7 @@ function WorkerPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
             onEdgesChange={onEdgesChange}
             minZoom={0.05}
             fitView
+            proOptions={{ hideAttribution: true }}
           />
         </div>
       </SmartEdgeProvider>
@@ -169,6 +170,7 @@ function MainThreadPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
           onEdgesChange={onEdgesChange}
           minZoom={0.05}
           fitView
+          proOptions={{ hideAttribution: true }}
         />
       </div>
     </ReactFlowProvider>
@@ -285,7 +287,7 @@ function LargeNetworkDemo({ nodeCount, seed }: Readonly<LargeNetworkArgs>) {
         minZoom={0.02}
         fitView
       />
-      <pre data-testid="metrics" style={metricsOverlayStyle}>
+      <pre data-testid="metrics" style={metricsOverlayStyle} tabIndex={0}>
         {JSON.stringify(metrics)}
       </pre>
     </div>

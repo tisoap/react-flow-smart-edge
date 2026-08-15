@@ -53,6 +53,7 @@ function DemoSmartEdgeProvider({
 export const GraphWrapper = ({
   providerOptions,
   onMetrics,
+  proOptions,
   ...props
 }: GraphWrapperProps) => (
   <ReactFlowProvider>
@@ -64,7 +65,10 @@ export const GraphWrapper = ({
         data-testid="graph-wrapper"
         style={{ ...style, position: "relative" }}
       >
-        <ReactFlow {...props} />
+        <ReactFlow
+          {...props}
+          proOptions={{ ...proOptions, hideAttribution: true }}
+        />
       </div>
     </DemoSmartEdgeProvider>
   </ReactFlowProvider>
