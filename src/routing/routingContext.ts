@@ -69,3 +69,37 @@ export const resolveProviderOptions = (
   debounceMs: options.debounceMs ?? 16,
   cacheSize: options.cacheSize ?? 500,
 });
+
+export interface ProviderOptionsDiff {
+  any: boolean;
+  routing: boolean;
+}
+
+const routingSnapshot = (options: ResolvedProviderOptions): string =>
+  JSON.stringify({
+    gridRatio: options.gridRatio,
+    nodePadding: options.nodePadding,
+    avoidAreas: options.avoidAreas,
+    routeOnlyWhenBlocked: options.routeOnlyWhenBlocked,
+    routeWhileDragging: options.routeWhileDragging,
+    cacheSize: options.cacheSize,
+    borderRadius: options.borderRadius,
+    preset: options.preset,
+  });
+
+const presentationSnapshot = (options: ResolvedProviderOptions): string =>
+  JSON.stringify({
+    debounceMs: options.debounceMs,
+    dragFallbackStyle: options.dragFallbackStyle,
+  });
+
+export const diffResolvedProviderOptions = (
+  previous: ResolvedProviderOptions,
+  next: ResolvedProviderOptions,
+): ProviderOptionsDiff => {
+  const routing = routingSnapshot(previous) !== routingSnapshot(next);
+  const presentation =
+    presentationSnapshot(previous) !== presentationSnapshot(next);
+
+  return { any: routing || presentation, routing };
+};

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { resolveProviderOptions } from "./routingContext";
+import {
+  diffResolvedProviderOptions,
+  resolveProviderOptions,
+} from "./routingContext";
 
 describe("resolveProviderOptions", () => {
   it("applies every default when called with no options", () => {
@@ -36,5 +39,42 @@ describe("resolveProviderOptions", () => {
     };
 
     expect(resolveProviderOptions(overrides)).toEqual(overrides);
+  });
+});
+
+describe("diffResolvedProviderOptions", () => {
+  const base = resolveProviderOptions();
+
+  it("returns no change for a structurally equal copy", () => {
+    expect(diffResolvedProviderOptions(base, resolveProviderOptions())).toEqual(
+      { any: false, routing: false },
+    );
+  });
+
+  it("treats gridRatio as a routing change", () => {
+    expect(
+      diffResolvedProviderOptions(
+        base,
+        resolveProviderOptions({ gridRatio: 5 }),
+      ),
+    ).toEqual({ any: true, routing: true });
+  });
+
+  it("treats debounceMs as presentation-only", () => {
+    expect(
+      diffResolvedProviderOptions(
+        base,
+        resolveProviderOptions({ debounceMs: 32 }),
+      ),
+    ).toEqual({ any: true, routing: false });
+  });
+
+  it("treats dragFallbackStyle as presentation-only", () => {
+    expect(
+      diffResolvedProviderOptions(
+        base,
+        resolveProviderOptions({ dragFallbackStyle: { opacity: 0.4 } }),
+      ),
+    ).toEqual({ any: true, routing: false });
   });
 });
