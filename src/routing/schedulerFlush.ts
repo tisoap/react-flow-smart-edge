@@ -297,9 +297,16 @@ const emitMetrics = (
   batchId: number,
   executedOn: "worker" | "main",
   batchLatencyMs: number,
+  mainThreadBlockingMs: number,
   counts: SchedulerCounts,
 ): void => {
-  deps.onMetrics?.({ batchId, executedOn, batchLatencyMs, ...counts });
+  deps.onMetrics?.({
+    batchId,
+    executedOn,
+    batchLatencyMs,
+    mainThreadBlockingMs,
+    ...counts,
+  });
 };
 
 const dispatchAndMerge = async (
@@ -314,7 +321,7 @@ const dispatchAndMerge = async (
   }
 
   if (accumulators.dispatchItems.length === 0) {
-    emitMetrics(deps, batchId, "main", 0, accumulators.counts);
+    emitMetrics(deps, batchId, "main", 0, 0, accumulators.counts);
     return;
   }
 
@@ -353,6 +360,7 @@ const dispatchAndMerge = async (
     batchId,
     outcome.executedOn,
     outcome.durationMs,
+    outcome.executedOn === "main" ? outcome.durationMs : 0,
     accumulators.counts,
   );
 };

@@ -628,6 +628,44 @@ describe("createRoutingScheduler: metrics (behavior 7)", () => {
       deferred: 1,
       unchanged: 1,
       executedOn: "main",
+      mainThreadBlockingMs: 1,
+    });
+  });
+
+  it("reports mainThreadBlockingMs 0 when the batch ran on the worker", async () => {
+    const dispatch = autoDispatch("worker", 7);
+    const onMetrics = vi.fn<(metrics: SmartEdgeMetrics) => void>();
+    const deps = makeDeps({ dispatch, onMetrics });
+    const scheduler = createRoutingScheduler(deps);
+
+    scheduler.setNodes([makeNode("a", 0, 0), makeNode("b", 300, 0)]);
+    scheduler.registerEdge(makeEdge({ id: "e1" }));
+    await scheduler.flush();
+
+    expect(onMetrics.mock.calls[0][0]).toMatchObject({
+      executedOn: "worker",
+      batchLatencyMs: 7,
+      mainThreadBlockingMs: 0,
+    });
+  });
+
+  it("reports mainThreadBlockingMs 0 when a flush dispatches nothing", async () => {
+    const dispatch = autoDispatch();
+    const onMetrics = vi.fn<(metrics: SmartEdgeMetrics) => void>();
+    const deps = makeDeps({ dispatch, onMetrics });
+    const scheduler = createRoutingScheduler(deps);
+
+    scheduler.setNodes([makeNode("a", 0, 0), makeNode("b", 300, 0)]);
+    scheduler.registerEdge(makeEdge({ id: "e1" }));
+    await scheduler.flush();
+    onMetrics.mockClear();
+
+    await scheduler.flush();
+
+    expect(onMetrics.mock.calls[0][0]).toMatchObject({
+      routed: 0,
+      unchanged: 1,
+      mainThreadBlockingMs: 0,
     });
   });
 });

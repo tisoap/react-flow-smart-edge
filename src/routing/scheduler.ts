@@ -14,6 +14,9 @@ export interface SmartEdgeMetrics {
   batchId: number;
   executedOn: "worker" | "main";
   batchLatencyMs: number;
+  /** Time spent running the batch on the main thread. `0` when the batch
+   * ran on the worker, and `0` when the flush dispatched no edges. */
+  mainThreadBlockingMs: number;
   routed: number;
   cacheHits: number;
   clear: number;
