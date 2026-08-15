@@ -58,6 +58,10 @@ export interface SchedulerDeps {
 export interface RoutingScheduler {
   registerEdge(edge: RegisteredSmartEdge): () => void;
   setNodes(nodes: Node[]): void;
+  /** Drops cached routes and per-edge signatures so the next flush
+   * re-decides every registered edge (used when provider options that
+   * affect routing change). */
+  invalidateRoutes(): void;
   /** Test hook: run the pending flush immediately. */
   flush(): Promise<void>;
   dispose(): void;
@@ -90,6 +94,17 @@ export interface SchedulerState {
   timerHandle: ReturnType<typeof setTimeout> | null;
   frameHandle: number | null;
 }
+
+const setsEqual = (
+  first: ReadonlySet<string>,
+  second: ReadonlySet<string>,
+): boolean => {
+  if (first.size !== second.size) return false;
+  for (const item of first) {
+    if (!second.has(item)) return false;
+  }
+  return true;
+};
 
 const cancelScheduledFlush = (state: SchedulerState): void => {
   state.flushScheduled = false;
@@ -163,6 +178,9 @@ const setNodes = (
 ): void => {
   if (state.disposed) return;
 
+  const previousDragging = new Set(
+    state.snapshot.filter((node) => node.dragging).map((node) => node.id),
+  );
   const absoluteNodes = getAbsoluteNodes(nodes);
   const nextSnapshot = snapshotNodes(absoluteNodes);
   const diff = diffNodeSnapshots(
@@ -176,6 +194,20 @@ const setNodes = (
   state.snapshot = nextSnapshot;
 
   deps.store.setNodeState(diff.draggingNodeIds, diff.selectedNodeIds);
+
+  if (!diff.changed && setsEqual(previousDragging, diff.draggingNodeIds)) {
+    return;
+  }
+
+  scheduleFlush(deps, state);
+};
+
+const invalidateRoutes = (deps: SchedulerDeps, state: SchedulerState): void => {
+  if (state.disposed) return;
+
+  state.cache = createRouteCache<CachedRoute>(deps.options.cacheSize);
+  state.signatures.clear();
+  state.pathCorridors.clear();
   scheduleFlush(deps, state);
 };
 
@@ -213,6 +245,9 @@ export const createRoutingScheduler = (
     registerEdge: (edge) => registerEdge(deps, state, edge),
     setNodes: (nodes) => {
       setNodes(deps, state, nodes);
+    },
+    invalidateRoutes: () => {
+      invalidateRoutes(deps, state);
     },
     flush: () => {
       cancelScheduledFlush(state);

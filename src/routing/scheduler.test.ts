@@ -865,3 +865,68 @@ describe("createRoutingScheduler: actual-path corridor invalidation (task 23 reg
     expect(dispatch).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("createRoutingScheduler: selection vs drag vs invalidateRoutes", () => {
+  it("does not dispatch when only node.selected changes", async () => {
+    const dispatch = autoDispatch();
+    const onMetrics = vi.fn();
+    const deps = makeDeps({ dispatch, onMetrics });
+    const scheduler = createRoutingScheduler(deps);
+
+    scheduler.setNodes([makeNode("a", 0, 0), makeNode("b", 300, 0)]);
+    scheduler.registerEdge(makeEdge({ id: "e1" }));
+    await scheduler.flush();
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    onMetrics.mockClear();
+
+    scheduler.setNodes([
+      makeNode("a", 0, 0, { selected: true }),
+      makeNode("b", 300, 0),
+    ]);
+    await vi.runAllTimersAsync();
+
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(onMetrics).not.toHaveBeenCalled();
+    expect(deps.store.getSelectedNodeIds()).toEqual(new Set(["a"]));
+  });
+
+  it("still flushes when dragging flips without a position change", async () => {
+    const dispatch = autoDispatch();
+    const deps = makeDeps({
+      dispatch,
+      options: makeOptions({ routeWhileDragging: false }),
+    });
+    const scheduler = createRoutingScheduler(deps);
+
+    scheduler.setNodes([makeNode("a", 0, 0), makeNode("b", 300, 0)]);
+    scheduler.registerEdge(makeEdge({ id: "e1" }));
+    await scheduler.flush();
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(deps.store.getRoute("e1")).toMatchObject({ kind: "routed" });
+
+    scheduler.setNodes([
+      makeNode("a", 0, 0, { dragging: true }),
+      makeNode("b", 300, 0),
+    ]);
+    await scheduler.flush();
+
+    expect(deps.store.getDraggingNodeIds()).toEqual(new Set(["a"]));
+    expect(dispatch).toHaveBeenCalledTimes(1);
+  });
+
+  it("invalidateRoutes drops the cache so the next flush dispatches again", async () => {
+    const dispatch = autoDispatch();
+    const deps = makeDeps({ dispatch });
+    const scheduler = createRoutingScheduler(deps);
+
+    scheduler.setNodes([makeNode("a", 0, 0), makeNode("b", 300, 0)]);
+    scheduler.registerEdge(makeEdge({ id: "e1" }));
+    await scheduler.flush();
+    expect(dispatch).toHaveBeenCalledTimes(1);
+
+    scheduler.invalidateRoutes();
+    await scheduler.flush();
+
+    expect(dispatch).toHaveBeenCalledTimes(2);
+  });
+});
