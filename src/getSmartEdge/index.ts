@@ -71,9 +71,9 @@ export interface GetSmartEdgeReturn {
   points: number[][];
   /**
    * Always `true` for a result produced by this synchronous routing pass.
-   * The Web Worker batch-routing provider synthesizes placeholder results
-   * with `wasRouted: false` while an edge's async route is still pending, so
-   * consumers can tell a real path apart from a not-yet-routed stand-in.
+   * The provider's `SmartEdgeRouteResult` uses `wasRouted: false` on its
+   * `"clear"` variant (native path, no A*). Pending provider routes are
+   * `null` from `useSmartEdgePath`, not a `wasRouted: false` placeholder.
    */
   wasRouted: true;
 }

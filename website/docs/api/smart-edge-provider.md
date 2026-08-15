@@ -89,16 +89,17 @@ function MySmartEdge(props: EdgeProps) {
 
 Reported once per completed batch via `onMetrics`:
 
-| Field            | Type                 | Description                                                                                   |
-| ---------------- | -------------------- | --------------------------------------------------------------------------------------------- |
-| `batchId`        | `number`             | Monotonically increasing batch counter.                                                       |
-| `executedOn`     | `"worker" \| "main"` | Whether this batch ran on the Web Worker or the main-thread fallback.                         |
-| `batchLatencyMs` | `number`             | Wall-clock time the batch took to route.                                                      |
-| `routed`         | `number`             | Edges that ran pathfinding and produced a path.                                               |
-| `cacheHits`      | `number`             | Edges served from the LRU route cache instead of re-routing.                                  |
-| `clear`          | `number`             | Edges whose direct line was clear, so they render their native path (`routeOnlyWhenBlocked`). |
-| `deferred`       | `number`             | Edges skipped this batch because an endpoint is dragging and `routeWhileDragging` is off.     |
-| `unchanged`      | `number`             | Edges whose obstacles didn't change enough to need a new route.                               |
+| Field                  | Type                 | Description                                                                                                         |
+| ---------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `batchId`              | `number`             | Monotonically increasing batch counter.                                                                             |
+| `executedOn`           | `"worker" \| "main"` | Whether this batch ran on the Web Worker or the main-thread fallback.                                               |
+| `batchLatencyMs`       | `number`             | Wall-clock time the batch took to route.                                                                            |
+| `mainThreadBlockingMs` | `number`             | Time the batch spent on the main thread. `0` when it ran on the worker, and `0` when the flush dispatched no edges. |
+| `routed`               | `number`             | Edges that ran pathfinding and produced a path.                                                                     |
+| `cacheHits`            | `number`             | Edges served from the LRU route cache instead of re-routing.                                                        |
+| `clear`                | `number`             | Edges whose direct line was clear, so they render their native path (`routeOnlyWhenBlocked`).                       |
+| `deferred`             | `number`             | Edges skipped this batch because an endpoint is dragging and `routeWhileDragging` is off.                           |
+| `unchanged`            | `number`             | Edges whose obstacles didn't change enough to need a new route.                                                     |
 
 ## `routeSmartEdgeBatch`
 

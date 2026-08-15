@@ -30,11 +30,11 @@ Between batches, the scheduler diffs the previous node snapshot against the curr
 
 ## Dashed fallback while dragging, routed on drop
 
-While an edge's source or target node is being dragged, and `routeWhileDragging` is `false` (the default), the edge renders its native path styled with `dragFallbackStyle` (a dashed stroke, `{ strokeDasharray: "5 5" }`, by default) instead of re-routing on every drag frame. It routes for real once the drag ends. Set `routeWhileDragging: true` to re-route live during the drag instead, or `dragFallbackStyle: {}` to drop the dashed styling.
+While an edge's source or target node is being dragged, and `routeWhileDragging` is `false` (the default), the edge renders its native path styled with `dragFallbackStyle` (a dashed stroke, `{ strokeDasharray: "5 5" }`, by default) instead of re-routing on every drag frame. It routes for real once the drag ends. Set `routeWhileDragging: true` to re-route live during the drag instead, or `dragFallbackStyle: {}` to drop the dashed styling. Waypoint (control-point) drags do not use `dragFallbackStyle`; they update the registered waypoints and re-route after `debounceMs`.
 
 ## Runtime metrics
 
-Pass `onMetrics` to `SmartEdgeProvider` to observe every completed batch: `batchLatencyMs`, how many edges were `routed`, served from `cacheHits`, marked `clear`, `deferred` (dragging), or `unchanged`, and whether the batch ran on the `"worker"` or the `"main"` thread. See [`SmartEdgeMetrics`](../api/smart-edge-provider#smartedgemetrics) for the full field list.
+Pass `onMetrics` to `SmartEdgeProvider` to observe every completed batch: `batchLatencyMs` and `mainThreadBlockingMs`, how many edges were `routed`, served from `cacheHits`, marked `clear`, `deferred` (dragging), or `unchanged`, and whether the batch ran on the `"worker"` or the `"main"` thread. See [`SmartEdgeMetrics`](../api/smart-edge-provider#smartedgemetrics) for the full field list.
 
 ## Benchmarks
 
