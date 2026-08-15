@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { getAbsoluteNodes } from "../functions";
 import RoutingWorker from "./routing.worker?worker&inline";
 import { createSmartEdgeStore } from "./providerStore";
@@ -105,13 +105,15 @@ interface Controller extends SmartEdgeContextValue {
    * anything changed (so React context can re-render). Routing-affecting
    * changes also drop the route cache. */
   setOptions: (options: ResolvedProviderOptions) => boolean;
-  /** Subscribes to options changes applied by `setOptions`. The listener
-   * runs synchronously right after the live object is mutated, receiving a
-   * shallow copy of the now-current options. Returns an unsubscribe
-   * function. */
-  subscribeOptions: (
-    listener: (options: ResolvedProviderOptions) => void,
-  ) => () => void;
+  /** Subscribes to options changes applied by `setOptions`, in the shape
+   * `useSyncExternalStore` expects: the listener runs synchronously right
+   * after the live object is mutated, with no payload. Returns an
+   * unsubscribe function. */
+  subscribeOptions: (listener: () => void) => () => void;
+  /** Returns the cached options snapshot for `useSyncExternalStore`. The
+   * reference only changes when `setOptions` applies a real change, which
+   * is what makes a context re-render fire exactly then. */
+  getOptionsSnapshot: () => ResolvedProviderOptions;
 }
 
 const createController = (
@@ -123,9 +125,12 @@ const createController = (
   let routingNodes: Node[] = [];
   let nextOrder = 0;
   let activeScheduler: RoutingScheduler | null = null;
-  const optionsListeners = new Set<
-    (options: ResolvedProviderOptions) => void
-  >();
+  // Immutable copy of `resolvedOptions` for React consumption. The live
+  // object keeps its identity across `setOptions` (the scheduler closes
+  // over it), so this snapshot is the only identity that tracks value
+  // changes; `useSyncExternalStore` compares it with `Object.is`.
+  let optionsSnapshot: ResolvedProviderOptions = { ...resolvedOptions };
+  const optionsListeners = new Set<() => void>();
   const registrations = new Map<string, RegisteredSmartEdge>();
   const schedulerUnregisterFns = new Map<string, () => void>();
   // First-seen paint order per edge id. Never evicted for the lifetime of
@@ -199,7 +204,6 @@ const createController = (
   return {
     store,
     options: resolvedOptions,
-    optionsEpoch: resolvedOptions,
     registerEdge,
     getRegistrationsInOrder: () =>
       [...registrations.values()].sort(
@@ -226,9 +230,9 @@ const createController = (
       if (!diff.any) return false;
       Object.assign(resolvedOptions, next);
       if (diff.routing) activeScheduler?.invalidateRoutes();
-      const snapshot = { ...resolvedOptions };
+      optionsSnapshot = { ...resolvedOptions };
       optionsListeners.forEach((listener) => {
-        listener(snapshot);
+        listener();
       });
       return true;
     },
@@ -238,6 +242,7 @@ const createController = (
         optionsListeners.delete(listener);
       };
     },
+    getOptionsSnapshot: () => optionsSnapshot,
   };
 };
 
@@ -259,34 +264,25 @@ export function SmartEdgeProvider({
   const [controller] = useState(() =>
     createController(resolveProviderOptions(options)),
   );
-  // Version tag for the context value. `setOptions` mutates the controller's
-  // options object in place (the scheduler closes over that exact
-  // reference), so a changed `options` prop leaves the object identity
-  // intact. This tag is what changes identity instead, so memoized
-  // descendants re-read `controller.options` after a live update.
-  const [optionsEpoch, setOptionsEpoch] = useState<ResolvedProviderOptions>(
-    () => controller.options,
-  );
 
   useEffect(() => {
     controller.setOnMetrics(onMetrics);
   }, [controller, onMetrics]);
 
   // The controller's options object is external, mutable state from React's
-  // perspective, so syncing the `options` prop into it is a genuine effect.
+  // perspective (the scheduler closes over that exact reference, and
+  // `setOptions` mutates it in place), so syncing the `options` prop into
+  // it is a genuine effect.
   useEffect(() => {
     controller.setOptions(resolveProviderOptions(options));
   }, [controller, options]);
 
-  // The epoch update lives in a subscription callback, not in the sync
-  // effect above: effects may only call setState in response to an external
-  // system's notification, and the controller is that system here.
-  useEffect(
-    () =>
-      controller.subscribeOptions((appliedOptions) => {
-        setOptionsEpoch(appliedOptions);
-      }),
-    [controller],
+  // Identity of the snapshot changes exactly when `setOptions` applies a
+  // real change, which re-renders this component and refreshes the context
+  // value below; same-value inline `options={{...}}` props never notify.
+  const optionsSnapshot = useSyncExternalStore(
+    controller.subscribeOptions,
+    controller.getOptionsSnapshot,
   );
 
   useEffect(() => {
@@ -323,13 +319,12 @@ export function SmartEdgeProvider({
   const contextValue = useMemo<SmartEdgeContextValue>(
     () => ({
       store: controller.store,
-      options: controller.options,
+      options: optionsSnapshot,
       registerEdge: controller.registerEdge,
       getRegistrationsInOrder: controller.getRegistrationsInOrder,
       getNodesSnapshot: controller.getNodesSnapshot,
-      optionsEpoch,
     }),
-    [controller, optionsEpoch],
+    [controller, optionsSnapshot],
   );
 
   return (

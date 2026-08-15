@@ -32,13 +32,11 @@ export type SmartEdgeProviderOptions = Partial<ResolvedProviderOptions>;
 /** What `SmartEdgeProvider` exposes to descendants through React context. */
 export interface SmartEdgeContextValue {
   store: SmartEdgeStore;
-  options: ResolvedProviderOptions;
-  /** Version tag identifying the current `options` contents. The provider
+  /** An immutable snapshot of the resolved provider options. The provider
    * mutates its live options object in place (the scheduler closes over
-   * that reference), so `options` identity alone never changes; this tag
-   * does, whenever an options update lands. Internal: descendants should
-   * read `options`, not this field. */
-  optionsEpoch: ResolvedProviderOptions;
+   * that reference) and publishes a fresh snapshot on every applied change,
+   * so the identity of this object tracks option value changes exactly. */
+  options: ResolvedProviderOptions;
   /** Registers one edge's routing geometry, assigning it the next
    * registration order. Returns an unregister function. */
   registerEdge: (edge: Omit<RegisteredSmartEdge, "order">) => () => void;
