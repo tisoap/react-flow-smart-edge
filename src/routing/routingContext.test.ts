@@ -13,7 +13,7 @@ describe("resolveProviderOptions", () => {
       avoidAreas: [],
       routeOnlyWhenBlocked: true,
       routeWhileDragging: false,
-      dragFallbackStyle: { strokeDasharray: "5 5" },
+      dragFallbackStyle: {},
       debounceMs: 16,
       cacheSize: 500,
     });

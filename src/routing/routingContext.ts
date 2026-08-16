@@ -20,8 +20,9 @@ export interface ResolvedProviderOptions extends SchedulerOptions {
   preset: SmartEdgePreset;
   /** Corner radius for the `smoothstep` preset. */
   borderRadius?: number;
-  /** Style applied to a smart edge's path while its route is deferred
-   * (e.g. an endpoint is being dragged). */
+  /** Extra style merged onto a smart edge's native path while the route is
+   * pending or an endpoint is being dragged. Animation comes from a
+   * `react-flow__edge animated` wrapper, not from this object. */
   dragFallbackStyle: CSSProperties;
 }
 
@@ -55,7 +56,7 @@ export interface SmartEdgeContextValue {
 export const SmartEdgeRoutingContext =
   createContext<SmartEdgeContextValue | null>(null);
 
-const DEFAULT_DRAG_FALLBACK_STYLE: CSSProperties = { strokeDasharray: "5 5" };
+const DEFAULT_DRAG_FALLBACK_STYLE: CSSProperties = {};
 
 /** Applies every `ResolvedProviderOptions` default to a provider's (partial)
  * `options` prop. */

@@ -517,9 +517,7 @@ describe("SmartEdgeProvider", () => {
     );
 
     await flushDebounce();
-    expect(contextBox.current?.options.dragFallbackStyle).toEqual({
-      strokeDasharray: "5 5",
-    });
+    expect(contextBox.current?.options.dragFallbackStyle).toEqual({});
 
     rerender(
       <SmartEdgeProvider
