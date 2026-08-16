@@ -23,6 +23,7 @@ const testNode = (
 });
 
 const throwUnknown = (): never => {
+  // eslint-disable-next-line @eslint-community/eslint-comments/no-restricted-disable -- verifies unknown error wrapping
   // eslint-disable-next-line @typescript-eslint/only-throw-error -- verifies unknown error wrapping
   throw "waypoint failure";
 };

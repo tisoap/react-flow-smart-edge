@@ -28,6 +28,7 @@ const testNode = (
 });
 
 const throwUnknown = (): never => {
+  // eslint-disable-next-line @eslint-community/eslint-comments/no-restricted-disable -- verifies unknown error wrapping
   // eslint-disable-next-line @typescript-eslint/only-throw-error -- verifies unknown error wrapping
   throw "routing exploded";
 };
@@ -149,7 +150,8 @@ describe("getSmartEdge", () => {
       if (call <= CORRIDOR_MARGIN_CELLS.length) {
         throw new Error(NO_PATH_FOUND_ERROR);
       }
-      // eslint-disable-next-line @typescript-eslint/only-throw-error -- verifies unknown error wrapping past the ladder
+      // eslint-disable-next-line @eslint-community/eslint-comments/no-restricted-disable -- verifies unknown error wrapping
+      // eslint-disable-next-line @typescript-eslint/only-throw-error -- verifies unknown error wrapping
       throw "final run exploded";
     };
 
