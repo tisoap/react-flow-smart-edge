@@ -87,12 +87,13 @@ export async function beginNodeDrag(
   };
 }
 
+const placeholderAncestor = (path: SVGPathElement): Element | null =>
+  path.closest("g.react-flow__edge.animated");
+
 /**
- * Waits for the given edge's rendered path to carry the drag-fallback style
- * (`dragFallbackStyle`, a dashed stroke by default) — proof the provider's
- * dragging flag reached this edge's `useSmartEdgePath` and it fell back to
- * its native (non-routed) variant while the drag is in flight, rather than
- * the routed grid path.
+ * Waits for the given edge's path to sit inside a `g.react-flow__edge.animated`
+ * wrapper: the provider's dragging (or pending) placeholder, not the routed
+ * grid path.
  */
 export async function expectDragFallbackStyle(
   canvasElement: HTMLElement,
@@ -103,15 +104,15 @@ export async function expectDragFallbackStyle(
       `[data-testid="rf__edge-${edgeId}"] path.react-flow__edge-path`,
     );
     if (!path) throw new Error(`edge ${edgeId} not rendered`);
-    if (!path.style.strokeDasharray) {
-      throw new Error(`edge ${edgeId} is missing the drag fallback style`);
+    if (!placeholderAncestor(path)) {
+      throw new Error(`edge ${edgeId} is missing the placeholder wrapper`);
     }
     return path;
   });
 }
 
 /** The inverse of {@link expectDragFallbackStyle}: waits until the given
- * edge's path no longer carries the drag-fallback dasharray, e.g. once a
+ * edge's path is no longer inside `g.react-flow__edge.animated`, e.g. once a
  * drag has ended and the edge has resumed normal routing. */
 export async function expectNoDragFallbackStyle(
   canvasElement: HTMLElement,
@@ -122,8 +123,8 @@ export async function expectNoDragFallbackStyle(
       `[data-testid="rf__edge-${edgeId}"] path.react-flow__edge-path`,
     );
     if (!path) throw new Error(`edge ${edgeId} not rendered`);
-    if (path.style.strokeDasharray) {
-      throw new Error(`edge ${edgeId} still has the drag fallback style`);
+    if (placeholderAncestor(path)) {
+      throw new Error(`edge ${edgeId} still has the placeholder wrapper`);
     }
     return path;
   });

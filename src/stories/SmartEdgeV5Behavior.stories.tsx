@@ -70,11 +70,11 @@ const dragFallbackEdges: Edge[] = [
 /**
  * Proves the v5 drag-fallback behavior end to end in a real browser: while a
  * smart edge's endpoint node is being dragged, the edge renders its native
- * (non-routed) variant styled with `dragFallbackStyle` (a dashed stroke by
- * default) instead of the grid-routed path, then resumes routing once the
- * drag ends. This is the first story to drive a real node-body drag (via
- * `d3-drag`'s `mousedown`/`mousemove`/`mouseup`, dispatched here through
- * `userEvent.pointer`) rather than a handle drag — the dragging-flag
+ * (non-routed) variant inside a `react-flow__edge animated` wrapper instead
+ * of the grid-routed path, then resumes routing once the drag ends. This is
+ * the first story to drive a real node-body drag (via `d3-drag`'s
+ * `mousedown`/`mousemove`/`mouseup`, dispatched here through
+ * `userEvent.pointer`) rather than a handle drag. The dragging-flag
  * plumbing from `useNodes()` through `GraphWrapper` into `SmartEdgeProvider`
  * was previously verified only by reading the source; this story is the
  * empirical proof.
