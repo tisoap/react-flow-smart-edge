@@ -53,6 +53,24 @@ describe("isSmartEdgeBatchRequest", () => {
     expect(isSmartEdgeBatchRequest({ type: "webpackOk" })).toBe(false);
   });
 
+  it("rejects null and non-objects", () => {
+    expect(isSmartEdgeBatchRequest(null)).toBe(false);
+    expect(isSmartEdgeBatchRequest(undefined)).toBe(false);
+    expect(isSmartEdgeBatchRequest("webpackOk")).toBe(false);
+  });
+
+  it("rejects payloads whose requestId, nodes, or edges have the wrong type", () => {
+    expect(
+      isSmartEdgeBatchRequest({ requestId: "1", nodes: [], edges: [] }),
+    ).toBe(false);
+    expect(
+      isSmartEdgeBatchRequest({ requestId: 1, nodes: {}, edges: [] }),
+    ).toBe(false);
+    expect(
+      isSmartEdgeBatchRequest({ requestId: 1, nodes: [], edges: {} }),
+    ).toBe(false);
+  });
+
   it("accepts a structured-clone batch request", () => {
     expect(
       isSmartEdgeBatchRequest({ requestId: 1, nodes: [], edges: [] }),
