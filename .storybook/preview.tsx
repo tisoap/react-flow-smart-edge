@@ -25,6 +25,7 @@ const preview: Preview = {
       const colorMode = resolveStoryColorMode(context.globals);
       const args = {
         ...context.args,
+        // eslint-disable-next-line @eslint-community/eslint-comments/no-restricted-disable -- Storybook `Args` values are `any`
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Storybook `Args` values are `any`
         colorMode: context.args["colorMode"] ?? colorMode,
       };
