@@ -27,18 +27,18 @@ Owns the shared routing worker, the per-edge results store, and the debounced ro
 
 Every field is optional; `resolveProviderOptions` fills in the default shown below.
 
-| Option                 | Default                      | Description                                                                                                                                                                                      |
-| ---------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `preset`               | `"bezier"`                   | Which built-in `drawEdge`/`generatePath` pair edges resolve to when they don't set their own preset (only relevant for `useSmartEdgePath`; preset edge components always pass their own preset). |
-| `gridRatio`            | `10`                         | Pixels per grid cell. Same meaning as `GetSmartEdgeOptions.gridRatio`.                                                                                                                           |
-| `nodePadding`          | `10`                         | Clearance around nodes, in pixels. Same meaning as `GetSmartEdgeOptions.nodePadding`.                                                                                                            |
-| `avoidAreas`           | `[]`                         | Extra rectangular areas every edge routes around, in addition to nodes.                                                                                                                          |
-| `borderRadius`         | `undefined`                  | Corner radius for the `smoothstep` preset.                                                                                                                                                       |
-| `routeOnlyWhenBlocked` | `true`                       | Skip pathfinding and render the preset's native path when the direct line between an edge's endpoints is already clear.                                                                          |
-| `routeWhileDragging`   | `false`                      | Re-route on every drag frame. When `false`, a dragging edge renders `dragFallbackStyle` instead and routes for real once the drag ends.                                                          |
-| `dragFallbackStyle`    | `{ strokeDasharray: "5 5" }` | Style merged onto a dragging edge's native path while its route is deferred.                                                                                                                     |
-| `debounceMs`           | `16`                         | How long the scheduler waits after the last registration/node change before flushing a routing batch.                                                                                            |
-| `cacheSize`            | `500`                        | Max entries in the LRU route cache (keyed by each edge's corridor obstacle hash).                                                                                                                |
+| Option                 | Default     | Description                                                                                                                                                                                      |
+| ---------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `preset`               | `"bezier"`  | Which built-in `drawEdge`/`generatePath` pair edges resolve to when they don't set their own preset (only relevant for `useSmartEdgePath`; preset edge components always pass their own preset). |
+| `gridRatio`            | `10`        | Pixels per grid cell. Same meaning as `GetSmartEdgeOptions.gridRatio`.                                                                                                                           |
+| `nodePadding`          | `10`        | Clearance around nodes, in pixels. Same meaning as `GetSmartEdgeOptions.nodePadding`.                                                                                                            |
+| `avoidAreas`           | `[]`        | Extra rectangular areas every edge routes around, in addition to nodes.                                                                                                                          |
+| `borderRadius`         | `undefined` | Corner radius for the `smoothstep` preset.                                                                                                                                                       |
+| `routeOnlyWhenBlocked` | `true`      | Skip pathfinding and render the preset's native path when the direct line between an edge's endpoints is already clear.                                                                          |
+| `routeWhileDragging`   | `false`     | Re-route on every drag frame. When `false`, a dragging edge renders its native path (inside React Flow's animated dashed wrapper) and routes for real once the drag ends.                        |
+| `dragFallbackStyle`    | `{}`        | Extra style merged onto that native path while the route is pending or an endpoint is dragging. The dash and animation come from the wrapper class, not from this object.                        |
+| `debounceMs`           | `16`        | How long the scheduler waits after the last registration/node change before flushing a routing batch.                                                                                            |
+| `cacheSize`            | `500`       | Max entries in the LRU route cache (keyed by each edge's corridor obstacle hash).                                                                                                                |
 
 ## `useSmartEdgePath`
 

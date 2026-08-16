@@ -28,9 +28,9 @@ The pathfinding grid is a flat `Uint8Array` (`FlatGrid`), not the object-per-cel
 
 Between batches, the scheduler diffs the previous node snapshot against the current one and only re-routes edges whose corridor was actually affected by what changed (a node entering, leaving, resizing within, or being dragged through it). Every other edge's cached route, keyed by a hash of its own corridor's obstacles, is served straight from an LRU cache (`cacheSize`, default `500`) instead of re-running A\*. Moving one node in a 750-node graph re-routes a handful of edges, not all of them.
 
-## Dashed fallback while dragging, routed on drop
+## Native fallback while pending or dragging, routed on drop
 
-While an edge's source or target node is being dragged, and `routeWhileDragging` is `false` (the default), the edge renders its native path styled with `dragFallbackStyle` (a dashed stroke, `{ strokeDasharray: "5 5" }`, by default) instead of re-routing on every drag frame. It routes for real once the drag ends. Set `routeWhileDragging: true` to re-route live during the drag instead, or `dragFallbackStyle: {}` to drop the dashed styling. Waypoint (control-point) drags do not use `dragFallbackStyle`; they update the registered waypoints and re-route after `debounceMs`.
+Until a route is published, and while an edge's source or target node is being dragged with `routeWhileDragging` false (the default), the edge renders its native path inside a `react-flow__edge animated` wrapper so React Flow's dashed animation applies. It routes for real once the first batch finishes, or once the drag ends. Set `routeWhileDragging: true` to re-route live during the drag instead. Extra keys on `dragFallbackStyle` (opacity, stroke) merge onto that native path; the default is `{}`. Waypoint (control-point) drags do not use this placeholder; they update the registered waypoints and re-route after `debounceMs`.
 
 ## Runtime metrics
 
