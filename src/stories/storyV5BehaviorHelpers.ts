@@ -92,8 +92,8 @@ const placeholderAncestor = (path: SVGPathElement): Element | null =>
 
 /**
  * Waits for the given edge's path to sit inside a `g.react-flow__edge.animated`
- * wrapper: the provider's dragging (or pending) placeholder, not the routed
- * grid path.
+ * wrapper: the provider's dragging placeholder, not the routed grid path
+ * and not first-paint pending (pending uses a static dash).
  */
 export async function expectDragFallbackStyle(
   canvasElement: HTMLElement,

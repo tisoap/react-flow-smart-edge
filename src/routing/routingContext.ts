@@ -21,8 +21,8 @@ export interface ResolvedProviderOptions extends SchedulerOptions {
   /** Corner radius for the `smoothstep` preset. */
   borderRadius?: number;
   /** Extra style merged onto a smart edge's native path while the route is
-   * pending or an endpoint is being dragged. Animation comes from a
-   * `react-flow__edge animated` wrapper, not from this object. */
+   * pending or an endpoint is being dragged. Drag uses a
+   * `react-flow__edge animated` wrapper; pending uses a static dash. */
   dragFallbackStyle: CSSProperties;
 }
 

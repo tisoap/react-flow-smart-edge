@@ -45,23 +45,39 @@ export const hoppedClearRoute = (
   points: [],
 });
 
+/** Static dash used while a route is pending. Matches xyflow's animated
+ * stroke visually without running `dashdraw` on every pending path. */
+const PENDING_PLACEHOLDER_DASHARRAY = "5 5";
+
 /**
- * Native fallback wrapped so xyflow's `.react-flow__edge.animated path`
- * CSS applies. Used while a route is pending or drag-deferred. Not a
- * public export.
+ * Native fallback used while a route is pending or drag-deferred. Drag
+ * wraps the path so xyflow's `.react-flow__edge.animated path` CSS
+ * (`dashdraw` 0.5s infinite) applies. Pending uses a static dash instead:
+ * infinite SVG path animation on every edge starves the routing worker on
+ * large graphs (the 750-node fixture's `batchLatencyMs` jumped from ~6.5s
+ * to ~12s on 2-vCPU GitHub runners). Not a public export.
  */
 export function PlaceholderFallback({
   FallbackEdge,
   edgeProps,
   dragFallbackStyle,
+  animated,
 }: Readonly<{
   FallbackEdge: ComponentType<EdgeProps>;
   edgeProps: EdgeProps;
   dragFallbackStyle: CSSProperties;
+  animated: boolean;
 }>) {
-  const style = { ...edgeProps.style, ...dragFallbackStyle };
+  const style = {
+    ...(animated ? {} : { strokeDasharray: PENDING_PLACEHOLDER_DASHARRAY }),
+    ...edgeProps.style,
+    ...dragFallbackStyle,
+  };
   return (
-    <g className="react-flow__edge animated">
+    <g
+      className={animated ? "react-flow__edge animated" : undefined}
+      data-smart-edge-placeholder=""
+    >
       <FallbackEdge {...edgeProps} style={style} />
     </g>
   );

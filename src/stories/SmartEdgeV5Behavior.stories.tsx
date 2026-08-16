@@ -71,7 +71,10 @@ const dragFallbackEdges: Edge[] = [
  * Proves the v5 drag-fallback behavior end to end in a real browser: while a
  * smart edge's endpoint node is being dragged, the edge renders its native
  * (non-routed) variant inside a `react-flow__edge animated` wrapper instead
- * of the grid-routed path, then resumes routing once the drag ends. This is
+ * of the grid-routed path, then resumes routing once the drag ends. First-
+ * paint pending uses a static dash instead of this infinite animation, so
+ * large graphs do not run `dashdraw` on every edge while the worker routes.
+ * This is
  * the first story to drive a real node-body drag (via `d3-drag`'s
  * `mousedown`/`mousemove`/`mouseup`, dispatched here through
  * `userEvent.pointer`) rather than a handle drag. The dragging-flag

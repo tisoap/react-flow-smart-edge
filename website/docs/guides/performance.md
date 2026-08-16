@@ -30,7 +30,7 @@ Between batches, the scheduler diffs the previous node snapshot against the curr
 
 ## Native fallback while pending or dragging, routed on drop
 
-Until a route is published, and while an edge's source or target node is being dragged with `routeWhileDragging` false (the default), the edge renders its native path inside a `react-flow__edge animated` wrapper so React Flow's dashed animation applies. It routes for real once the first batch finishes, or once the drag ends. Set `routeWhileDragging: true` to re-route live during the drag instead. Extra keys on `dragFallbackStyle` (opacity, stroke) merge onto that native path; the default is `{}`. Waypoint (control-point) drags do not use this placeholder; they update the registered waypoints and re-route after `debounceMs`.
+Until a route is published, the edge renders its native path with a static dash so the graph reads as in-progress without running React Flow's infinite `dashdraw` animation on every pending edge (that animation starved the routing worker on the 750-node fixture). While a source or target node is being dragged with `routeWhileDragging` false (the default), the same native path sits inside a `react-flow__edge animated` wrapper so the dashed animation applies to the few edges in the drag. It routes for real once the first batch finishes, or once the drag ends. Set `routeWhileDragging: true` to re-route live during the drag instead. Extra keys on `dragFallbackStyle` (opacity, stroke) merge onto that native path; the default is `{}`. Waypoint (control-point) drags do not use this placeholder; they update the registered waypoints and re-route after `debounceMs`.
 
 ## Runtime metrics
 

@@ -65,6 +65,9 @@ const flushDebounce = async (): Promise<void> => {
 };
 
 const queryPlaceholder = (container: HTMLElement): SVGGElement | null =>
+  container.querySelector("g[data-smart-edge-placeholder]");
+
+const queryAnimatedPlaceholder = (container: HTMLElement): SVGGElement | null =>
   container.querySelector("g.react-flow__edge.animated");
 
 interface RenderOptions {
@@ -155,9 +158,10 @@ describe("SmartEdge render decision", () => {
 
     expect(contextBox.current?.store.getRoute("e1")).toBeUndefined();
     expect(queryPlaceholder(container)).toBeTruthy();
+    expect(queryAnimatedPlaceholder(container)).toBeNull();
     const path = container.querySelector<SVGPathElement>("path");
     expect(path).toBeTruthy();
-    expect(path?.style.strokeDasharray).toBe("");
+    expect(path?.style.strokeDasharray).toBe("5 5");
   });
 
   it("renders the routed path once the provider publishes a route", async () => {
@@ -241,6 +245,7 @@ describe("SmartEdge render decision", () => {
     await flushDebounce();
 
     expect(queryPlaceholder(container)).toBeTruthy();
+    expect(queryAnimatedPlaceholder(container)).toBeTruthy();
     const path = container.querySelector<SVGPathElement>("path");
     expect(path?.style.strokeDasharray).toBe("");
   });

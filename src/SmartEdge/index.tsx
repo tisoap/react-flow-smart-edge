@@ -170,12 +170,15 @@ export function SmartEdge<EdgeType extends Edge = Edge>({
     return <FallbackEdge {...edgeProps} />;
   }
 
-  if ((isDragging && !context.options.routeWhileDragging) || route === null) {
+  const dragPlaceholder = isDragging && !context.options.routeWhileDragging;
+
+  if (dragPlaceholder || route === null) {
     return (
       <PlaceholderFallback
         FallbackEdge={FallbackEdge}
         edgeProps={edgeProps}
         dragFallbackStyle={context.options.dragFallbackStyle}
+        animated={dragPlaceholder}
       />
     );
   }
