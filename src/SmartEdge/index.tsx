@@ -11,6 +11,7 @@ import {
   prepareEdge,
   RoutedSmartEdge,
   hoppedClearRoute,
+  PlaceholderFallback,
 } from "./renderDecision";
 import type { HopOptions } from "./smartEdgeHops";
 import type { SmartEdgeBatchItemOptions } from "../routing/routeBatch";
@@ -169,13 +170,14 @@ export function SmartEdge<EdgeType extends Edge = Edge>({
     return <FallbackEdge {...edgeProps} />;
   }
 
-  if (isDragging && !context.options.routeWhileDragging) {
-    const style = { ...edgeProps.style, ...context.options.dragFallbackStyle };
-    return <FallbackEdge {...edgeProps} style={style} />;
-  }
-
-  if (route === null) {
-    return <FallbackEdge {...edgeProps} />;
+  if ((isDragging && !context.options.routeWhileDragging) || route === null) {
+    return (
+      <PlaceholderFallback
+        FallbackEdge={FallbackEdge}
+        edgeProps={edgeProps}
+        dragFallbackStyle={context.options.dragFallbackStyle}
+      />
+    );
   }
 
   if (route.kind === "clear") {

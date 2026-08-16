@@ -64,6 +64,9 @@ const flushDebounce = async (): Promise<void> => {
   });
 };
 
+const queryPlaceholder = (container: HTMLElement): SVGGElement | null =>
+  container.querySelector("g.react-flow__edge.animated");
+
 interface RenderOptions {
   providerNodes?: Node[];
   providerOptions?: SmartEdgeProviderOptions;
@@ -130,6 +133,7 @@ describe("SmartEdge render decision", () => {
     );
 
     expect(container.querySelector("path")).toBeTruthy();
+    expect(queryPlaceholder(container)).toBeNull();
     expect(warnSpy).toHaveBeenCalledTimes(1);
 
     __resetNoProviderWarning();
@@ -150,7 +154,10 @@ describe("SmartEdge render decision", () => {
     });
 
     expect(contextBox.current?.store.getRoute("e1")).toBeUndefined();
-    expect(container.querySelector("path")).toBeTruthy();
+    expect(queryPlaceholder(container)).toBeTruthy();
+    const path = container.querySelector<SVGPathElement>("path");
+    expect(path).toBeTruthy();
+    expect(path?.style.strokeDasharray).toBe("");
   });
 
   it("renders the routed path once the provider publishes a route", async () => {
@@ -178,6 +185,7 @@ describe("SmartEdge render decision", () => {
       wasRouted: false,
     });
     expect(container.querySelector("path")).toBeTruthy();
+    expect(queryPlaceholder(container)).toBeNull();
   });
 
   it("draws a hop when two clear step edges cross", async () => {
@@ -224,7 +232,7 @@ describe("SmartEdge render decision", () => {
     expect(paths.some((path) => /A \d/.test(path))).toBe(true);
   });
 
-  it("renders a dashed fallback while an endpoint drags and routeWhileDragging is off", async () => {
+  it("renders an animated native fallback while an endpoint drags and routeWhileDragging is off", async () => {
     const { container } = renderEdge({
       providerNodes: withFlag("aaa", "dragging"),
       providerOptions: { routeOnlyWhenBlocked: false },
@@ -232,12 +240,13 @@ describe("SmartEdge render decision", () => {
 
     await flushDebounce();
 
+    expect(queryPlaceholder(container)).toBeTruthy();
     const path = container.querySelector<SVGPathElement>("path");
-    expect(path?.style.strokeDasharray).toBe("5 5");
+    expect(path?.style.strokeDasharray).toBe("");
   });
 
   it("keeps routing while dragging when routeWhileDragging is on", async () => {
-    const { contextBox } = renderEdge({
+    const { container, contextBox } = renderEdge({
       providerNodes: withFlag("aaa", "dragging"),
       providerOptions: {
         routeOnlyWhenBlocked: false,
@@ -250,6 +259,36 @@ describe("SmartEdge render decision", () => {
     expect(contextBox.current?.store.getRoute("e1")).toMatchObject({
       kind: "routed",
     });
+    expect(queryPlaceholder(container)).toBeNull();
+  });
+
+  it("merges dragFallbackStyle onto the pending placeholder", () => {
+    const { container } = renderEdge({
+      providerOptions: {
+        routeOnlyWhenBlocked: false,
+        dragFallbackStyle: { opacity: 0.4 },
+      },
+    });
+
+    expect(queryPlaceholder(container)).toBeTruthy();
+    const path = container.querySelector<SVGPathElement>("path");
+    expect(path?.style.opacity).toBe("0.4");
+  });
+
+  it("merges dragFallbackStyle onto the drag placeholder", async () => {
+    const { container } = renderEdge({
+      providerNodes: withFlag("aaa", "dragging"),
+      providerOptions: {
+        routeOnlyWhenBlocked: false,
+        dragFallbackStyle: { opacity: 0.4 },
+      },
+    });
+
+    await flushDebounce();
+
+    expect(queryPlaceholder(container)).toBeTruthy();
+    const path = container.querySelector<SVGPathElement>("path");
+    expect(path?.style.opacity).toBe("0.4");
   });
 
   it("forwards the preset to the registration", () => {

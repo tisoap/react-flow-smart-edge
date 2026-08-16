@@ -1,5 +1,6 @@
 import { BaseEdge, useReactFlow } from "@xyflow/react";
 import { useCallback } from "react";
+import type { ComponentType, CSSProperties } from "react";
 import { buildControlPoints } from "./controlPointGeometry";
 import { ControlPoint } from "./ControlPoint";
 import { readControlPoints } from "./smartEdgeData";
@@ -43,6 +44,28 @@ export const hoppedClearRoute = (
   edgeCenterY: (endpoints.sourceY + endpoints.targetY) / 2,
   points: [],
 });
+
+/**
+ * Native fallback wrapped so xyflow's `.react-flow__edge.animated path`
+ * CSS applies. Used while a route is pending or drag-deferred. Not a
+ * public export.
+ */
+export function PlaceholderFallback({
+  FallbackEdge,
+  edgeProps,
+  dragFallbackStyle,
+}: Readonly<{
+  FallbackEdge: ComponentType<EdgeProps>;
+  edgeProps: EdgeProps;
+  dragFallbackStyle: CSSProperties;
+}>) {
+  const style = { ...edgeProps.style, ...dragFallbackStyle };
+  return (
+    <g className="react-flow__edge animated">
+      <FallbackEdge {...edgeProps} style={style} />
+    </g>
+  );
+}
 
 /**
  * Applies a control-point update to the one matching edge in a React Flow edge
