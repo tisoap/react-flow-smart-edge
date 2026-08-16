@@ -6,9 +6,8 @@ import type { ReactFlowProps } from "@xyflow/react";
 import type { ReactNode } from "react";
 
 const style = {
-  background: "#fafafa",
   width: "100%",
-  height: "500px",
+  height: "100%",
 };
 
 export type GraphWrapperProps = ReactFlowProps & {
@@ -66,6 +65,8 @@ export const GraphWrapper = ({
         style={{ ...style, position: "relative" }}
       >
         <ReactFlow
+          fitView
+          colorMode="light"
           {...props}
           proOptions={{ ...proOptions, hideAttribution: true }}
         />
