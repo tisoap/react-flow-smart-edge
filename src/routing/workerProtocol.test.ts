@@ -1,6 +1,6 @@
 import { Position } from "@xyflow/react";
 import { describe, expect, it } from "vitest";
-import { handleBatchRequest } from "./workerProtocol";
+import { handleBatchRequest, isSmartEdgeBatchRequest } from "./workerProtocol";
 import type { Node } from "@xyflow/react";
 
 const nodes: Node[] = [
@@ -45,5 +45,17 @@ describe("handleBatchRequest", () => {
       kind: "routed",
       wasRouted: true,
     });
+  });
+});
+
+describe("isSmartEdgeBatchRequest", () => {
+  it("rejects webpack HMR messages that have no nodes array", () => {
+    expect(isSmartEdgeBatchRequest({ type: "webpackOk" })).toBe(false);
+  });
+
+  it("accepts a structured-clone batch request", () => {
+    expect(
+      isSmartEdgeBatchRequest({ requestId: 1, nodes: [], edges: [] }),
+    ).toBe(true);
   });
 });

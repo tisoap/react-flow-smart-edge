@@ -19,10 +19,11 @@ function includeParentSrcPlugin() {
       const { getJSLoader } = utils;
       return {
         // The library ships its routing Web Worker inlined via Vite's
-        // `?worker&inline` query, which webpack does not understand. The docs
-        // bundle the library source but never instantiate the worker, so this
-        // "no exports" warning is benign here. Consumers use the prebuilt
-        // `dist`, where Vite has already inlined the worker.
+        // `?worker&inline` query, which webpack does not understand. Live
+        // docs demos still construct a worker from source; webpack may also
+        // inject HMR messages into that worker. The worker ignores non-batch
+        // payloads. Consumers use the prebuilt `dist`, where Vite has
+        // already inlined the worker.
         ignoreWarnings: [{ message: /routing\.worker\?worker&inline/ }],
         resolve: {
           alias: {
