@@ -7,7 +7,11 @@ import type { ControlPointData } from "./ControlPoint";
 import { warnOnceNoProvider } from "./noProviderWarning";
 import { useEndpointNodesSelected } from "./smartEdgeSelection";
 import { useHoppedPath } from "./smartEdgeHops";
-import { prepareEdge, RoutedSmartEdge } from "./renderDecision";
+import {
+  prepareEdge,
+  RoutedSmartEdge,
+  hoppedClearRoute,
+} from "./renderDecision";
 import type { HopOptions } from "./smartEdgeHops";
 import type { SmartEdgeBatchItemOptions } from "../routing/routeBatch";
 import type { SmartEdgePreset } from "../smartEdgePresets";
@@ -102,7 +106,9 @@ const toBatchItemOptions = (
  * Routes an edge through the nearest `SmartEdgeProvider` and renders its path,
  * falling back to the preset's native edge whenever routing is unavailable
  * (no provider), pending, deferred (an endpoint is dragging and
- * `routeWhileDragging` is off), or the corridor is clear.
+ * `routeWhileDragging` is off), or the corridor is clear (unless hops are
+ * enabled on a step/smooth-step edge, in which case the native skeleton is
+ * still drawn so crossings can bridge).
  *
  * Requires a `SmartEdgeProvider` ancestor to route; without one it warns once
  * (in development) and renders the fallback edge. Custom `drawEdge` /
@@ -168,8 +174,26 @@ export function SmartEdge<EdgeType extends Edge = Edge>({
     return <FallbackEdge {...edgeProps} style={style} />;
   }
 
-  if (route === null || route.kind === "clear") {
+  if (route === null) {
     return <FallbackEdge {...edgeProps} />;
+  }
+
+  if (route.kind === "clear") {
+    if (hoppedPathString === null) {
+      return <FallbackEdge {...edgeProps} />;
+    }
+
+    return (
+      <RoutedSmartEdge
+        edgeProps={edgeProps}
+        route={hoppedClearRoute(hoppedPathString, endpoints)}
+        endpoints={endpoints}
+        hoppedPathString={hoppedPathString}
+        options={options}
+        activePoints={activePoints}
+        showControlPoints={Boolean(edgeProps.selected) || endpointsSelected}
+      />
+    );
   }
 
   return (

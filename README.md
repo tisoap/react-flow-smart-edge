@@ -116,7 +116,9 @@ const edgeTypes = {
 ## Circuit-style hops
 
 Give the step variants the `hops` option and crossing wires bridge over each
-other like a schematic. The edge on top draws a small arc over the one beneath:
+other like a schematic. The edge on top draws a small arc over the one beneath.
+Hops still draw when `routeOnlyWhenBlocked` leaves an edge on its native step
+path, not only after A\* has detoured around a node:
 
 ```tsx
 import { createSmartEdge } from "@tisoap/react-flow-smart-edge";

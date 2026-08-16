@@ -27,6 +27,24 @@ const resolvePath = (hopped: string | null, routed: string): string =>
   hopped ?? routed;
 
 /**
+ * A `RoutedRoute` stand-in so a clear step edge can still render through
+ * `RoutedSmartEdge` when hops produced a path (native skeleton plus any
+ * bridge arcs). `wasRouted` stays `true` because that field is required on
+ * the routed variant; the provider store still records `kind: "clear"`.
+ */
+export const hoppedClearRoute = (
+  path: string,
+  endpoints: EdgeEndpointCoordinates,
+): RoutedRoute => ({
+  kind: "routed",
+  wasRouted: true,
+  svgPathString: path,
+  edgeCenterX: (endpoints.sourceX + endpoints.targetX) / 2,
+  edgeCenterY: (endpoints.sourceY + endpoints.targetY) / 2,
+  points: [],
+});
+
+/**
  * Applies a control-point update to the one matching edge in a React Flow edge
  * list, rewriting only its `data.points` and leaving every other edge (and the
  * matched edge's other data) untouched.

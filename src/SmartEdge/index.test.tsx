@@ -180,6 +180,50 @@ describe("SmartEdge render decision", () => {
     expect(container.querySelector("path")).toBeTruthy();
   });
 
+  it("draws a hop when two clear step edges cross", async () => {
+    const { container } = render(
+      <ReactFlowProvider>
+        <SmartEdgeProvider nodes={[]}>
+          <SvgWrapper>
+            <SmartEdge
+              preset="step"
+              options={{ hops: true }}
+              id="under"
+              source="a"
+              target="b"
+              sourceX={0}
+              sourceY={100}
+              targetX={400}
+              targetY={100}
+              sourcePosition={Position.Right}
+              targetPosition={Position.Left}
+            />
+            <SmartEdge
+              preset="step"
+              options={{ hops: true }}
+              id="over"
+              source="c"
+              target="d"
+              sourceX={200}
+              sourceY={0}
+              targetX={200}
+              targetY={200}
+              sourcePosition={Position.Bottom}
+              targetPosition={Position.Top}
+            />
+          </SvgWrapper>
+        </SmartEdgeProvider>
+      </ReactFlowProvider>,
+    );
+
+    await flushDebounce();
+
+    const paths = [...container.querySelectorAll("path")].map(
+      (path) => path.getAttribute("d") ?? "",
+    );
+    expect(paths.some((path) => /A \d/.test(path))).toBe(true);
+  });
+
   it("renders a dashed fallback while an endpoint drags and routeWhileDragging is off", async () => {
     const { container } = renderEdge({
       providerNodes: withFlag("aaa", "dragging"),

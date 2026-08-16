@@ -13,7 +13,7 @@ import {
 } from "./storyPlayHelpers";
 import { interactWithEditableEdge } from "./storyEditablePlay";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import type { Edge, Node } from "@xyflow/react";
+import { Position, type Edge, type Node } from "@xyflow/react";
 import type { PathFindingFunction } from "../functions/generatePath";
 import type { ComponentProps, ReactNode } from "react";
 import type { SmartEdgeOptions } from "../SmartEdge";
@@ -153,40 +153,51 @@ const hopEdgeTypes = {
 };
 
 /**
- * Tiny nodes so only the explicit blocker sits on the vertical corridor.
- * With `routeOnlyWhenBlocked`, the horizontal edge stays `clear` while the
- * vertical edge routes and hops over that clear native step polyline.
+ * L/R use side handles so the unblocked pair is a true plus (native step
+ * matches xyflow's StepEdge). X sits on the T-B corridor so
+ * `routeOnlyWhenBlocked` still yields a routed-over-clear hop; dragging X
+ * off that corridor leaves both edges clear, which must still hop.
  */
+const hopNodeStyle = { width: 100, height: 48 };
+
 const hopClearUnderneathNodes: Node[] = [
   {
     id: "h-top",
     data: { label: "T" },
-    position: { x: 195, y: 0 },
-    style: { width: 20, height: 20 },
+    position: { x: 200, y: 0 },
+    sourcePosition: Position.Bottom,
+    targetPosition: Position.Top,
+    style: hopNodeStyle,
   },
   {
     id: "h-bottom",
     data: { label: "B" },
-    position: { x: 195, y: 380 },
-    style: { width: 20, height: 20 },
+    position: { x: 200, y: 400 },
+    sourcePosition: Position.Bottom,
+    targetPosition: Position.Top,
+    style: hopNodeStyle,
   },
   {
     id: "h-left",
     data: { label: "L" },
-    position: { x: 0, y: 190 },
-    style: { width: 20, height: 20 },
+    position: { x: 0, y: 180 },
+    sourcePosition: Position.Right,
+    targetPosition: Position.Left,
+    style: hopNodeStyle,
   },
   {
     id: "h-right",
     data: { label: "R" },
-    position: { x: 380, y: 190 },
-    style: { width: 20, height: 20 },
+    position: { x: 400, y: 180 },
+    sourcePosition: Position.Right,
+    targetPosition: Position.Left,
+    style: hopNodeStyle,
   },
   {
     id: "coverage-blocker",
     data: { label: "X" },
-    position: { x: 190, y: 40 },
-    style: { width: 20, height: 40 },
+    position: { x: 220, y: 70 },
+    style: hopNodeStyle,
   },
 ];
 

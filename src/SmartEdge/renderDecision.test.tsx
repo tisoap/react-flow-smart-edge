@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { applyControlPointsUpdate } from "./renderDecision";
+import { Position } from "@xyflow/react";
+import { applyControlPointsUpdate, hoppedClearRoute } from "./renderDecision";
 import type { ControlPointData } from "./ControlPoint";
 import type { Edge } from "@xyflow/react";
 
@@ -32,5 +33,27 @@ describe("applyControlPointsUpdate", () => {
 
     expect(result[0]).toBe(edges[0]);
     expect(result[1]).toBe(edges[1]);
+  });
+});
+
+describe("hoppedClearRoute", () => {
+  it("centers the label on the endpoint midpoint", () => {
+    const route = hoppedClearRoute("M 0,0 L 10,0", {
+      sourceX: 0,
+      sourceY: 0,
+      targetX: 10,
+      targetY: 20,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+    });
+
+    expect(route).toEqual({
+      kind: "routed",
+      wasRouted: true,
+      svgPathString: "M 0,0 L 10,0",
+      edgeCenterX: 5,
+      edgeCenterY: 10,
+      points: [],
+    });
   });
 });

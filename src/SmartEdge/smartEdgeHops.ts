@@ -11,6 +11,34 @@ import type { SmartEdgeRouteResult } from "../routing/providerStore";
 import type { SmartEdgePreset } from "../smartEdgePresets";
 import type { XYPosition } from "@xyflow/react";
 
+const isStepLikePreset = (preset: SmartEdgePreset): boolean =>
+  preset === "step" || preset === "smoothstep";
+
+/** Drops duplicate and collinear vertices so a straight native step run is
+ * one segment. Needed for hop detection: `nativeStepPolyline` splits at the
+ * unused-axis midpoint, which is often exactly where two edges cross. */
+const simplifyPolyline = (points: XYPosition[]): XYPosition[] => {
+  const last = points[points.length - 1];
+  const interior = points.slice(1, -1).map((point) => [point.x, point.y]);
+  return toPolyline(points[0], last, interior);
+};
+
+const nativeStepAsPolyline = (
+  source: XYPosition,
+  target: XYPosition,
+  registration: RegisteredSmartEdge,
+): XYPosition[] =>
+  simplifyPolyline(
+    nativeStepPolyline(
+      source.x,
+      source.y,
+      registration.sourcePosition,
+      target.x,
+      target.y,
+      registration.targetPosition,
+    ),
+  );
+
 /**
  * Configuration for circuit-style "hops": small bridge arcs drawn where a
  * smart edge crosses another orthogonal smart edge rendered beneath it.
@@ -86,17 +114,25 @@ export const computeHoppedPath = (params: ComputeHoppedPathParams): string => {
 
 /**
  * Resolves this edge's own rendered polyline from its published route.
- * Returns `null` while the route is still pending or was cleared (no smart
- * path to bridge) — hops only ever apply once a real routed path exists,
- * matching the fallback edge the component itself renders in that case.
+ * Routed edges walk their pathfinding points; clear step/smooth-step edges
+ * use the native Z/L skeleton so hops still draw when
+ * `routeOnlyWhenBlocked` skipped A*. Returns `null` while the route is
+ * pending, or for a clear non-step preset (those keep the native fallback
+ * with no hop drawing).
  */
 const resolveOwnPolyline = (
   source: XYPosition,
   target: XYPosition,
+  registration: RegisteredSmartEdge,
   route: SmartEdgeRouteResult | undefined,
 ): XYPosition[] | null => {
-  if (route?.kind !== "routed") return null;
-  return toPolyline(source, target, route.points);
+  if (route?.kind === "routed") {
+    return toPolyline(source, target, route.points);
+  }
+  if (route?.kind === "clear" && isStepLikePreset(registration.preset)) {
+    return nativeStepAsPolyline(source, target, registration);
+  }
+  return null;
 };
 
 /**
@@ -125,14 +161,7 @@ const resolveUnderneathPolyline = (
 
   if (route.kind === "routed") return toPolyline(source, target, route.points);
 
-  return nativeStepPolyline(
-    registration.sourceX,
-    registration.sourceY,
-    registration.sourcePosition,
-    registration.targetX,
-    registration.targetY,
-    registration.targetPosition,
-  );
+  return nativeStepAsPolyline(source, target, registration);
 };
 
 /** Every same-preset registration painted strictly underneath `ownOrder`,
@@ -183,7 +212,9 @@ export interface UseHoppedPathParams {
 /**
  * Returns the hopped SVG path for this edge, or `null` when hops are
  * disabled, there is no provider, this edge's own route is not yet
- * published (or was cleared), or its registration cannot be found.
+ * published, a clear non-step edge has nothing to bridge, or its
+ * registration cannot be found. Clear step/smooth-step edges still get a
+ * path (the native skeleton, with hops if they cross a neighbor).
  *
  * Reads only already-published routes from the provider's store —
  * `getRegistrationsInOrder`/`getRoute` are imperative getters, so a
@@ -214,22 +245,23 @@ export const useHoppedPath = (params: UseHoppedPathParams): string | null => {
 
   if (!hopsRequested || context === null) return null;
 
-  const source: XYPosition = { x: params.sourceX, y: params.sourceY };
-  const target: XYPosition = { x: params.targetX, y: params.targetY };
-
-  const ownPolyline = resolveOwnPolyline(
-    source,
-    target,
-    context.store.getRoute(params.edgeId),
-  );
-  if (!ownPolyline) return null;
-
   const registrations = context.getRegistrationsInOrder();
   const ownRegistration = registrations.find(
     (registration) => registration.id === params.edgeId,
   );
   /* v8 ignore next -- registration race during unmount; covered by unit tests */
   if (!ownRegistration) return null;
+
+  const source: XYPosition = { x: params.sourceX, y: params.sourceY };
+  const target: XYPosition = { x: params.targetX, y: params.targetY };
+
+  const ownPolyline = resolveOwnPolyline(
+    source,
+    target,
+    ownRegistration,
+    context.store.getRoute(params.edgeId),
+  );
+  if (!ownPolyline) return null;
 
   const underneathPolylines = collectUnderneathPolylines(
     registrations,

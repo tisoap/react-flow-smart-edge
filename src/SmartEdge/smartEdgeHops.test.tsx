@@ -387,13 +387,89 @@ describe("useHoppedPath", () => {
     expect(results.at(-1)).toBeNull();
   });
 
-  it("returns null when this edge's own route resolved clear (unobstructed)", async () => {
+  it("returns a native polyline without a hop when this edge is clear and has no crossings", async () => {
     const results: (string | null)[] = [];
 
     render(
       <SmartEdgeProvider nodes={[]}>
         <EdgeProbe
           input={verticalEdge}
+          hops={true}
+          onResult={(hopped) => {
+            results.push(hopped);
+          }}
+        />
+      </SmartEdgeProvider>,
+    );
+
+    await flushDebounce();
+
+    expect(results.at(-1)).not.toBeNull();
+    expect(results.at(-1)).not.toMatch(/A \d/);
+  });
+
+  it("bridges two clear edges at their native-polyline crossing", async () => {
+    const topResults: (string | null)[] = [];
+    const bottomResults: (string | null)[] = [];
+
+    render(
+      <SmartEdgeProvider nodes={[]}>
+        <EdgeProbe
+          input={verticalEdge}
+          hops={true}
+          onResult={(hopped) => {
+            bottomResults.push(hopped);
+          }}
+        />
+        <EdgeProbe
+          input={horizontalEdge}
+          hops={true}
+          onResult={(hopped) => {
+            topResults.push(hopped);
+          }}
+        />
+      </SmartEdgeProvider>,
+    );
+
+    await flushDebounce();
+
+    expect(topResults.at(-1)).toMatch(/A \d/);
+    expect(bottomResults.at(-1)).not.toBeNull();
+    expect(bottomResults.at(-1)).not.toMatch(/A \d/);
+  });
+
+  it("bridges two clear smoothstep edges at their native-polyline crossing", async () => {
+    const topResults: (string | null)[] = [];
+
+    render(
+      <SmartEdgeProvider nodes={[]}>
+        <EdgeProbe
+          input={{ ...verticalEdge, preset: "smoothstep" }}
+          hops={true}
+          onResult={() => undefined}
+        />
+        <EdgeProbe
+          input={{ ...horizontalEdge, preset: "smoothstep" }}
+          hops={true}
+          onResult={(hopped) => {
+            topResults.push(hopped);
+          }}
+        />
+      </SmartEdgeProvider>,
+    );
+
+    await flushDebounce();
+
+    expect(topResults.at(-1)).toMatch(/A \d/);
+  });
+
+  it("returns null for a clear bezier edge even when hops are enabled", async () => {
+    const results: (string | null)[] = [];
+
+    render(
+      <SmartEdgeProvider nodes={[]}>
+        <EdgeProbe
+          input={{ ...verticalEdge, preset: "bezier" }}
           hops={true}
           onResult={(hopped) => {
             results.push(hopped);
