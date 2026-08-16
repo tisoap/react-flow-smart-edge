@@ -37,6 +37,9 @@ export default defineConfig(
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    linterOptions: {
+      noInlineConfig: true,
+    },
     rules: {
       // Disabled
       "react-refresh/only-export-components": "off",

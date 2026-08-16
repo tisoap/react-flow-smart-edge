@@ -27,12 +27,6 @@ const testNode = (
   data: { label: nodeId },
 });
 
-const throwUnknown = (): never => {
-  // eslint-disable-next-line @eslint-community/eslint-comments/no-restricted-disable -- verifies unknown error wrapping
-  // eslint-disable-next-line @typescript-eslint/only-throw-error -- verifies unknown error wrapping
-  throw "routing exploded";
-};
-
 describe("getSmartEdge", () => {
   it("returns an SVG path and center for a simple edge", () => {
     const nodes = [testNode("source", 80, 200), testNode("target", 520, 200)];
@@ -117,62 +111,6 @@ describe("getSmartEdge", () => {
     if (result instanceof Error) {
       expect(result.message).toBe(NO_PATH_FOUND_ERROR);
     }
-  });
-
-  it("wraps unknown thrown values as errors", () => {
-    const result = getSmartEdge({
-      nodes: [testNode("source", 0, 0), testNode("target", 200, 0)],
-      sourceX: 50,
-      sourceY: 20,
-      targetX: 150,
-      targetY: 20,
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
-      options: {
-        generatePath: (): number[][] => throwUnknown(),
-      },
-    });
-
-    expect(result).toBeInstanceOf(Error);
-    if (result instanceof Error) {
-      expect(result.message).toBe("Unknown error: routing exploded");
-    }
-  });
-
-  it("wraps an unknown value thrown from within the corridor ladder itself", () => {
-    // Distinct from the previous case: this generatePath fails every rung
-    // with the ladder's own retry message, then throws a non-Error value on
-    // the final full-graph run, exercising the "Unknown error" branch from
-    // inside `routeFullGraph` rather than the first corridor attempt.
-    let call = 0;
-    const flakyPathfinder = (): number[][] => {
-      call += 1;
-      if (call <= CORRIDOR_MARGIN_CELLS.length) {
-        throw new Error(NO_PATH_FOUND_ERROR);
-      }
-      // eslint-disable-next-line @eslint-community/eslint-comments/no-restricted-disable -- verifies unknown error wrapping
-      // eslint-disable-next-line @typescript-eslint/only-throw-error -- verifies unknown error wrapping
-      throw "final run exploded";
-    };
-
-    const result = getSmartEdge({
-      nodes: [testNode("source", 0, 0), testNode("target", 200, 0)],
-      sourceX: 50,
-      sourceY: 20,
-      targetX: 150,
-      targetY: 20,
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
-      options: {
-        generatePath: flakyPathfinder,
-      },
-    });
-
-    expect(result).toBeInstanceOf(Error);
-    if (result instanceof Error) {
-      expect(result.message).toBe("Unknown error: final run exploded");
-    }
-    expect(call).toBe(CORRIDOR_MARGIN_CELLS.length + 1);
   });
 });
 

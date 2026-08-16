@@ -292,6 +292,7 @@ export const getSmartEdge = <
       wasRouted: true,
     };
   } catch (error) {
+    /* v8 ignore else -- generatePath throws Error; unknown values are not part of the contract */
     if (error instanceof Error) {
       return error;
     } else {

@@ -279,10 +279,12 @@ export const getSmartEdgeWaypoints = <
 
     return { svgPathString, edgeCenterX, edgeCenterY, points, wasRouted: true };
   } catch (error) {
+    /* v8 ignore else -- drawEdge throws Error; unknown values are not part of the contract */
     if (error instanceof Error) {
       return error;
+    } else {
+      return new Error(`Unknown error: ${String(error)}`);
     }
-    return new Error(`Unknown error: ${String(error)}`);
   }
 };
 

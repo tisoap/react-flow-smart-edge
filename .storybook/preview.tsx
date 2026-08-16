@@ -1,7 +1,7 @@
 import type { Preview } from "@storybook/react-vite";
 import { configure } from "storybook/test";
 import { PLAY_WAIT_TIMEOUT_MS } from "../src/stories/storyPlayHelpers";
-import { resolveStoryColorMode } from "../src/stories/storyColorMode";
+import { resolveDecoratorColorMode } from "../src/stories/storyColorMode";
 import "@xyflow/react/dist/style.css";
 
 configure({ asyncUtilTimeout: PLAY_WAIT_TIMEOUT_MS });
@@ -26,12 +26,13 @@ const preview: Preview = {
   },
   decorators: [
     (Story, context) => {
-      const colorMode = resolveStoryColorMode(context.globals);
+      const colorMode = resolveDecoratorColorMode(
+        context.args,
+        context.globals,
+      );
       const args = {
         ...context.args,
-        // eslint-disable-next-line @eslint-community/eslint-comments/no-restricted-disable -- Storybook `Args` values are `any`
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Storybook `Args` values are `any`
-        colorMode: context.args["colorMode"] ?? colorMode,
+        colorMode,
       };
       const fillHost = context.parameters["demoHostHeight"] !== "fullscreen";
 
