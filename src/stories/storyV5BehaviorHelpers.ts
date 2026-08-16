@@ -1,4 +1,5 @@
-import { userEvent, waitFor } from "storybook/test";
+import { userEvent } from "storybook/test";
+import { playWaitFor } from "./storyPlayHelpers";
 
 /** Returned by {@link beginNodeDrag}: call `end()` to release the pointer
  * button and complete the drag. */
@@ -45,7 +46,7 @@ export async function beginNodeDrag(
   nodeId: string,
   delta: { x: number; y: number },
 ): Promise<NodeDragHandle> {
-  const node = await waitFor(() => {
+  const node = await playWaitFor(() => {
     const element = canvasElement.querySelector<HTMLElement>(
       `.react-flow__node[data-id="${nodeId}"]`,
     );
@@ -97,7 +98,7 @@ export async function expectDragFallbackStyle(
   canvasElement: HTMLElement,
   edgeId: string,
 ): Promise<SVGPathElement> {
-  return waitFor(() => {
+  return playWaitFor(() => {
     const path = canvasElement.querySelector<SVGPathElement>(
       `[data-testid="rf__edge-${edgeId}"] path.react-flow__edge-path`,
     );
@@ -116,7 +117,7 @@ export async function expectNoDragFallbackStyle(
   canvasElement: HTMLElement,
   edgeId: string,
 ): Promise<SVGPathElement> {
-  return waitFor(() => {
+  return playWaitFor(() => {
     const path = canvasElement.querySelector<SVGPathElement>(
       `[data-testid="rf__edge-${edgeId}"] path.react-flow__edge-path`,
     );
@@ -141,13 +142,13 @@ export async function expectStaysUnrouted(
   canvasElement: HTMLElement,
   edgeId: string,
   routedPattern = /Q/i,
-  settleMs = 250,
+  settleMs = 1_000,
 ): Promise<SVGPathElement> {
   await new Promise((resolve) => {
     setTimeout(resolve, settleMs);
   });
 
-  return waitFor(() => {
+  return playWaitFor(() => {
     const path = canvasElement.querySelector<SVGPathElement>(
       `[data-testid="rf__edge-${edgeId}"] path.react-flow__edge-path`,
     );

@@ -4,6 +4,19 @@ export interface DemoStoryPlayContext {
   canvasElement: HTMLElement;
 }
 
+/**
+ * Storybook's instrumented `waitFor` defaults to 1000ms. That is shorter than
+ * a cold routing worker plus React Flow measurement/`fitView` plus the first
+ * pathfinding batch in the preview iframe, which is why plays pass under
+ * Vitest and fail when opened as a story. Every play helper uses this budget.
+ */
+export const PLAY_WAIT_TIMEOUT_MS = 5_000;
+
+const PLAY_WAIT = { timeout: PLAY_WAIT_TIMEOUT_MS } as const;
+
+export const playWaitFor = <T>(callback: () => T | Promise<T>): Promise<T> =>
+  waitFor(callback, PLAY_WAIT);
+
 export const demoStoryPlay = (
   play: (canvasElement: HTMLElement) => Promise<void> | void,
 ) => {
@@ -17,10 +30,17 @@ export const CONNECTION_PATH_SELECTOR = ".react-flow__connection-path";
 export const CONTROL_POINT_SELECTOR =
   "[data-testid='smart-edge-control-point']";
 
+const queryEdgePaths = (canvasElement: HTMLElement): SVGPathElement[] => [
+  ...canvasElement.querySelectorAll<SVGPathElement>(EDGE_PATH_SELECTOR),
+];
+
 interface CountExpectation {
   min?: number;
   exact?: number;
 }
+
+const EDGE_PATHS_LABEL = "edge paths";
+const EDGE_PATH_MISSING_D = "edge path missing d attribute";
 
 const resolveCount = (
   count: CountExpectation,
@@ -40,7 +60,7 @@ const resolveCount = (
 };
 
 export async function expectGraphRendered(canvasElement: HTMLElement) {
-  return waitFor(() => {
+  return playWaitFor(() => {
     const wrapper = canvasElement.querySelector(GRAPH_WRAPPER_SELECTOR);
     if (!wrapper) throw new Error("graph wrapper not rendered");
     return wrapper;
@@ -51,7 +71,7 @@ export async function expectNodeCount(
   canvasElement: HTMLElement,
   count: CountExpectation,
 ) {
-  return waitFor(() => {
+  return playWaitFor(() => {
     const nodes = canvasElement.querySelectorAll(NODE_SELECTOR);
     resolveCount(count, nodes.length, "nodes");
     return nodes;
@@ -62,14 +82,12 @@ export async function expectEdgePaths(
   canvasElement: HTMLElement,
   count: CountExpectation = { min: 1 },
 ) {
-  return waitFor(() => {
-    const paths = [
-      ...canvasElement.querySelectorAll<SVGPathElement>(EDGE_PATH_SELECTOR),
-    ];
-    resolveCount(count, paths.length, "edge paths");
+  return playWaitFor(() => {
+    const paths = queryEdgePaths(canvasElement);
+    resolveCount(count, paths.length, EDGE_PATHS_LABEL);
     for (const path of paths) {
       const pathData = path.getAttribute("d")?.trim();
-      if (!pathData) throw new Error("edge path missing d attribute");
+      if (!pathData) throw new Error(EDGE_PATH_MISSING_D);
     }
     return paths;
   });
@@ -82,10 +100,12 @@ export async function expectEdgePathsMatch(
 ) {
   // v5 routes edges asynchronously through the provider, so the routed path
   // (with its bezier `Q` / hop-arc `A` commands) replaces the pending fallback
-  // a few frames after mount. Poll until a matching routed path appears rather
-  // than checking once against the first (fallback) render.
-  return waitFor(async () => {
-    const paths = await expectEdgePaths(canvasElement, count);
+  // a few frames after mount. Poll the live DOM in one `waitFor` rather than
+  // nesting `expectEdgePaths` (a second instrumented `waitFor`) so retries
+  // stay inside a single 5s budget.
+  return playWaitFor(() => {
+    const paths = queryEdgePaths(canvasElement);
+    resolveCount(count, paths.length, EDGE_PATHS_LABEL);
     const matching = paths.filter((path) =>
       pattern.test(path.getAttribute("d") ?? ""),
     );
@@ -97,16 +117,20 @@ export async function expectEdgePathsMatch(
 }
 
 export async function expectStraightOrStepPaths(canvasElement: HTMLElement) {
-  const paths = await expectEdgePaths(canvasElement);
-  for (const path of paths) {
-    const pathData = path.getAttribute("d") ?? "";
-    if (/C/i.test(pathData)) {
-      throw new Error(
-        `expected step/straight path without cubic curves: ${pathData}`,
-      );
+  return playWaitFor(() => {
+    const paths = queryEdgePaths(canvasElement);
+    resolveCount({ min: 1 }, paths.length, EDGE_PATHS_LABEL);
+    for (const path of paths) {
+      const pathData = path.getAttribute("d") ?? "";
+      if (!pathData.trim()) throw new Error(EDGE_PATH_MISSING_D);
+      if (/C/i.test(pathData)) {
+        throw new Error(
+          `expected step/straight path without cubic curves: ${pathData}`,
+        );
+      }
     }
-  }
-  return paths;
+    return paths;
+  });
 }
 
 export async function expectBezierCurves(canvasElement: HTMLElement) {
@@ -125,7 +149,7 @@ export async function expectCustomLabelButtons(
   canvasElement: HTMLElement,
   count: CountExpectation,
 ) {
-  return waitFor(() => {
+  return playWaitFor(() => {
     const buttons = canvasElement.querySelectorAll("foreignObject button");
     resolveCount(count, buttons.length, "custom label buttons");
     return buttons;
@@ -141,8 +165,9 @@ export async function expectPathAvoidsRect(
 
   // The pending fallback runs straight through the avoided rect; poll until the
   // asynchronously routed path (which detours around it) has been published.
-  await waitFor(async () => {
-    const paths = await expectEdgePaths(canvasElement, { exact: 1 });
+  await playWaitFor(() => {
+    const paths = queryEdgePaths(canvasElement);
+    resolveCount({ exact: 1 }, paths.length, EDGE_PATHS_LABEL);
     const path = paths[0];
     const length = path.getTotalLength();
     let insideRect = 0;
@@ -172,7 +197,7 @@ export async function dragSmartConnectionPreview(
 ) {
   await expectGraphRendered(canvasElement);
 
-  const handle = await waitFor(() => {
+  const handle = await playWaitFor(() => {
     const element = canvasElement.querySelector<HTMLElement>(
       `.react-flow__node[data-id="${sourceNodeId}"] .react-flow__handle.source`,
     );
@@ -194,7 +219,7 @@ export async function dragSmartConnectionPreview(
     { coords: { clientX: startX + 140, clientY: startY - 90 } },
   ]);
 
-  return waitFor(() => {
+  return playWaitFor(() => {
     const path = canvasElement.querySelector<SVGPathElement>(
       CONNECTION_PATH_SELECTOR,
     );
@@ -224,7 +249,7 @@ export async function waitForRoutedEdge(
   edgeId: string,
   pattern: RegExp,
 ): Promise<SVGPathElement> {
-  return waitFor(() => {
+  return playWaitFor(() => {
     const path = canvasElement.querySelector<SVGPathElement>(
       `[data-testid="rf__edge-${edgeId}"] path.react-flow__edge-path`,
     );
@@ -252,7 +277,7 @@ export async function expectDemoGraph(
 }
 
 export async function expectNodesFullyVisible(canvasElement: HTMLElement) {
-  return waitFor(() => {
+  return playWaitFor(() => {
     const wrapper = canvasElement.querySelector(GRAPH_WRAPPER_SELECTOR);
     if (!wrapper) throw new Error("graph wrapper not rendered");
 

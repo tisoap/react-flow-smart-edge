@@ -1,8 +1,10 @@
-import { expect, userEvent, waitFor } from "storybook/test";
+import { expect, userEvent } from "storybook/test";
 import {
   CONTROL_POINT_SELECTOR,
   EDGE_PATH_SELECTOR,
+  expectBezierCurves,
   expectGraphRendered,
+  playWaitFor,
 } from "./storyPlayHelpers";
 
 const ACTIVE_CONTROL_POINT_SELECTOR = `circle.active${CONTROL_POINT_SELECTOR}`;
@@ -14,8 +16,9 @@ const EDGE_PATH_NOT_RENDERED = "edge path not rendered";
  */
 export async function interactWithEditableEdge(canvasElement: HTMLElement) {
   await expectGraphRendered(canvasElement);
+  await expectBezierCurves(canvasElement);
 
-  const controlPoints = await waitFor(() => {
+  const controlPoints = await playWaitFor(() => {
     const circles = canvasElement.querySelectorAll<SVGCircleElement>(
       CONTROL_POINT_SELECTOR,
     );
@@ -40,7 +43,7 @@ export async function interactWithEditableEdge(canvasElement: HTMLElement) {
     "{ArrowRight}{ArrowRight}{ArrowLeft}{ArrowUp}{ArrowDown}{Enter}{a}",
   );
 
-  await waitFor(() => {
+  await playWaitFor(() => {
     const path =
       canvasElement.querySelector<SVGPathElement>(EDGE_PATH_SELECTOR);
     if (!path) throw new Error(EDGE_PATH_NOT_RENDERED);
@@ -129,7 +132,7 @@ export async function interactWithEditableEdge(canvasElement: HTMLElement) {
   leadingInactive.focus();
   await userEvent.keyboard(" ");
 
-  await waitFor(() => {
+  await playWaitFor(() => {
     if (inactivePoints().length < 1) {
       throw new Error("expected inactive slots after promoting the first");
     }
@@ -143,7 +146,7 @@ export async function interactWithEditableEdge(canvasElement: HTMLElement) {
   laterInactive.focus();
   await userEvent.keyboard("{Enter}");
 
-  const promotedPoint = await waitFor(() => {
+  const promotedPoint = await playWaitFor(() => {
     const points = canvasElement.querySelectorAll<SVGCircleElement>(
       ACTIVE_CONTROL_POINT_SELECTOR,
     );
@@ -159,7 +162,7 @@ export async function interactWithEditableEdge(canvasElement: HTMLElement) {
     new MouseEvent("contextmenu", { bubbles: true, button: 2 }),
   );
 
-  await waitFor(() => {
+  await playWaitFor(() => {
     const remaining = canvasElement.querySelectorAll(
       ACTIVE_CONTROL_POINT_SELECTOR,
     );

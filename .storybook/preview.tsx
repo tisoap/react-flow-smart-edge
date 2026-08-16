@@ -1,6 +1,10 @@
 import type { Preview } from "@storybook/react-vite";
+import { configure } from "storybook/test";
+import { PLAY_WAIT_TIMEOUT_MS } from "../src/stories/storyPlayHelpers";
 import { resolveStoryColorMode } from "../src/stories/storyColorMode";
 import "@xyflow/react/dist/style.css";
+
+configure({ asyncUtilTimeout: PLAY_WAIT_TIMEOUT_MS });
 
 const preview: Preview = {
   globalTypes: {

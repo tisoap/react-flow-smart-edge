@@ -54,11 +54,12 @@ export const SelfLoop: Story = {
     defaultEdges: [selfLoopEdge],
   },
   play: demoStoryPlay(async (canvasElement) => {
-    const paths = await expectDemoGraph(canvasElement, {
+    await expectDemoGraph(canvasElement, {
       nodeCount: { exact: 1 },
       edgeCount: { exact: 1 },
     });
-    const pathData = paths[0].getAttribute("d") ?? "";
+    const path = await waitForRoutedEdge(canvasElement, selfLoopEdge.id, /Q/i);
+    const pathData = path.getAttribute("d") ?? "";
     if (pathData.length < 12) {
       throw new Error(
         "self-loop path should be longer than a degenerate segment",

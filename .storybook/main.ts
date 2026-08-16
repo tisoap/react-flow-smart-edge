@@ -1,6 +1,11 @@
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 import type { StorybookConfig } from "@storybook/react-vite";
+import type { UserConfig } from "vite";
+
+type ViteWatchIgnored = NonNullable<
+  NonNullable<NonNullable<UserConfig["server"]>["watch"]>["ignored"]
+>;
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
@@ -27,6 +32,17 @@ const config: StorybookConfig = {
         ...viteConfig.define,
         "process.env.CI": JSON.stringify(process.env["CI"] ?? ""),
       },
+      server: {
+        ...viteConfig.server,
+        watch: {
+          ...viteConfig.server?.watch,
+          ignored: mergeWatchIgnored(viteConfig.server?.watch?.ignored, [
+            "**/coverage/**",
+            "**/website/build/**",
+            "**/storybook-static/**",
+          ]),
+        },
+      },
     };
   },
 };
@@ -36,3 +52,16 @@ export default config;
 function getAbsolutePath(value: string): string {
   return dirname(fileURLToPath(import.meta.resolve(`${value}/package.json`)));
 }
+
+const mergeWatchIgnored = (
+  existing: ViteWatchIgnored | undefined,
+  extra: string[],
+): ViteWatchIgnored => {
+  if (existing === undefined) {
+    return extra;
+  }
+  if (Array.isArray(existing)) {
+    return [...existing, ...extra];
+  }
+  return [existing, ...extra];
+};
