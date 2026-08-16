@@ -179,7 +179,7 @@ function MainThreadPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
 
 const meta = {
   title: "Smart Edge Performance",
-  parameters: { layout: "fullscreen" },
+  parameters: { layout: "fullscreen", demoHostHeight: "fullscreen" },
   args: { columns: 8, rows: 6 },
   argTypes: {
     columns: { control: { type: "range", min: 3, max: 24, step: 1 } },
