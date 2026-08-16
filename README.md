@@ -8,7 +8,7 @@ Drop-in custom edges that use grid-based A\* pathfinding to find a clean path be
 
 [![npm version](https://img.shields.io/npm/v/@tisoap/react-flow-smart-edge?logo=npm&color=cb3837)](https://www.npmjs.com/package/@tisoap/react-flow-smart-edge)
 [![npm downloads](https://img.shields.io/npm/dm/@tisoap/react-flow-smart-edge?color=cb3837)](https://www.npmjs.com/package/@tisoap/react-flow-smart-edge)
-[![tests](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/test-ui.yml/badge.svg)](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/test-ui.yml)
+[![CI](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/ci.yml/badge.svg)](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/ci.yml)
 [![Storybook](https://img.shields.io/badge/Storybook-FF4785?logo=storybook&logoColor=white)](https://main--625ade28911b53003a921739.chromatic.com/?path=/story/smart-edge--smart-bezier)
 [![Chromatic](https://github.com/tisoap/react-flow-smart-edge/actions/workflows/chromatic.yml/badge.svg)](https://www.chromatic.com/library?appId=625ade28911b53003a921739)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
@@ -208,6 +208,7 @@ Interactive Storybook examples are also published on [Chromatic](https://main--6
 npm ci
 npm run storybook    # demos + tests (port 6006)
 npm run docs         # Docusaurus dev server → http://localhost:3000/docs
+npm run verify       # lint, types, spellcheck, coverage tests, full build
 npm run check        # lint, types, spellcheck
 npm run test         # Storybook interaction tests
 npm run build-docs   # static docs site → website/build
