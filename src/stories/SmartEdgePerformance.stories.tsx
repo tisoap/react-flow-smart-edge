@@ -15,6 +15,7 @@ import { GraphWrapper } from "../demos/GraphWrapper";
 import { SmartEdgeProvider } from "../routing/SmartEdgeProvider";
 import { useSmartEdgePath } from "../routing/useSmartEdgePath";
 import { SmartBezierEdge } from "../SmartBezierEdge";
+import { resolveStoryColorMode, type StoryColorMode } from "./storyColorMode";
 import {
   demoStoryPlay,
   expectDemoGraph,
@@ -111,7 +112,6 @@ const workerEdgeTypes = { worker: WorkerEdge };
 const mainThreadEdgeTypes = { smart: SmartBezierEdge };
 
 const wrapperStyle = {
-  background: "#fafafa",
   width: "100%",
   height: "100vh",
 } as const;
@@ -119,10 +119,19 @@ const wrapperStyle = {
 interface PerfArgs {
   columns: number;
   rows: number;
+  colorMode?: StoryColorMode;
+}
+
+interface PerfDemoProps extends PerfArgs {
+  colorMode: StoryColorMode;
 }
 
 /** Large graph routed off the main thread via the Web Worker batch provider. */
-function WorkerPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
+function WorkerPerformanceDemo({
+  columns,
+  rows,
+  colorMode,
+}: Readonly<PerfDemoProps>) {
   const initial = useMemo(
     () => makeGraph(columns, rows, "worker"),
     [columns, rows],
@@ -142,6 +151,7 @@ function WorkerPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
             onEdgesChange={onEdgesChange}
             minZoom={0.05}
             fitView
+            colorMode={colorMode}
             proOptions={{ hideAttribution: true }}
           />
         </div>
@@ -151,7 +161,11 @@ function WorkerPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
 }
 
 /** The same large graph routed synchronously on the main thread, for contrast. */
-function MainThreadPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
+function MainThreadPerformanceDemo({
+  columns,
+  rows,
+  colorMode,
+}: Readonly<PerfDemoProps>) {
   const initial = useMemo(
     () => makeGraph(columns, rows, "smart"),
     [columns, rows],
@@ -170,6 +184,7 @@ function MainThreadPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
           onEdgesChange={onEdgesChange}
           minZoom={0.05}
           fitView
+          colorMode={colorMode}
           proOptions={{ hideAttribution: true }}
         />
       </div>
@@ -184,6 +199,7 @@ const meta = {
   argTypes: {
     columns: { control: { type: "range", min: 3, max: 24, step: 1 } },
     rows: { control: { type: "range", min: 3, max: 24, step: 1 } },
+    colorMode: { control: false, table: { disable: true } },
   },
 } satisfies Meta<PerfArgs>;
 
@@ -204,8 +220,12 @@ const expectedCounts = (columns: number, rows: number) => {
  * Increase the `columns`/`rows` controls to add load.
  */
 export const WorkerRouting: Story = {
-  render: ({ columns, rows }) => (
-    <WorkerPerformanceDemo columns={columns} rows={rows} />
+  render: ({ columns, rows, colorMode }) => (
+    <WorkerPerformanceDemo
+      columns={columns}
+      rows={rows}
+      colorMode={resolveStoryColorMode({ colorMode })}
+    />
   ),
   play: demoStoryPlay(async (canvasElement) => {
     const { nodeCount, edgeCount } = expectedCounts(8, 6);
@@ -222,8 +242,12 @@ export const WorkerRouting: Story = {
  * edge on the main thread blocks rendering.
  */
 export const MainThreadRouting: Story = {
-  render: ({ columns, rows }) => (
-    <MainThreadPerformanceDemo columns={columns} rows={rows} />
+  render: ({ columns, rows, colorMode }) => (
+    <MainThreadPerformanceDemo
+      columns={columns}
+      rows={rows}
+      colorMode={resolveStoryColorMode({ colorMode })}
+    />
   ),
   play: demoStoryPlay(async (canvasElement) => {
     const { nodeCount, edgeCount } = expectedCounts(8, 6);
@@ -236,7 +260,11 @@ export const MainThreadRouting: Story = {
 
 // --- 750-node (#69) train-network fixture ---------------------------------
 
-const metricsOverlayContainerStyle: CSSProperties = { position: "relative" };
+const metricsOverlayContainerStyle: CSSProperties = {
+  position: "relative",
+  width: "100%",
+  height: "100vh",
+};
 
 const metricsOverlayStyle: CSSProperties = {
   position: "absolute",
@@ -258,6 +286,7 @@ const metricsOverlayStyle: CSSProperties = {
 interface LargeNetworkArgs {
   nodeCount: number;
   seed: number;
+  colorMode: StoryColorMode;
 }
 
 /**
@@ -269,7 +298,11 @@ interface LargeNetworkArgs {
  * assert on real batch latency and routing outcomes instead of only
  * checking that nodes rendered.
  */
-function LargeNetworkDemo({ nodeCount, seed }: Readonly<LargeNetworkArgs>) {
+function LargeNetworkDemo({
+  nodeCount,
+  seed,
+  colorMode,
+}: Readonly<LargeNetworkArgs>) {
   const { nodes, edges } = useMemo(
     () => buildLargeNetwork(nodeCount, seed),
     [nodeCount, seed],
@@ -286,6 +319,7 @@ function LargeNetworkDemo({ nodeCount, seed }: Readonly<LargeNetworkArgs>) {
         onMetrics={setMetrics}
         minZoom={0.02}
         fitView
+        colorMode={colorMode}
       />
       <pre data-testid="metrics" style={metricsOverlayStyle} tabIndex={0}>
         {JSON.stringify(metrics)}
@@ -363,10 +397,11 @@ export const LargeNetwork750: Story = {
     // The play function still runs under Storybook Vitest (`npm run test`).
     chromatic: { disableSnapshot: true },
   },
-  render: () => (
+  render: ({ colorMode }) => (
     <LargeNetworkDemo
       nodeCount={largeNetworkMeta.nodeCount}
       seed={largeNetworkMeta.seed}
+      colorMode={resolveStoryColorMode({ colorMode })}
     />
   ),
   play: demoStoryPlay(async (canvasElement) => {

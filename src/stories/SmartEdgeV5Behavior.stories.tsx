@@ -6,6 +6,7 @@ import {
   expectDemoGraph,
   waitForRoutedEdge,
 } from "./storyPlayHelpers";
+import { resolveStoryColorMode, type StoryColorMode } from "./storyColorMode";
 import {
   beginNodeDrag,
   expectDragFallbackStyle,
@@ -142,21 +143,31 @@ const noProviderEdges: Edge[] = [
  * test (`SmartEdge/index.test.tsx`); this story documents the rendered
  * behavior visually instead of re-asserting the console spy.
  */
-export const NoProvider: Story = {
-  render: () => (
+function NoProviderDemo({
+  colorMode,
+}: Readonly<{ colorMode: StoryColorMode }>) {
+  return (
     <ReactFlowProvider>
       <div
         data-testid="graph-wrapper"
-        style={{ background: "#fafafa", width: "100%", height: "500px" }}
+        style={{ width: "100%", height: "100%" }}
       >
         <ReactFlow
           defaultNodes={noProviderNodes}
           defaultEdges={noProviderEdges}
           edgeTypes={edgeTypes}
+          fitView
+          colorMode={colorMode}
           proOptions={{ hideAttribution: true }}
         />
       </div>
     </ReactFlowProvider>
+  );
+}
+
+export const NoProvider: Story = {
+  render: ({ colorMode }) => (
+    <NoProviderDemo colorMode={resolveStoryColorMode({ colorMode })} />
   ),
   play: demoStoryPlay(async (canvasElement) => {
     await expectDemoGraph(canvasElement, {
