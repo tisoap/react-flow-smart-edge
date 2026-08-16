@@ -57,7 +57,6 @@ export default defineConfig(
         "sonarjs/*",
         "react-hooks/*",
         "@eslint-react/*",
-        "eslint-community/*",
         "@typescript-eslint/*",
       ],
       "@eslint-community/eslint-comments/require-description": [
