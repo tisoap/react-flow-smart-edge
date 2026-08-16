@@ -9,6 +9,7 @@ import {
   expectCustomLabelButtons,
   expectDemoGraph,
   expectEdgePaths,
+  expectNodesFullyVisible,
   expectPathAvoidsRect,
   expectStraightOrStepPaths,
 } from "./storyPlayHelpers";
@@ -263,6 +264,7 @@ export const SmartStepHop: Story = {
       nodeCount: { exact: 4 },
       edgeCount: { exact: 2 },
     });
+    await expectNodesFullyVisible(canvasElement);
     await expectArcHops(canvasElement);
   }),
 };
@@ -274,6 +276,7 @@ export const SmartSmoothStepHop: Story = {
       nodeCount: { exact: 4 },
       edgeCount: { exact: 2 },
     });
+    await expectNodesFullyVisible(canvasElement);
     await expectArcHops(canvasElement);
   }),
 };

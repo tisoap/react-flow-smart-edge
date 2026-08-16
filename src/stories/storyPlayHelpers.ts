@@ -250,3 +250,32 @@ export async function expectDemoGraph(
   await expectNodeCount(canvasElement, options.nodeCount);
   return expectEdgePaths(canvasElement, options.edgeCount);
 }
+
+export async function expectNodesFullyVisible(canvasElement: HTMLElement) {
+  return waitFor(() => {
+    const wrapper = canvasElement.querySelector(GRAPH_WRAPPER_SELECTOR);
+    if (!wrapper) throw new Error("graph wrapper not rendered");
+
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const nodes = [
+      ...canvasElement.querySelectorAll<HTMLElement>(NODE_SELECTOR),
+    ];
+    if (nodes.length === 0) throw new Error("expected nodes in graph");
+
+    for (const node of nodes) {
+      const rect = node.getBoundingClientRect();
+      const overflows =
+        rect.top < wrapperRect.top - 1 ||
+        rect.left < wrapperRect.left - 1 ||
+        rect.bottom > wrapperRect.bottom + 1 ||
+        rect.right > wrapperRect.right + 1;
+      if (overflows) {
+        throw new Error(
+          `node "${node.getAttribute("data-id") ?? "?"}" overflows graph wrapper`,
+        );
+      }
+    }
+
+    return nodes;
+  });
+}
