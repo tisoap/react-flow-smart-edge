@@ -1,3 +1,4 @@
+import { useColorMode } from "@docusaurus/theme-common";
 import { demoRegistry } from "@demos/registry";
 import { GraphWrapper } from "@demos/GraphWrapper";
 import "@xyflow/react/dist/style.css";
@@ -11,6 +12,7 @@ export default function FlowDemoClient({
   name,
   height = 420,
 }: FlowDemoClientProps) {
+  const { colorMode } = useColorMode();
   const props = demoRegistry[name as keyof typeof demoRegistry];
   if (!props) {
     return <p>Unknown demo: {name}</p>;
@@ -18,6 +20,7 @@ export default function FlowDemoClient({
 
   return (
     <div
+      className="flow-demo"
       style={{
         width: "100%",
         height,
@@ -27,7 +30,10 @@ export default function FlowDemoClient({
         border: "1px solid var(--ifm-color-emphasis-300)",
       }}
     >
-      <GraphWrapper {...props} />
+      <GraphWrapper
+        {...props}
+        colorMode={colorMode === "dark" ? "dark" : "light"}
+      />
     </div>
   );
 }

@@ -37,7 +37,7 @@ This package requires [React Flow v12+](https://reactflow.dev/learn/troubleshoot
 - `SmartCheckpointEdge`: fixed waypoints from `edge.data.checkpoints` (library-only; no React Flow example)
 - `createSmartEdge`: configure presets at module scope
 - `getSmartEdge`: build fully custom smart edges
-- `SmartEdgeBatchRoutingProvider` and `useSmartEdgeRoute`: route large graphs off the main thread on a Web Worker
+- `SmartEdgeProvider` and `useSmartEdgePath`: every smart edge routes through this provider, off the main thread on a Web Worker by default
 
 ## Support
 
@@ -47,4 +47,6 @@ Like this project? [Buy me a coffee](https://ko-fi.com/J3J472RAJ) or [sponsor on
 
 - [Quick start](./getting-started/quick-start) to wire up your first smart edge
 - [Edge types](./edge-types/bezier) to compare presets with live demos
+- [Performance](./guides/performance) for how the routing pipeline stays off the main thread on large graphs
+- [Migrating to v5](./migration/v5) if you're upgrading from an earlier version
 - [Storybook on Chromatic](https://www.chromatic.com/library?appId=625ade28911b53003a921739) for the full interactive story catalog

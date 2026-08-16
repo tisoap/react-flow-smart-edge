@@ -7,13 +7,24 @@ import {
   useNodesState,
   useEdgesState,
 } from "@xyflow/react";
-import { useMemo } from "react";
-import { SmartEdgeBatchRoutingProvider } from "../batchRouting/SmartEdgeBatchRoutingProvider";
-import { useSmartEdgeRoute } from "../batchRouting/useSmartEdgeRoute";
+import { useMemo, useState } from "react";
+import { expect, waitFor } from "storybook/test";
+import { buildLargeNetwork } from "../demos/dummyData/largeNetwork";
+import { edgeTypes as smartEdgeTypes } from "../demos/DummyData";
+import { GraphWrapper } from "../demos/GraphWrapper";
+import { SmartEdgeProvider } from "../routing/SmartEdgeProvider";
+import { useSmartEdgePath } from "../routing/useSmartEdgePath";
 import { SmartBezierEdge } from "../SmartBezierEdge";
-import { demoStoryPlay, expectDemoGraph } from "./storyPlayHelpers";
+import { resolveStoryColorMode, type StoryColorMode } from "./storyColorMode";
+import {
+  demoStoryPlay,
+  expectDemoGraph,
+  NODE_SELECTOR,
+} from "./storyPlayHelpers";
+import type { SmartEdgeMetrics } from "../routing/scheduler";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { EdgeProps, Node, Edge } from "@xyflow/react";
+import type { CSSProperties } from "react";
 
 const GAP_X = 220;
 const GAP_Y = 160;
@@ -72,16 +83,26 @@ const makeGraph = (
 
 /** Worker-routed edge: renders the routed path, or a bezier while pending. */
 function WorkerEdge(props: EdgeProps) {
-  const routed = useSmartEdgeRoute(props);
-  if (!routed) {
+  const { route } = useSmartEdgePath({
+    id: props.id,
+    source: props.source,
+    target: props.target,
+    sourceX: props.sourceX,
+    sourceY: props.sourceY,
+    targetX: props.targetX,
+    targetY: props.targetY,
+    sourcePosition: props.sourcePosition,
+    targetPosition: props.targetPosition,
+  });
+  if (route?.kind !== "routed") {
     return <BezierEdge {...props} />;
   }
   return (
     <BaseEdge
       id={props.id}
-      path={routed.svgPathString}
-      labelX={routed.edgeCenterX}
-      labelY={routed.edgeCenterY}
+      path={route.svgPathString}
+      labelX={route.edgeCenterX}
+      labelY={route.edgeCenterY}
       markerEnd={props.markerEnd}
     />
   );
@@ -91,7 +112,6 @@ const workerEdgeTypes = { worker: WorkerEdge };
 const mainThreadEdgeTypes = { smart: SmartBezierEdge };
 
 const wrapperStyle = {
-  background: "#fafafa",
   width: "100%",
   height: "100vh",
 } as const;
@@ -99,10 +119,19 @@ const wrapperStyle = {
 interface PerfArgs {
   columns: number;
   rows: number;
+  colorMode?: StoryColorMode;
+}
+
+interface PerfDemoProps extends PerfArgs {
+  colorMode: StoryColorMode;
 }
 
 /** Large graph routed off the main thread via the Web Worker batch provider. */
-function WorkerPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
+function WorkerPerformanceDemo({
+  columns,
+  rows,
+  colorMode,
+}: Readonly<PerfDemoProps>) {
   const initial = useMemo(
     () => makeGraph(columns, rows, "worker"),
     [columns, rows],
@@ -112,10 +141,7 @@ function WorkerPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
 
   return (
     <ReactFlowProvider>
-      <SmartEdgeBatchRoutingProvider
-        nodes={nodes}
-        options={{ preset: "bezier" }}
-      >
+      <SmartEdgeProvider nodes={nodes} options={{ preset: "bezier" }}>
         <div data-testid="graph-wrapper" style={wrapperStyle}>
           <ReactFlow
             nodes={nodes}
@@ -125,15 +151,21 @@ function WorkerPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
             onEdgesChange={onEdgesChange}
             minZoom={0.05}
             fitView
+            colorMode={colorMode}
+            proOptions={{ hideAttribution: true }}
           />
         </div>
-      </SmartEdgeBatchRoutingProvider>
+      </SmartEdgeProvider>
     </ReactFlowProvider>
   );
 }
 
 /** The same large graph routed synchronously on the main thread, for contrast. */
-function MainThreadPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
+function MainThreadPerformanceDemo({
+  columns,
+  rows,
+  colorMode,
+}: Readonly<PerfDemoProps>) {
   const initial = useMemo(
     () => makeGraph(columns, rows, "smart"),
     [columns, rows],
@@ -152,6 +184,8 @@ function MainThreadPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
           onEdgesChange={onEdgesChange}
           minZoom={0.05}
           fitView
+          colorMode={colorMode}
+          proOptions={{ hideAttribution: true }}
         />
       </div>
     </ReactFlowProvider>
@@ -160,11 +194,12 @@ function MainThreadPerformanceDemo({ columns, rows }: Readonly<PerfArgs>) {
 
 const meta = {
   title: "Smart Edge Performance",
-  parameters: { layout: "fullscreen" },
+  parameters: { layout: "fullscreen", demoHostHeight: "fullscreen" },
   args: { columns: 8, rows: 6 },
   argTypes: {
     columns: { control: { type: "range", min: 3, max: 24, step: 1 } },
     rows: { control: { type: "range", min: 3, max: 24, step: 1 } },
+    colorMode: { control: false, table: { disable: true } },
   },
 } satisfies Meta<PerfArgs>;
 
@@ -185,8 +220,12 @@ const expectedCounts = (columns: number, rows: number) => {
  * Increase the `columns`/`rows` controls to add load.
  */
 export const WorkerRouting: Story = {
-  render: ({ columns, rows }) => (
-    <WorkerPerformanceDemo columns={columns} rows={rows} />
+  render: ({ columns, rows, colorMode }) => (
+    <WorkerPerformanceDemo
+      columns={columns}
+      rows={rows}
+      colorMode={resolveStoryColorMode({ colorMode })}
+    />
   ),
   play: demoStoryPlay(async (canvasElement) => {
     const { nodeCount, edgeCount } = expectedCounts(8, 6);
@@ -203,8 +242,12 @@ export const WorkerRouting: Story = {
  * edge on the main thread blocks rendering.
  */
 export const MainThreadRouting: Story = {
-  render: ({ columns, rows }) => (
-    <MainThreadPerformanceDemo columns={columns} rows={rows} />
+  render: ({ columns, rows, colorMode }) => (
+    <MainThreadPerformanceDemo
+      columns={columns}
+      rows={rows}
+      colorMode={resolveStoryColorMode({ colorMode })}
+    />
   ),
   play: demoStoryPlay(async (canvasElement) => {
     const { nodeCount, edgeCount } = expectedCounts(8, 6);
@@ -212,5 +255,173 @@ export const MainThreadRouting: Story = {
       nodeCount: { exact: nodeCount },
       edgeCount: { exact: edgeCount },
     });
+  }),
+};
+
+// --- 750-node (#69) train-network fixture ---------------------------------
+
+const metricsOverlayContainerStyle: CSSProperties = {
+  position: "relative",
+  width: "100%",
+  height: "100vh",
+};
+
+const metricsOverlayStyle: CSSProperties = {
+  position: "absolute",
+  top: 8,
+  left: 8,
+  zIndex: 10,
+  margin: 0,
+  padding: "8px 12px",
+  background: "rgba(255, 255, 255, 0.92)",
+  border: "1px solid #ccc",
+  borderRadius: 4,
+  fontSize: 12,
+  maxWidth: 360,
+  maxHeight: 260,
+  overflow: "auto",
+  pointerEvents: "none",
+};
+
+interface LargeNetworkArgs {
+  nodeCount: number;
+  seed: number;
+  colorMode: StoryColorMode;
+}
+
+/**
+ * Renders a `buildLargeNetwork` graph through `GraphWrapper` (v5 defaults,
+ * `routeOnlyWhenBlocked: true` — passed explicitly since `GraphWrapper`
+ * itself defaults it `false` for other demos), reporting every completed
+ * routing batch's `SmartEdgeMetrics` into a visible
+ * `<pre data-testid="metrics">` overlay so a story's play function can
+ * assert on real batch latency and routing outcomes instead of only
+ * checking that nodes rendered.
+ */
+function LargeNetworkDemo({
+  nodeCount,
+  seed,
+  colorMode,
+}: Readonly<LargeNetworkArgs>) {
+  const { nodes, edges } = useMemo(
+    () => buildLargeNetwork(nodeCount, seed),
+    [nodeCount, seed],
+  );
+  const [metrics, setMetrics] = useState<SmartEdgeMetrics | null>(null);
+
+  return (
+    <div style={metricsOverlayContainerStyle}>
+      <GraphWrapper
+        defaultNodes={nodes}
+        defaultEdges={edges}
+        edgeTypes={smartEdgeTypes}
+        providerOptions={{ routeOnlyWhenBlocked: true }}
+        onMetrics={setMetrics}
+        minZoom={0.02}
+        fitView
+        colorMode={colorMode}
+      />
+      <pre data-testid="metrics" style={metricsOverlayStyle} tabIndex={0}>
+        {JSON.stringify(metrics)}
+      </pre>
+    </div>
+  );
+}
+
+/** Reads the `data-testid="metrics"` overlay's latest reported
+ * `SmartEdgeMetrics`, throwing until at least one batch has been reported. */
+const readLatestMetrics = (canvasElement: HTMLElement): SmartEdgeMetrics => {
+  const element = canvasElement.querySelector('[data-testid="metrics"]');
+  if (!element) throw new Error("metrics overlay not rendered");
+  const parsed: unknown = JSON.parse(element.textContent);
+  if (parsed === null) throw new Error("no routing batch reported yet");
+  return parsed as SmartEdgeMetrics;
+};
+
+/** Local machines measure ~2.2s batch latency; GitHub Actions has measured
+ * ~6.5s for the same 750-node fixture. Keep a tight local ceiling and give
+ * shared CI runners a wider one. `process.env.CI` is baked in via
+ * `.storybook/main.ts` `viteFinal` so it is available in Chromium. */
+const BATCH_LATENCY_MS_BUDGET = process.env["CI"] ? 10_000 : 5_000;
+
+/** Asserts the routing-batch budget the brief calls for: at least one batch
+ * reported some routed/cleared/cache-hit outcome, and that batch completed
+ * under the environment's latency ceiling. Deliberately checks sums and
+ * bounds only (never exact counts), since the mix of routed/cleared/
+ * deferred/cache-hit edges is sensitive to timing and CI hardware. */
+const expectMetricsBudget = async (
+  canvasElement: HTMLElement,
+  timeout: number,
+) => {
+  await waitFor(
+    async () => {
+      const metrics = readLatestMetrics(canvasElement);
+      await expect(
+        metrics.routed + metrics.clear + metrics.cacheHits,
+      ).toBeGreaterThan(0);
+      await expect(metrics.batchLatencyMs).toBeLessThan(
+        BATCH_LATENCY_MS_BUDGET,
+      );
+    },
+    { timeout },
+  );
+};
+
+const largeNetworkMeta = { nodeCount: 750, seed: 1 };
+
+/**
+ * The #69-style 750-node "train network" fixture (`buildLargeNetwork`),
+ * routed through the real worker pipeline. Proves three things end to end in
+ * a real browser: (1) React Flow paints every node immediately on mount —
+ * before any routing batch has run — since smart edges fall back to their
+ * native path until routed; (2) the first completed batch reports some
+ * routed/cleared/cache-hit outcome within a generous 30s wait budget, and
+ * that batch's own `batchLatencyMs` stays under 5s locally / 10s on CI; (3)
+ * `buildLargeNetwork` is deterministic — building the same `(nodeCount,
+ * seed)` twice yields identical graphs.
+ *
+ * Kept as a real interaction test (not render-only): measured locally in the
+ * Storybook Vitest browser runner, the 750-node/~1125-edge batch reports
+ * `batchLatencyMs` around 2.2s (roughly 336 routed, 789 clear, 0 deferred),
+ * and the whole play function finishes in around 11-12s. Shared CI runners
+ * have measured ~6.5s batch latency for the same fixture, so the per-batch
+ * ceiling is 10s when `process.env.CI` is set. Chromatic skips this story
+ * (`chromatic.disableSnapshot`): a 750-node interaction is too heavy and
+ * race-prone for Chromatic's capture pipeline; coverage stays in Storybook
+ * Vitest. See `.superpowers/sdd/task-19-report.md` for the full observed
+ * numbers.
+ */
+export const LargeNetwork750: Story = {
+  parameters: {
+    // Turns off Chromatic snapshots and interaction runs for this story.
+    // The play function still runs under Storybook Vitest (`npm run test`).
+    chromatic: { disableSnapshot: true },
+  },
+  render: ({ colorMode }) => (
+    <LargeNetworkDemo
+      nodeCount={largeNetworkMeta.nodeCount}
+      seed={largeNetworkMeta.seed}
+      colorMode={resolveStoryColorMode({ colorMode })}
+    />
+  ),
+  play: demoStoryPlay(async (canvasElement) => {
+    // Fallback-first paint: every node is already in the DOM the instant the
+    // story mounts, before the provider's first routing batch has even been
+    // scheduled (registration → microtask → rAF → debounce timer → worker).
+    const paintedNodes = canvasElement.querySelectorAll(NODE_SELECTOR);
+    await expect(paintedNodes.length).toBe(largeNetworkMeta.nodeCount);
+
+    await expectMetricsBudget(canvasElement, 30_000);
+
+    // Determinism: the same (nodeCount, seed) always produces the same graph.
+    const first = buildLargeNetwork(
+      largeNetworkMeta.nodeCount,
+      largeNetworkMeta.seed,
+    );
+    const second = buildLargeNetwork(
+      largeNetworkMeta.nodeCount,
+      largeNetworkMeta.seed,
+    );
+    await expect(second).toEqual(first);
   }),
 };

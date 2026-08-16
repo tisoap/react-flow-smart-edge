@@ -33,6 +33,11 @@ const edgeTypes = {
 };
 ```
 
+That `drawEdge` override is applied only when you call `getSmartEdge`
+directly. Under `SmartEdgeProvider`, `createSmartEdge("smoothstep")` uses the
+preset's drawer; pass `borderRadius` as a serializable option instead, or
+route with `getSmartEdge`.
+
 ## Signature
 
 ```ts

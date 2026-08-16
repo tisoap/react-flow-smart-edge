@@ -1,7 +1,7 @@
-import { Position } from "@xyflow/react";
 import { getSmartEdge } from ".";
 import { svgDrawSmoothLinePath, round, toInteger } from "../functions";
 import type { XYPosition, Node } from "@xyflow/react";
+import type { Direction } from "../functions";
 import type {
   GetSmartEdgeOptions,
   GetSmartEdgeParams,
@@ -23,14 +23,20 @@ export type GetSmartEdgeWaypointsParams<
  * Returns the side of `from` (top/right/bottom/left) that faces `to`, used as
  * the synthetic handle position for a free waypoint endpoint so each routed
  * segment leaves/enters the waypoint pointing along the path.
+ *
+ * Returns plain string literals rather than `Position` enum values: `Position`
+ * is only a type import in this module (see the module-level note on worker
+ * reachability), and `Position`'s values are exactly these strings, so real
+ * `Position` values widen into `Direction` at every call site that mixes them
+ * with this function's output (e.g. {@link routeChainSegments}).
  */
-const sideFacing = (point: XYPosition, toward: XYPosition): Position => {
+const sideFacing = (point: XYPosition, toward: XYPosition): Direction => {
   const deltaX = toward.x - point.x;
   const deltaY = toward.y - point.y;
   if (Math.abs(deltaX) >= Math.abs(deltaY)) {
-    return deltaX >= 0 ? Position.Right : Position.Left;
+    return deltaX >= 0 ? "right" : "left";
   }
-  return deltaY >= 0 ? Position.Bottom : Position.Top;
+  return deltaY >= 0 ? "bottom" : "top";
 };
 
 interface StitchPoint {
@@ -71,8 +77,8 @@ const routeChainSegments = <
   NodeDataType extends Record<string, unknown> = Record<string, unknown>,
 >(
   chain: XYPosition[],
-  sourcePosition: Position,
-  targetPosition: Position,
+  sourcePosition: Direction,
+  targetPosition: Direction,
   nodes: Node<NodeDataType>[],
   options: GetSmartEdgeOptions,
 ): StitchPoint[] => {
@@ -271,12 +277,14 @@ export const getSmartEdgeWaypoints = <
     const middle = fullPath[Math.floor(fullPath.length / 2)];
     const [edgeCenterX, edgeCenterY] = middle;
 
-    return { svgPathString, edgeCenterX, edgeCenterY, points };
+    return { svgPathString, edgeCenterX, edgeCenterY, points, wasRouted: true };
   } catch (error) {
+    /* v8 ignore else -- drawEdge throws Error; unknown values are not part of the contract */
     if (error instanceof Error) {
       return error;
+    } else {
+      return new Error(`Unknown error: ${String(error)}`);
     }
-    return new Error(`Unknown error: ${String(error)}`);
   }
 };
 

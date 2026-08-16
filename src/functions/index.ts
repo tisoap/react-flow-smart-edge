@@ -1,16 +1,11 @@
 export { alignEndpoints, type EndpointInfo } from "./alignEndpoints";
-export { buildObstacleMatrix, createGrid, type PointInfo } from "./createGrid";
+export { buildBaseGrid, createGrid, type PointInfo } from "./createGrid";
 export {
   computeEdgeHops,
   toPolyline,
   DEFAULT_HOP_EPSILON,
   type Hop,
 } from "./edgeHops";
-export {
-  getEdgeEndpointsFromStore,
-  type EdgeEndpoints,
-  type InternalNodeLike,
-} from "./getEdgeEndpoints";
 export {
   svgDrawSimpleBezierLinePath,
   svgDrawStraightLinePath,
@@ -29,6 +24,7 @@ export {
   pathfindingAStarDiagonal,
   pathfindingAStarNoDiagonal,
   pathfindingJumpPointNoDiagonal,
+  NO_PATH_FOUND_ERROR,
   type PathFindingFunction,
 } from "./generatePath";
 export {
@@ -45,6 +41,7 @@ export {
 export {
   getNextPointFromPosition,
   guaranteeWalkablePath,
+  type Direction,
 } from "./guaranteeWalkablePath";
 export { graphToGridPoint, gridToGraphPoint } from "./pointConversion";
 export { excludeEdgeAncestorNodes, getAbsoluteNodes } from "./subflow";

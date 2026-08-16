@@ -30,19 +30,22 @@ Public TypeScript types from `@tisoap/react-flow-smart-edge`:
 | ------------------------- | ----------------------------------------- |
 | `SmartCheckpointEdgeData` | Shape of `edge.data` for checkpoint edges |
 
-## Web Worker batch routing
+## Routing provider
 
-| Type                                 | Description                                                  |
-| ------------------------------------ | ------------------------------------------------------------ |
-| `SmartEdgeBatchRoutingProviderProps` | Props for `SmartEdgeBatchRoutingProvider`                    |
-| `SmartEdgeBatchOptions`              | Provider default options (`preset` plus serializable fields) |
-| `SmartEdgeBatchOverride`             | `{ preset?, options? }` read from `edge.data.smartEdge`      |
-| `SmartEdgeBatchEdgeData`             | Shape of `edge.data` for per-edge overrides                  |
-| `SerializableSmartEdgeOptions`       | Worker-safe subset of options (no functions)                 |
-| `EdgeRouteInput`                     | Edge geometry accepted by `useSmartEdgeRoute`                |
-| `BatchEdgeInput`                     | A single serializable edge in a batch                        |
-| `BatchRoutingInput`                  | `{ nodes, edges }` input to `routeSmartEdgesBatch`           |
-| `BatchRoutingResults`                | Routed results keyed by edge id                              |
+See the [`SmartEdgeProvider` reference](../api/smart-edge-provider) for how these fit together.
+
+| Type                       | Description                                                             |
+| -------------------------- | ----------------------------------------------------------------------- |
+| `SmartEdgeProviderProps`   | Props for `SmartEdgeProvider`                                           |
+| `SmartEdgeProviderOptions` | Partial provider options (`preset`, routing/drag flags, cache/debounce) |
+| `ResolvedProviderOptions`  | `SmartEdgeProviderOptions` with every default filled in                 |
+| `SmartEdgeContextValue`    | What `SmartEdgeProvider` exposes through React context                  |
+| `UseSmartEdgePathInput`    | Edge geometry accepted by `useSmartEdgePath`                            |
+| `UseSmartEdgePathResult`   | `{ route, isDragging, hasProvider }` returned by `useSmartEdgePath`     |
+| `SmartEdgeRouteResult`     | One edge's routing outcome (`{ kind: "routed" \| "clear", wasRouted }`) |
+| `SmartEdgeMetrics`         | Aggregate counters reported by `onMetrics` for one completed batch      |
+| `RegisteredSmartEdge`      | One edge registered with the routing scheduler                          |
+| `SmartEdgeBatchItem`       | A single serializable edge in a `routeSmartEdgeBatch` call              |
 
 ## Pluggable functions
 
@@ -58,11 +61,11 @@ Public TypeScript types from `@tisoap/react-flow-smart-edge`:
 
 ## Geometry
 
-| Type               | Description                                 |
-| ------------------ | ------------------------------------------- |
-| `AvoidArea`        | Alias of React Flow `Rect` for `avoidAreas` |
-| `Grid`, `GridNode` | Pathfinding grid types                      |
-| `XYPosition`       | Re-exported from `@xyflow/react`            |
+| Type         | Description                                 |
+| ------------ | ------------------------------------------- |
+| `AvoidArea`  | Alias of React Flow `Rect` for `avoidAreas` |
+| `FlatGrid`   | Typed-array pathfinding grid                |
+| `XYPosition` | Re-exported from `@xyflow/react`            |
 
 ## Components
 

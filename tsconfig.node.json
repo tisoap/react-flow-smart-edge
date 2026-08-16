@@ -27,5 +27,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts", "vitest.shims.d.ts", "eslint.config.ts"]
+  "include": [
+    "vite.config.ts",
+    "vitest.bench.config.ts",
+    "vitest.shims.d.ts",
+    "eslint.config.ts"
+  ]
 }

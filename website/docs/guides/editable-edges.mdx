@@ -38,6 +38,12 @@ Select the edge (or one of its connected nodes) to reveal control points:
 - Drag a waypoint to move it, or nudge it with arrow keys when focused.
 - Right-click a waypoint or press `Delete`/`Backspace` while focused to delete it.
 
+Dragging a waypoint updates `edge.data.points` every move. Routing coalesces
+on the provider's `debounceMs` (default 16ms) and keeps the last path visible;
+it does not switch to the pending/drag native placeholder. That placeholder
+is only used when a connected _node_ is dragging and `routeWhileDragging` is
+`false`, or while the edge's first route is still pending.
+
 ## Persisting waypoints (`edge.data.points`)
 
 Waypoints are stored on `edge.data.points` as `ControlPointData` (`{ id, x, y, active }`). Your flow must let React Flow own the edges (`useEdgesState`, `defaultEdges`, or controlled `edges`/`onEdgesChange`). Persist `data.points` with the rest of your graph:

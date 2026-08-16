@@ -15,6 +15,9 @@
   ],
   "words": [
     "docusaurus",
+    "Liang",
+    "unrouted",
+    "untasked",
     "Alvarez",
     "Bresenham's",
     "chromaui",
@@ -24,9 +27,11 @@
     "nums",
     "octile",
     "Puccinelli",
+    "Ryzen",
     "sonarjs",
     "Tiso",
     "tisoap",
+    "unpadded",
     "unstub",
     "xyflow"
   ],
@@ -36,6 +41,7 @@
     "storybook-static",
     "website/build",
     "node_modules",
-    "coverage"
+    "coverage",
+    "bench"
   ]
 }

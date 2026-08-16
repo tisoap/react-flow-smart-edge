@@ -6,25 +6,37 @@ import {
   pathfindingAStarDiagonal,
   svgDrawSmoothLinePath,
   toInteger,
+  NO_PATH_FOUND_ERROR,
 } from "../functions";
 import type {
   PointInfo,
   PathFindingFunction,
   DrawEdgeFunction,
   GraphBoundingBox,
+  NodeBoundingBox,
+  Direction,
 } from "../functions";
-import { getSharedGrid, isWithinSharedBounds } from "./sharedGridCache";
+import {
+  CORRIDOR_MARGIN_CELLS,
+  buildCorridorAttempt,
+} from "../routing/corridor";
 import type { Node, EdgeProps, Rect } from "@xyflow/react";
 
+/**
+ * `sourceX`/`sourceY`/`targetX`/`targetY` come straight from React Flow's
+ * `EdgeProps`. `sourcePosition`/`targetPosition` are widened from `EdgeProps`'
+ * nominal `Position` enum to the plain `Direction` string union, so callers
+ * that only have a synthetic handle side (no real `Position`, e.g. waypoint
+ * routing's `sideFacing`) can supply one too. Every real `Position` value is
+ * still assignable here, so this is non-breaking for existing callers.
+ */
 export type EdgeParams = Pick<
   EdgeProps,
-  | "sourceX"
-  | "sourceY"
-  | "targetX"
-  | "targetY"
-  | "sourcePosition"
-  | "targetPosition"
->;
+  "sourceX" | "sourceY" | "targetX" | "targetY"
+> & {
+  sourcePosition: Direction;
+  targetPosition: Direction;
+};
 
 export interface GetSmartEdgeOptions {
   gridRatio?: number;
@@ -57,7 +69,138 @@ export interface GetSmartEdgeReturn {
    * Used by waypoint routing to stitch multiple segments into a single edge.
    */
   points: number[][];
+  /**
+   * Always `true` for a result produced by this synchronous routing pass.
+   * The provider's `SmartEdgeRouteResult` uses `wasRouted: false` on its
+   * `"clear"` variant (native path, no A*). Pending provider routes are
+   * `null` from `useSmartEdgePath`, not a `wasRouted: false` placeholder.
+   */
+  wasRouted: true;
 }
+
+/** The output of one routing attempt: the grid geometry it ran on and the
+ * raw grid-coordinate path `generatePath` returned. */
+interface RouteAttempt {
+  graphBox: GraphBoundingBox;
+  fullPath: number[][];
+}
+
+/** Whether `error` is the "no path found" failure `generatePath` throws,
+ * as opposed to some other error that should abort the retry ladder. */
+const isNoPathFoundError = (error: unknown): boolean =>
+  error instanceof Error && error.message === NO_PATH_FOUND_ERROR;
+
+/** Builds a grid from a corridor (or full-graph) bounding-box result and
+ * routes it, sharing the create-grid-then-generate-path shape across every
+ * rung of the ladder and the final full-graph run. */
+const routeOnBoxes = (
+  graphBox: GraphBoundingBox,
+  nodeBoxes: NodeBoundingBox[],
+  avoidBoxes: NodeBoundingBox[],
+  source: PointInfo,
+  target: PointInfo,
+  gridRatio: number,
+  generatePath: PathFindingFunction,
+): RouteAttempt => {
+  const { grid, start, end } = createGrid(
+    graphBox,
+    [...nodeBoxes, ...avoidBoxes],
+    source,
+    target,
+    gridRatio,
+  );
+
+  return { graphBox, fullPath: generatePath(grid, start, end) };
+};
+
+/** The final rung of the ladder: every node and avoid area, exactly like the
+ * pre-corridor behavior (including `extraPoints` endpoint coverage). */
+const routeFullGraph = (
+  nodes: Node[],
+  nodePadding: number,
+  gridRatio: number,
+  avoidAreas: Rect[],
+  source: PointInfo,
+  target: PointInfo,
+  generatePath: PathFindingFunction,
+): RouteAttempt => {
+  const { graphBox, nodeBoxes, avoidBoxes } = getBoundingBoxes(
+    nodes,
+    nodePadding,
+    gridRatio,
+    avoidAreas,
+    [
+      { x: source.x, y: source.y },
+      { x: target.x, y: target.y },
+    ],
+  );
+
+  return routeOnBoxes(
+    graphBox,
+    nodeBoxes,
+    avoidBoxes,
+    source,
+    target,
+    gridRatio,
+    generatePath,
+  );
+};
+
+/**
+ * Routes on a sub-grid cropped around the endpoints first, widening the
+ * margin at each rung of `CORRIDOR_MARGIN_CELLS` and finally falling back to
+ * the full graph, so routing cost stays proportional to the obstacle density
+ * local to the edge instead of the whole canvas. A rung is retried only when
+ * `generatePath` reports `NO_PATH_FOUND_ERROR`; any other thrown error aborts
+ * the ladder immediately so the outer `try`/`catch` can surface it.
+ */
+const routeWithCorridorLadder = (
+  nodes: Node[],
+  nodePadding: number,
+  gridRatio: number,
+  avoidAreas: Rect[],
+  source: PointInfo,
+  target: PointInfo,
+  generatePath: PathFindingFunction,
+): RouteAttempt => {
+  for (const marginCells of CORRIDOR_MARGIN_CELLS) {
+    const { graphBox, nodeBoxes, avoidBoxes } = buildCorridorAttempt(
+      source,
+      target,
+      nodes,
+      nodePadding,
+      gridRatio,
+      avoidAreas,
+      marginCells,
+    );
+
+    try {
+      return routeOnBoxes(
+        graphBox,
+        nodeBoxes,
+        avoidBoxes,
+        source,
+        target,
+        gridRatio,
+        generatePath,
+      );
+    } catch (error) {
+      if (!isNoPathFoundError(error)) {
+        throw error;
+      }
+    }
+  }
+
+  return routeFullGraph(
+    nodes,
+    nodePadding,
+    gridRatio,
+    avoidAreas,
+    source,
+    target,
+    generatePath,
+  );
+};
 
 export const getSmartEdge = <
   NodeDataType extends Record<string, unknown> = Record<string, unknown>,
@@ -94,63 +237,19 @@ export const getSmartEdge = <
       position: targetPosition,
     };
 
-    // Reuse one set of node bounding boxes and one obstacle grid across every
-    // edge in the frame that shares these nodes and options. The shared grid
-    // only applies when the edge's endpoints fall inside the obstacle bounds;
-    // if an endpoint sits beyond them it would have expanded the graph box, so
-    // we build that edge's grid from scratch with the endpoints included (the
-    // same result the un-cached path produces).
-    const shared = getSharedGrid(nodes, nodePadding, gridRatio, avoidAreas);
-
-    let graphBox: GraphBoundingBox;
-    let routingGrid: ReturnType<typeof createGrid>;
-
-    if (
-      shared !== null &&
-      isWithinSharedBounds(shared, [
-        { x: sourceX, y: sourceY },
-        { x: targetX, y: targetY },
-      ])
-    ) {
-      graphBox = shared.graphBox;
-      routingGrid = createGrid(
-        shared.graphBox,
-        shared.obstacleBoxes,
-        source,
-        target,
-        gridRatio,
-        shared.obstacleMatrix,
-      );
-    } else {
-      // We use the node's information (plus any consumer-provided avoid areas)
-      // to generate bounding boxes for them and the graph. The source/target
-      // points are included so the grid always covers them, even when an
-      // endpoint (e.g. a dragged waypoint) sits beyond every node.
-      const {
-        graphBox: fullGraphBox,
-        nodeBoxes,
-        avoidBoxes,
-      } = getBoundingBoxes(nodes, nodePadding, gridRatio, avoidAreas, [
-        { x: sourceX, y: sourceY },
-        { x: targetX, y: targetY },
-      ]);
-
-      graphBox = fullGraphBox;
-      routingGrid = createGrid(
-        fullGraphBox,
-        [...nodeBoxes, ...avoidBoxes],
-        source,
-        target,
-        gridRatio,
-      );
-    }
-
-    const { grid, start, end } = routingGrid;
-
-    // We then can use the grid representation to do pathfinding
-    const generatePathResult = generatePath(grid, start, end);
-
-    const fullPath = generatePathResult;
+    // Route on a small sub-grid cropped around the endpoints first, widening
+    // the margin at each rung and finally falling back to the full graph, so
+    // routing cost stays proportional to the obstacles local to this edge
+    // instead of the whole canvas (see `routeWithCorridorLadder`).
+    const { graphBox, fullPath } = routeWithCorridorLadder(
+      nodes,
+      nodePadding,
+      gridRatio,
+      avoidAreas,
+      source,
+      target,
+      generatePath,
+    );
 
     // Here we convert the grid path to a sequence of graph coordinates.
     const graphPath = fullPath.map((gridPoint) => {
@@ -185,8 +284,15 @@ export const getSmartEdge = <
       gridRatio,
     );
 
-    return { svgPathString, edgeCenterX, edgeCenterY, points: alignedPath };
+    return {
+      svgPathString,
+      edgeCenterX,
+      edgeCenterY,
+      points: alignedPath,
+      wasRouted: true,
+    };
   } catch (error) {
+    /* v8 ignore else -- generatePath throws Error; unknown values are not part of the contract */
     if (error instanceof Error) {
       return error;
     } else {

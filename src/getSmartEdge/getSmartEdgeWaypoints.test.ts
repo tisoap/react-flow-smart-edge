@@ -22,11 +22,6 @@ const testNode = (
   data: { label: nodeId },
 });
 
-const throwUnknown = (): never => {
-  // eslint-disable-next-line @typescript-eslint/only-throw-error -- verifies unknown error wrapping
-  throw "waypoint failure";
-};
-
 const baseParams = {
   nodes: [testNode("source", 80, 200), testNode("target", 520, 200)],
   sourceX: 230,
@@ -110,22 +105,6 @@ describe("getSmartEdgeWaypoints", () => {
     expect(result).not.toBeInstanceOf(Error);
   });
 
-  it("returns an Error for unknown failures", () => {
-    const result = getSmartEdgeWaypoints({
-      ...baseParams,
-      waypoints: [{ x: 300, y: 100 }],
-      options: {
-        ...baseParams.options,
-        drawEdge: (): string => throwUnknown(),
-      },
-    });
-
-    expect(result).toBeInstanceOf(Error);
-    if (result instanceof Error) {
-      expect(result.message).toBe("Unknown error: waypoint failure");
-    }
-  });
-
   it("returns typed errors from the waypoint catch block", () => {
     const result = getSmartEdgeWaypoints({
       ...baseParams,
@@ -150,6 +129,7 @@ describe("getSmartEdgeWaypoints", () => {
       edgeCenterX: 0,
       edgeCenterY: 0,
       points: [[300, 220]],
+      wasRouted: true,
     });
 
     const result = getSmartEdgeWaypoints({
@@ -171,6 +151,17 @@ describe("getSmartEdgeWaypoints", () => {
     const result = getSmartEdgeWaypoints({
       ...baseParams,
       waypoints: [{ x: 235, y: 80 }],
+    });
+
+    expect(result).not.toBeInstanceOf(Error);
+  });
+
+  it("uses a downward side-facing handle for steep descending segments", () => {
+    const result = getSmartEdgeWaypoints({
+      ...baseParams,
+      sourceX: 235,
+      sourceY: 60,
+      waypoints: [{ x: 235, y: 360 }],
     });
 
     expect(result).not.toBeInstanceOf(Error);

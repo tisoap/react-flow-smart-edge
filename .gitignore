@@ -34,3 +34,5 @@ website/.docusaurus
 .cursor/
 .claude/
 CLAUDE.local.md
+.superpowers/
+/docs/

@@ -45,9 +45,32 @@ describe("pointAlongPolyline", () => {
   });
 });
 
+describe("pointAlongPolyline zero-length segments", () => {
+  it("treats a zero-length segment at the target distance as its endpoint", () => {
+    expect(
+      pointAlongPolyline(
+        [
+          [0, 0],
+          [0, 0],
+          [10, 0],
+        ],
+        0,
+      ),
+    ).toEqual({ x: 0, y: 0 });
+  });
+});
+
 describe("splitPolylineAtWaypoints", () => {
   it("returns a single empty segment for an empty polyline", () => {
     expect(splitPolylineAtWaypoints([], [])).toEqual([[]]);
+  });
+
+  it("returns the whole polyline as one segment when there are no waypoints", () => {
+    const polyline = [
+      [0, 0],
+      [10, 0],
+    ];
+    expect(splitPolylineAtWaypoints(polyline, [])).toEqual([polyline]);
   });
 });
 

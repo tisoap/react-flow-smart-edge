@@ -1,4 +1,3 @@
-import { useNodes } from "@xyflow/react";
 import { SmartEdge } from "../SmartEdge";
 import { smartEdgePresets } from "../smartEdgePresets";
 import type { SmartEdgeOptions } from "../SmartEdge";
@@ -19,9 +18,7 @@ export function createSmartEdge(
   };
 
   function ConfiguredSmartEdge(props: EdgeProps) {
-    const nodes = useNodes();
-
-    return <SmartEdge {...props} nodes={nodes} options={mergedOptions} />;
+    return <SmartEdge {...props} preset={preset} options={mergedOptions} />;
   }
 
   ConfiguredSmartEdge.displayName = `SmartEdge(${preset})`;

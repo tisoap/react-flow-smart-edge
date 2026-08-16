@@ -60,7 +60,12 @@ A smooth-step example, with rounded corners and bridges together:
 
 The edge rendered on top (later in your `edges` array) draws the bridge over
 the one beneath it. Reorder your `edges` to control which wire jumps. Only edges
-that share the same `type` are bridged, so their routed geometry matches.
+that share the same `type` are bridged, so their geometry matches.
+
+Hops use each edge's actual path: the A\* polyline when it was routed, or the
+native step skeleton when `routeOnlyWhenBlocked` left the corridor clear.
+A crossing still gets a bridge in that second case. You do not need a nearby
+obstacle to "force" a hop.
 
 ## Performance
 

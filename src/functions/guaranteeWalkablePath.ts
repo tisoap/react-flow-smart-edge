@@ -1,7 +1,15 @@
-import type { Grid } from "../pathfinding/grid";
-import type { Position, XYPosition } from "@xyflow/react";
+import { isWalkable, setBlocked, isInside } from "../pathfinding/flatGrid";
+import type { FlatGrid } from "../pathfinding/flatGrid";
+import type { XYPosition } from "@xyflow/react";
 
-type Direction = "top" | "bottom" | "left" | "right";
+/**
+ * A `Position`-shaped string union. `Position`'s enum values are exactly
+ * these strings, so working in plain strings here (and letting real
+ * `Position` values widen into this type at call sites) avoids importing the
+ * `@xyflow/react` runtime — this module must stay reachable from the routing
+ * Web Worker. Exported so `createGrid.ts`'s `PointInfo` can reuse it.
+ */
+export type Direction = "top" | "bottom" | "left" | "right";
 
 export const getNextPointFromPosition = (
   point: XYPosition,
@@ -21,18 +29,20 @@ export const getNextPointFromPosition = (
 
 /**
  * Guarantee that the path is walkable, even if the point is inside a non
- * walkable area, by adding a walkable path in the direction of the point's
- * Position.
+ * walkable area, by carving a walkable lane in the direction of the point's
+ * Position. Stops at the grid border.
  */
 export const guaranteeWalkablePath = (
-  grid: Grid,
+  grid: FlatGrid,
   point: XYPosition,
-  position: Position,
-) => {
-  let node = grid.getNodeAt(point.x, point.y);
-  while (!node.walkable) {
-    grid.setWalkableAt(node.x, node.y, true);
-    const next = getNextPointFromPosition(node, position);
-    node = grid.getNodeAt(next.x, next.y);
+  position: Direction,
+): void => {
+  let current = { x: point.x, y: point.y };
+  while (
+    isInside(grid, current.x, current.y) &&
+    !isWalkable(grid, current.x, current.y)
+  ) {
+    setBlocked(grid, current.x, current.y, false);
+    current = getNextPointFromPosition(current, position);
   }
 };

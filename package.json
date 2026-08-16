@@ -1,6 +1,6 @@
 {
   "name": "@tisoap/react-flow-smart-edge",
-  "version": "4.13.1",
+  "version": "5.0.0",
   "private": false,
   "description": "Custom React Flow Edge that never intersects with other nodes",
   "keywords": [
@@ -25,9 +25,6 @@
   "license": "MIT",
   "author": "Tiso Alvarez Puccinelli",
   "type": "module",
-  "workspaces": [
-    "website"
-  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -42,33 +39,40 @@
     "dist",
     "src"
   ],
+  "workspaces": [
+    "website"
+  ],
   "scripts": {
+    "bench": "vitest bench --config vitest.bench.config.ts",
     "build": "npm run build-component && npm run build-storybook && npm run build-docs",
     "build-component": "vite build",
     "build-docs": "npm run build-component && DOCUSAURUS_BASE_URL=/react-flow-smart-edge/ npm run build -w website",
     "build-storybook": "storybook build",
     "check": "npm run typecheck && npm run spellcheck && npm run eslint && npm run prettier",
     "deploy-docs": "npm run build-docs && npm run gh-pages",
-    "docs": "DOCUSAURUS_BASE_URL=/ npm run start -w website",
     "dev": "vite",
+    "docs": "DOCUSAURUS_BASE_URL=/ npm run start -w website",
     "eslint": "eslint .",
     "eslint-fix": "eslint . --fix",
     "fix": "npm run eslint-fix && npm run prettier-write",
     "gh-pages": "gh-pages -d website/build",
     "install-chromium": "npx playwright install chromium --with-deps",
+    "prepublishOnly": "npm run build-component",
     "prettier": "prettier --check .",
     "prettier-write": "prettier --write .",
     "preview": "vite preview",
-    "prepublishOnly": "npm run build-component",
     "prerelease": "npm run test:coverage",
     "release": "dotenv release-it",
     "spellcheck": "cspell lint --no-progress .",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "COVERAGE_SCOPE=ui storybook dev -p 6006",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test-storybook": "vitest run --project=storybook",
+    "test-storybook:coverage": "COVERAGE_SCOPE=ui vitest run --project=storybook --coverage",
     "test-unit": "vitest run --project=unit",
-    "typecheck": "tsc --build --noEmit"
+    "test-unit:coverage": "vitest run --project=unit --coverage",
+    "typecheck": "tsc --build --noEmit",
+    "verify": "npm run check && npm run test:coverage && npm run build"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "5.2.1",
@@ -80,6 +84,7 @@
     "@storybook/addon-docs": "10.4.6",
     "@storybook/addon-vitest": "10.4.6",
     "@storybook/react-vite": "10.4.6",
+    "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.1",
     "@types/node": "26.0.0",

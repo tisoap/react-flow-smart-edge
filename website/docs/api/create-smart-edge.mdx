@@ -26,6 +26,14 @@ const edgeTypes = {
 | `"smoothstep"`   | `SmartSmoothStepEdge`   |
 | `"simplebezier"` | `SmartSimpleBezierEdge` |
 
+## `drawEdge` and `generatePath`
+
+Function options passed to `createSmartEdge` are ignored when the edge routes
+through `SmartEdgeProvider` (they cannot be sent to the worker). Serializable
+options (`gridRatio`, `nodePadding`, `avoidAreas`, `borderRadius`, `hops`,
+`editable`, …) still apply. For a custom drawer or pathfinder, call
+[`getSmartEdge`](./get-smart-edge) on the main thread.
+
 ## Important
 
 Define `edgeTypes` at module scope. React Flow compares edge type components by reference; creating them during render remounts edges.

@@ -1,27 +1,25 @@
-import { BezierEdge, BaseEdge, useReactFlow, useStore } from "@xyflow/react";
-import { useCallback } from "react";
+import { BezierEdge } from "@xyflow/react";
+import { useContext } from "react";
 import type { ComponentType } from "react";
-import { getSmartEdge } from "../getSmartEdge";
-import { getSmartEdgeWaypoints } from "../getSmartEdge/getSmartEdgeWaypoints";
-import { getAbsoluteNodes, excludeEdgeAncestorNodes } from "../functions";
-import { buildControlPoints } from "./controlPointGeometry";
-import { ControlPoint } from "./ControlPoint";
-import type { ControlPointData, SetControlPoints } from "./ControlPoint";
-import { readControlPoints } from "./smartEdgeData";
+import { SmartEdgeRoutingContext } from "../routing/routingContext";
+import { useSmartEdgePath } from "../routing/useSmartEdgePath";
+import type { ControlPointData } from "./ControlPoint";
+import { warnOnceNoProvider } from "./noProviderWarning";
+import { useEndpointNodesSelected } from "./smartEdgeSelection";
 import { useHoppedPath } from "./smartEdgeHops";
-import type { HopOptions } from "./smartEdgeHops";
 import {
-  applyFloatingEdgeCoordinates,
-  resolveWaypointParams,
-} from "./smartEdgeRouting";
+  prepareEdge,
+  RoutedSmartEdge,
+  hoppedClearRoute,
+  PlaceholderFallback,
+} from "./renderDecision";
+import type { HopOptions } from "./smartEdgeHops";
+import type { SmartEdgeBatchItemOptions } from "../routing/routeBatch";
+import type { SmartEdgePreset } from "../smartEdgePresets";
 import type { GetSmartEdgeOptions } from "../getSmartEdge";
-import type { EdgeProps, Node, Edge, XYPosition } from "@xyflow/react";
+import type { EdgeProps, Edge, XYPosition } from "@xyflow/react";
 
 export type { HopOptions } from "./smartEdgeHops";
-
-/** Prefers the hopped path when hops produced one, else the routed path. */
-const resolvePath = (hopped: string | null, routed: string): string =>
-  hopped ?? routed;
 
 export type SmartEdgeOptions = GetSmartEdgeOptions & {
   fallback?: ComponentType<EdgeProps<Edge>>;
@@ -52,6 +50,11 @@ export type SmartEdgeOptions = GetSmartEdgeOptions & {
    */
   controlPointColor?: string;
   /**
+   * Corner radius for the `smoothstep` preset. Serializable, so unlike a custom
+   * `drawEdge` it survives the provider's routing pipeline to the worker.
+   */
+  borderRadius?: number;
+  /**
    * Circuit-style "hops": where this edge crosses another smart edge of the
    * same `type` rendered beneath it, draw a small bridge arc over the crossing
    * so intersecting wires read cleanly (like a schematic). Only the step and
@@ -79,186 +82,135 @@ export interface SmartCheckpointEdgeData extends Record<string, unknown> {
   checkpoints?: XYPosition[];
 }
 
-const DEFAULT_CONTROL_POINT_COLOR = "#3367d9";
-
 export interface SmartEdgeProps<
   EdgeType extends Edge = Edge,
-  NodeType extends Node = Node,
 > extends EdgeProps<EdgeType> {
-  nodes: NodeType[];
+  /** Which preset (`bezier`, `step`, …) resolves this edge's draw/pathfinding
+   * on the routing side. Set for you by `createSmartEdge`. */
+  preset: SmartEdgePreset;
   options: SmartEdgeOptions;
 }
 
-export function SmartEdge<
-  EdgeType extends Edge = Edge,
-  NodeType extends Node = Node,
->({
-  nodes,
+/** Extracts only the structured-clone-safe options the provider pipeline can
+ * forward to the routing worker. Function options (`drawEdge`/`generatePath`)
+ * cannot cross that boundary and are resolved from `preset` instead. */
+const toBatchItemOptions = (
+  options: SmartEdgeOptions,
+): SmartEdgeBatchItemOptions => ({
+  gridRatio: options.gridRatio,
+  nodePadding: options.nodePadding,
+  avoidAreas: options.avoidAreas,
+  borderRadius: options.borderRadius,
+});
+
+/**
+ * Routes an edge through the nearest `SmartEdgeProvider` and renders its path,
+ * falling back to the preset's native edge whenever routing is unavailable
+ * (no provider), pending, deferred (an endpoint is dragging and
+ * `routeWhileDragging` is off), or the corridor is clear (unless hops are
+ * enabled on a step/smooth-step edge, in which case the native skeleton is
+ * still drawn so crossings can bridge).
+ *
+ * Requires a `SmartEdgeProvider` ancestor to route; without one it warns once
+ * (in development) and renders the fallback edge. Custom `drawEdge` /
+ * `generatePath` functions passed via `options` are ignored here — the
+ * provider resolves those from `preset` — and remain available only through
+ * the synchronous `getSmartEdge` API.
+ */
+export function SmartEdge<EdgeType extends Edge = Edge>({
+  preset,
   options,
   ...edgeProps
-}: Readonly<SmartEdgeProps<EdgeType, NodeType>>) {
-  const { setEdges } = useReactFlow();
+}: Readonly<SmartEdgeProps<EdgeType>>) {
+  const { id, source, target } = edgeProps;
+  const context = useContext(SmartEdgeRoutingContext);
 
-  const { id } = edgeProps;
+  const { endpoints, activePoints, waypoints } = prepareEdge(
+    context,
+    options,
+    edgeProps,
+  );
 
-  const areEndpointNodesSelected = useStore((store) => {
-    const sourceSelected = store.nodeLookup.get(edgeProps.source)?.selected;
-    const targetSelected = store.nodeLookup.get(edgeProps.target)?.selected;
-    return Boolean(sourceSelected) || Boolean(targetSelected);
+  const { route, isDragging } = useSmartEdgePath({
+    id,
+    source,
+    target,
+    sourceX: endpoints.sourceX,
+    sourceY: endpoints.sourceY,
+    targetX: endpoints.targetX,
+    targetY: endpoints.targetY,
+    sourcePosition: endpoints.sourcePosition,
+    targetPosition: endpoints.targetPosition,
+    preset,
+    options: toBatchItemOptions(options),
+    waypoints,
   });
 
-  const setControlPoints = useCallback<SetControlPoints>(
-    (update) => {
-      setEdges((edges) =>
-        edges.map((edge) => {
-          if (edge.id !== id) return edge;
-          const points = readControlPoints(edge.data);
-          return { ...edge, data: { ...edge.data, points: update(points) } };
-        }),
-      );
-    },
-    [id, setEdges],
-  );
-
-  const absoluteNodes = getAbsoluteNodes(nodes);
-
-  const { sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition } =
-    applyFloatingEdgeCoordinates({
-      floating: options.floating,
-      sourceNodeId: edgeProps.source,
-      targetNodeId: edgeProps.target,
-      absoluteNodes,
-      sourceX: edgeProps.sourceX,
-      sourceY: edgeProps.sourceY,
-      targetX: edgeProps.targetX,
-      targetY: edgeProps.targetY,
-      sourcePosition: edgeProps.sourcePosition,
-      targetPosition: edgeProps.targetPosition,
-    });
-  const {
-    style,
-    label,
-    labelStyle,
-    labelShowBg,
-    labelBgStyle,
-    labelBgPadding,
-    labelBgBorderRadius,
-    markerEnd,
-    markerStart,
-    interactionWidth,
-  } = edgeProps;
-
-  // Resolve subflow child positions to absolute coordinates and drop the
-  // edge's own container nodes from the obstacle set, so routing works inside
-  // React Flow subflows (see issue #32).
-  const preparedNodes = excludeEdgeAncestorNodes(
-    absoluteNodes,
-    edgeProps.source,
-    edgeProps.target,
-  );
-
-  const activePoints = options.editable
-    ? readControlPoints(edgeProps.data)
-    : [];
-
-  const commonParams = {
-    sourcePosition,
-    targetPosition,
-    sourceX,
-    sourceY,
-    targetX,
-    targetY,
-    options,
-    nodes: preparedNodes,
-  };
-
-  const waypointParams = resolveWaypointParams(
-    options,
-    edgeProps.data,
-    activePoints,
-  );
-
-  const smartResponse =
-    options.editable || options.checkpoints
-      ? getSmartEdgeWaypoints({ ...commonParams, waypoints: waypointParams })
-      : getSmartEdge(commonParams);
-
   const hoppedPathString = useHoppedPath({
-    nodes,
     edgeId: id,
-    edgeType: edgeProps.type,
-    sourceNodeId: edgeProps.source,
-    targetNodeId: edgeProps.target,
-    sourceX,
-    sourceY,
-    sourcePosition,
-    targetX,
-    targetY,
-    targetPosition,
-    options,
+    sourceX: endpoints.sourceX,
+    sourceY: endpoints.sourceY,
+    targetX: endpoints.targetX,
+    targetY: endpoints.targetY,
     hops: options.hops,
     editable: options.editable,
     checkpoints: options.checkpoints,
   });
 
+  const endpointsSelected = useEndpointNodesSelected(
+    context?.store,
+    source,
+    target,
+  );
+
   const FallbackEdge = options.fallback ?? BezierEdge;
 
-  if (smartResponse instanceof Error) {
+  if (context === null) {
+    warnOnceNoProvider();
     return <FallbackEdge {...edgeProps} />;
   }
 
-  const { edgeCenterX, edgeCenterY, svgPathString } = smartResponse;
-  const pathString = resolvePath(hoppedPathString, svgPathString);
+  const dragPlaceholder = isDragging && !context.options.routeWhileDragging;
 
-  const baseEdge = (
-    <BaseEdge
-      path={pathString}
-      labelX={edgeCenterX}
-      labelY={edgeCenterY}
-      label={label}
-      labelStyle={labelStyle}
-      labelShowBg={labelShowBg}
-      labelBgStyle={labelBgStyle}
-      labelBgPadding={labelBgPadding}
-      labelBgBorderRadius={labelBgBorderRadius}
-      style={style}
-      markerStart={markerStart}
-      markerEnd={markerEnd}
-      interactionWidth={interactionWidth}
-    />
-  );
-
-  if (!options.editable) {
-    return baseEdge;
+  if (dragPlaceholder || route === null) {
+    return (
+      <PlaceholderFallback
+        FallbackEdge={FallbackEdge}
+        edgeProps={edgeProps}
+        dragFallbackStyle={context.options.dragFallbackStyle}
+        animated={dragPlaceholder}
+      />
+    );
   }
 
-  const showControlPoints =
-    Boolean(edgeProps.selected) || areEndpointNodesSelected;
-  const controlPoints = buildControlPoints(
-    { x: sourceX, y: sourceY },
-    { x: targetX, y: targetY },
-    activePoints,
-    smartResponse.points,
-  );
-  const color = options.controlPointColor ?? DEFAULT_CONTROL_POINT_COLOR;
+  if (route.kind === "clear") {
+    if (hoppedPathString === null) {
+      return <FallbackEdge {...edgeProps} />;
+    }
+
+    return (
+      <RoutedSmartEdge
+        edgeProps={edgeProps}
+        route={hoppedClearRoute(hoppedPathString, endpoints)}
+        endpoints={endpoints}
+        hoppedPathString={hoppedPathString}
+        options={options}
+        activePoints={activePoints}
+        showControlPoints={Boolean(edgeProps.selected) || endpointsSelected}
+      />
+    );
+  }
 
   return (
-    <>
-      {baseEdge}
-      {showControlPoints &&
-        controlPoints.map((point, index) => (
-          <ControlPoint
-            key={point.id}
-            index={index}
-            x={point.x}
-            y={point.y}
-            id={point.id}
-            active={point.active}
-            color={color}
-            setControlPoints={setControlPoints}
-          />
-        ))}
-    </>
+    <RoutedSmartEdge
+      edgeProps={edgeProps}
+      route={route}
+      endpoints={endpoints}
+      hoppedPathString={hoppedPathString}
+      options={options}
+      activePoints={activePoints}
+      showControlPoints={Boolean(edgeProps.selected) || endpointsSelected}
+    />
   );
 }
 

@@ -9,10 +9,11 @@ import {
   expectCustomLabelButtons,
   expectDemoGraph,
   expectEdgePaths,
+  expectNodesFullyVisible,
   expectPathAvoidsRect,
   expectStraightOrStepPaths,
-  interactWithEditableEdge,
 } from "./storyPlayHelpers";
+import { interactWithEditableEdge } from "./storyEditablePlay";
 import { demoAvoidAreas } from "../demos/DummyData";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
@@ -263,6 +264,7 @@ export const SmartStepHop: Story = {
       nodeCount: { exact: 4 },
       edgeCount: { exact: 2 },
     });
+    await expectNodesFullyVisible(canvasElement);
     await expectArcHops(canvasElement);
   }),
 };
@@ -274,6 +276,7 @@ export const SmartSmoothStepHop: Story = {
       nodeCount: { exact: 4 },
       edgeCount: { exact: 2 },
     });
+    await expectNodesFullyVisible(canvasElement);
     await expectArcHops(canvasElement);
   }),
 };

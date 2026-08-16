@@ -37,6 +37,9 @@ export default defineConfig(
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    linterOptions: {
+      noInlineConfig: true,
+    },
     rules: {
       // Disabled
       "react-refresh/only-export-components": "off",
@@ -57,8 +60,7 @@ export default defineConfig(
         "sonarjs/*",
         "react-hooks/*",
         "@eslint-react/*",
-        "eslint-community/*",
-        "@typescript-eslint/no-explicit-any",
+        "@typescript-eslint/*",
       ],
       "@eslint-community/eslint-comments/require-description": [
         "error",
@@ -98,7 +100,7 @@ export default defineConfig(
     },
   },
   {
-    files: ["vite.config.ts"],
+    files: ["vite.config.ts", "vitest.bench.config.ts"],
     languageOptions: {
       parserOptions: {
         project: ["./tsconfig.node.json"],

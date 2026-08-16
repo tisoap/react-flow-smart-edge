@@ -58,6 +58,12 @@ describe("drawSvgPath", () => {
     expect(northWest).toContain("Q");
   });
 
+  it("rounds a horizontal-then-upward smooth-step corner arriving from the right", () => {
+    const draw = svgDrawSmoothStepLinePath({ borderRadius: 4 });
+    const pathData = draw({ x: 100, y: 50 }, { x: 20, y: 0 }, [[20, 50]]);
+    expect(pathData).toContain("Q");
+  });
+
   it("dedupes consecutive duplicate points before drawing smooth steps", () => {
     const draw = svgDrawSmoothStepLinePath();
     const pathData = draw({ x: 0, y: 0 }, { x: 100, y: 0 }, [
@@ -109,6 +115,19 @@ describe("drawSvgPath", () => {
     expect(pathData.startsWith("M0,0")).toBe(true);
     expect(pathData).toContain(" C");
     expect(pathData.split(" C").length).toBeGreaterThan(2);
+  });
+
+  it("infers left and top handle sides for reversed intermediate directions", () => {
+    const pathData = svgDrawSimpleBezierLinePath(
+      { x: 50, y: 100, position: Position.Top },
+      { x: 0, y: 0, position: Position.Right },
+      [
+        [50, 50],
+        [50, 0],
+      ],
+    );
+
+    expect(pathData).toContain("C");
   });
 
   it("uses horizontal handle controls for left/right positions", () => {
