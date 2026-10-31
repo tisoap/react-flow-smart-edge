@@ -1061,3 +1061,74 @@ describe("createRoutingScheduler: selection vs drag vs invalidateRoutes", () => 
     expect(dispatch).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("createRoutingScheduler: ancestor containers", () => {
+  it("marks a clear path inside nested containers as clear", async () => {
+    const deps = makeDeps({
+      options: makeOptions({ routeOnlyWhenBlocked: true }),
+    });
+    const scheduler = createRoutingScheduler(deps);
+    scheduler.setNodes([
+      makeNode("outer", 0, 0, { measured: { width: 500, height: 200 } }),
+      makeNode("group", 0, 0, {
+        parentId: "outer",
+        measured: { width: 450, height: 150 },
+      }),
+      makeNode("a", 0, 0, { parentId: "group" }),
+      makeNode("b", 300, 0, { parentId: "group" }),
+    ]);
+    scheduler.registerEdge(makeEdge({ preset: "smoothstep" }));
+    await scheduler.flush();
+
+    expect(deps.store.getRoute("e1")).toEqual(clearResult);
+    expect(deps.dispatch).not.toHaveBeenCalled();
+    scheduler.dispose();
+  });
+
+  it("still routes around an unrelated obstacle", async () => {
+    const deps = makeDeps({
+      options: makeOptions({ routeOnlyWhenBlocked: true }),
+    });
+    const scheduler = createRoutingScheduler(deps);
+    scheduler.setNodes([
+      makeNode("group", 0, 0, { measured: { width: 450, height: 150 } }),
+      makeNode("a", 0, 0, { parentId: "group" }),
+      makeNode("b", 300, 0, { parentId: "group" }),
+      makeNode("unrelated-group", 150, 0, { type: "group" }),
+    ]);
+    scheduler.registerEdge(makeEdge({ preset: "smoothstep" }));
+    await scheduler.flush();
+
+    expect(deps.store.getRoute("e1")?.kind).toBe("routed");
+    expect(deps.dispatch).toHaveBeenCalledTimes(1);
+    scheduler.dispose();
+  });
+
+  it("rechecks ancestry when absolute endpoint positions stay unchanged", async () => {
+    const deps = makeDeps({
+      options: makeOptions({ routeOnlyWhenBlocked: true }),
+    });
+    const scheduler = createRoutingScheduler(deps);
+    const group = makeNode("group", 0, 0, {
+      measured: { width: 500, height: 200 },
+    });
+    const children = [makeNode("a", 0, 0), makeNode("b", 300, 0)];
+
+    scheduler.setNodes([group, ...children]);
+    scheduler.registerEdge(makeEdge({ preset: "smoothstep" }));
+    await scheduler.flush();
+    expect(deps.store.getRoute("e1")?.kind).toBe("routed");
+
+    scheduler.setNodes([
+      group,
+      ...children.map((node) => ({ ...node, parentId: "group" })),
+    ]);
+    await scheduler.flush();
+    expect(deps.store.getRoute("e1")).toEqual(clearResult);
+
+    scheduler.setNodes([group, ...children]);
+    await scheduler.flush();
+    expect(deps.store.getRoute("e1")?.kind).toBe("routed");
+    scheduler.dispose();
+  });
+});
