@@ -251,3 +251,34 @@ export const RouteIfClearAlways: Story = {
     await waitForRoutedEdge(canvasElement, CLEAR_EDGE_ID, /Q/i);
   }),
 };
+
+/** A container that encloses both endpoints is structural, not an obstacle.
+ * With `routeOnlyWhenBlocked` enabled, the same clear corridor must therefore
+ * keep the native fallback path when the endpoints live inside a group. */
+export const RouteIfClearInsideGroup: Story = {
+  args: {
+    edgeTypes,
+    defaultNodes: [
+      {
+        id: "clear-container",
+        type: "group",
+        position: { x: 0, y: 0 },
+        data: {},
+        style: { width: 800, height: 600 },
+      },
+      ...clearCorridorNodes.map((node) => ({
+        ...node,
+        parentId: "clear-container",
+      })),
+    ],
+    defaultEdges: clearCorridorEdges,
+    providerOptions: { routeOnlyWhenBlocked: true },
+  },
+  play: demoStoryPlay(async (canvasElement) => {
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 3 },
+      edgeCount: { exact: 1 },
+    });
+    await expectStaysUnrouted(canvasElement, CLEAR_EDGE_ID);
+  }),
+};
