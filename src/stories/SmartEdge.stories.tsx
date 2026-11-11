@@ -12,9 +12,16 @@ import {
   expectNodesFullyVisible,
   expectPathAvoidsRect,
   expectStraightOrStepPaths,
+  waitForRoutedEdge,
 } from "./storyPlayHelpers";
 import { interactWithEditableEdge } from "./storyEditablePlay";
-import { demoAvoidAreas } from "../demos/DummyData";
+import { expectSamePathShape } from "./storyPathShape";
+import { expectStaysUnrouted } from "./storyV5BehaviorHelpers";
+import {
+  demoAvoidAreas,
+  groupParityEdgeIds,
+  groupParityOffset,
+} from "../demos/DummyData";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta = {
@@ -191,6 +198,40 @@ export const SmartStepSubFlowGroup: Story = {
       edgeCount: { exact: 5 },
     });
     await expectStraightOrStepPaths(canvasElement);
+  }),
+};
+
+/**
+ * The same scene twice, as top-level nodes (left) and inside a group (right),
+ * under the library default `routeOnlyWhenBlocked: true`. A group that holds
+ * an edge's endpoints is not an obstacle for it, so each edge on the right
+ * matches its twin on the left: the blocked pair takes the identical detour,
+ * and the clear pair keeps the identical native path.
+ */
+export const SmartBezierGroupParity: Story = {
+  args: {
+    ...demoRegistry.smartBezierGroupParity,
+    providerOptions: { routeOnlyWhenBlocked: true },
+  },
+  play: demoStoryPlay(async (canvasElement) => {
+    const { outside, inside } = groupParityEdgeIds;
+    const translation = groupParityOffset;
+
+    await expectDemoGraph(canvasElement, {
+      nodeCount: { exact: 11 },
+      edgeCount: { exact: 4 },
+    });
+
+    await waitForRoutedEdge(canvasElement, outside.blocked, /Q/i);
+    await waitForRoutedEdge(canvasElement, inside.blocked, /Q/i);
+    await expectSamePathShape(canvasElement, outside.blocked, inside.blocked, {
+      translation,
+    });
+
+    await expectStaysUnrouted(canvasElement, inside.clear);
+    await expectSamePathShape(canvasElement, outside.clear, inside.clear, {
+      translation,
+    });
   }),
 };
 

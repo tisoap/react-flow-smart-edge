@@ -24,6 +24,12 @@ export {
   subFlowGroupEdgesBezier,
   subFlowGroupEdgesStep,
 } from "./dummyData/subFlow";
+export {
+  groupParityNodes,
+  groupParityEdgesBezier,
+  groupParityEdgeIds,
+  groupParityOffset,
+} from "./dummyData/groupParity";
 export { floatingNodes, floatingEdges } from "./dummyData/floating";
 export { hopNodes, hopEdgesStep, hopEdgesSmoothStep } from "./dummyData/hop";
 export {

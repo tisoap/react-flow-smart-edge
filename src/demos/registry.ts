@@ -24,6 +24,8 @@ import {
   subFlowGroupNodes,
   subFlowGroupEdgesBezier,
   subFlowGroupEdgesStep,
+  groupParityNodes,
+  groupParityEdgesBezier,
   floatingNodes,
   floatingEdges,
   avoidAreaNodes,
@@ -137,6 +139,11 @@ export const demoRegistry = {
     edgeTypes,
     defaultNodes: subFlowGroupNodes,
     defaultEdges: subFlowGroupEdgesStep,
+  },
+  smartBezierGroupParity: {
+    edgeTypes,
+    defaultNodes: groupParityNodes,
+    defaultEdges: groupParityEdgesBezier,
   },
   smartFloating: {
     edgeTypes,
