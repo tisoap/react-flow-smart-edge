@@ -4,7 +4,10 @@ import type { XYPosition } from "@xyflow/react";
 
 const STEP_LIKE_PRESETS = new Set(["step", "smoothstep"]);
 
-/** The polyline an edge renders before smart routing changes its path. */
+/** The polyline this edge would render natively (no smart routing): a
+ * straight segment for bezier/straight/simplebezier presets, the Z/L step
+ * skeleton for step/smoothstep. Used to answer "is it already clear?" and,
+ * when it is, doubles as its actual-path corridor. */
 export const nativePolylineFor = (edge: RegisteredSmartEdge): XYPosition[] =>
   STEP_LIKE_PRESETS.has(edge.preset)
     ? nativeStepPolyline(

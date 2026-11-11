@@ -102,11 +102,16 @@ const waypointKeyPart = (point: { x: number; y: number }): string =>
  * path computed under different overrides. `corridorObstacles` is expected
  * to already be filtered to the routing corridor by the caller — an obstacle
  * outside it is simply absent from the list and cannot affect the key.
+ * `ancestorIds` are the containers the edge lives inside (see
+ * `getEdgeAncestorIds`). Routing ignores those as obstacles, so the same
+ * coordinates over the same boxes produce a different route once an endpoint
+ * is reparented, and must not share a key.
  */
 export const routeCacheKey = (
   edge: RouteCacheEdge,
   optionsKey: string,
   corridorObstacles: ObstacleBox[],
+  ancestorIds: readonly string[] = [],
 ): string => {
   const waypointsKey = (edge.waypoints ?? []).map(waypointKeyPart).join(";");
   const obstaclesKey = hashString(
@@ -124,6 +129,7 @@ export const routeCacheKey = (
     waypointsKey,
     optionsKey,
     JSON.stringify(edge.options ?? null),
+    JSON.stringify(ancestorIds),
     obstaclesKey,
   ].join("|");
 };

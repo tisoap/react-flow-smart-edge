@@ -1,3 +1,4 @@
+import { buildParentIdLookup, getEdgeAncestorIds } from "../functions";
 import { buildObstacleBoxes, isPolylineBlocked } from "./obstacleIndex";
 import { routeCacheKey } from "./routeCache";
 import { CORRIDOR_MARGIN_CELLS } from "./corridor";
@@ -7,8 +8,9 @@ import {
   filterObstaclesInCorridor,
   obstaclesSignatureOf,
 } from "./invalidationCorridor";
-import { createAncestorIdResolver, edgeSignature } from "./edgeAncestry";
+import { edgeSignature } from "./edgeSignature";
 import { nativePolylineFor } from "./nativePath";
+import type { ParentIdLookup } from "../functions";
 import type { RouteCache } from "./routeCache";
 import type { ObstacleBox } from "./obstacleIndex";
 import type { EdgeRect } from "./invalidationCorridor";
@@ -47,7 +49,9 @@ interface FlushContext {
   changedRects: EdgeRect[];
   forcedEdgeIds: ReadonlySet<string>;
   obstacleBoxes: ObstacleBox[];
-  ancestorIdsForEdge: (edge: RegisteredSmartEdge) => string[];
+  /** Node id to `parentId`, built once per flush so each edge's ancestor
+   * containers resolve in time proportional to its nesting depth. */
+  parentIds: ParentIdLookup;
   optionsKey: string;
   options: ResolvedProviderOptions;
   cache: RouteCache<CachedRoute>;
@@ -97,10 +101,11 @@ const actualPathCorridor = (
     context.options.nodePadding + context.options.gridRatio,
   );
 
-/** Builds the route-cache key for one edge: coordinates/options plus a hash
- * of the obstacles local to the rung-0 corridor (a fast bucket only — a
- * cache-key hit is re-validated against the actual-path corridor by
- * `findCacheHit` before being trusted). */
+/** Builds the route-cache key for one edge: coordinates/options, the ids of
+ * the containers it lives inside, plus a hash of the obstacles local to the
+ * rung-0 corridor. The hash is a fast bucket only: a cache-key hit is
+ * re-validated against the actual-path corridor by `findCacheHit` before
+ * being trusted. */
 const buildCacheKey = (
   edge: RegisteredSmartEdge,
   context: FlushContext,
@@ -114,8 +119,9 @@ const buildCacheKey = (
 
   return routeCacheKey(
     edge,
-    JSON.stringify([context.optionsKey, ancestorIds]),
+    context.optionsKey,
     corridorObstacles,
+    ancestorIds,
   );
 };
 
@@ -195,8 +201,12 @@ const processEdge = (
     return;
   }
 
-  const ancestorIds = context.ancestorIdsForEdge(edge);
-  const currentSignature = JSON.stringify([edgeSignature(edge), ancestorIds]);
+  const ancestorIds = getEdgeAncestorIds(
+    edge.source,
+    edge.target,
+    context.parentIds,
+  );
+  const currentSignature = edgeSignature(edge, ancestorIds);
   if (isEdgeUnchanged(edge.id, currentSignature, context)) {
     accumulators.counts.unchanged += 1;
     return;
@@ -241,7 +251,7 @@ const buildFlushContext = (
   state.draggingWasActive = draggingActive;
 
   return {
-    ancestorIdsForEdge: createAncestorIdResolver(state.absoluteNodes),
+    parentIds: buildParentIdLookup(state.absoluteNodes),
     draggingNodeIds: diff.draggingNodeIds,
     changedRects: diff.changedRects,
     forcedEdgeIds: dragJustEnded ? state.deferredEdgeIds : new Set<string>(),
@@ -312,20 +322,18 @@ const dispatchAndMerge = async (
       context,
     );
     state.pathCorridors.set(edgeId, corridor);
-    state.cache.set(
-      buildCacheKey(
-        dispatchedEdge,
-        context,
-        context.ancestorIdsForEdge(dispatchedEdge),
-      ),
-      {
-        result,
-        corridor,
-        obstaclesSignature: obstaclesSignatureOf(
-          filterObstaclesInCorridor(corridor, context.obstacleBoxes),
-        ),
-      },
+    const ancestorIds = getEdgeAncestorIds(
+      dispatchedEdge.source,
+      dispatchedEdge.target,
+      context.parentIds,
     );
+    state.cache.set(buildCacheKey(dispatchedEdge, context, ancestorIds), {
+      result,
+      corridor,
+      obstaclesSignature: obstaclesSignatureOf(
+        filterObstaclesInCorridor(corridor, context.obstacleBoxes),
+      ),
+    });
   });
 
   if (Object.keys(dispatchMerges).length > 0) {

@@ -221,4 +221,33 @@ describe("routeCacheKey", () => {
     expect(keyDefault).not.toBe(keyFineGrid);
     expect(keyFineGrid).toBe(keyFineGridAgain);
   });
+
+  it("changes when the edge's ancestor containers change", () => {
+    const obstacles = [insideCorridorBox];
+
+    const keyTopLevel = routeCacheKey(baseEdge, optionsKey, obstacles);
+    const keyNoAncestors = routeCacheKey(baseEdge, optionsKey, obstacles, []);
+    const keyInGroup = routeCacheKey(baseEdge, optionsKey, obstacles, [
+      "group",
+    ]);
+    const keyInGroupAgain = routeCacheKey(baseEdge, optionsKey, obstacles, [
+      "group",
+    ]);
+    const keyNested = routeCacheKey(baseEdge, optionsKey, obstacles, [
+      "group",
+      "outer",
+    ]);
+
+    expect(keyTopLevel).toBe(keyNoAncestors);
+    expect(keyInGroup).toBe(keyInGroupAgain);
+    expect(keyInGroup).not.toBe(keyTopLevel);
+    expect(keyNested).not.toBe(keyInGroup);
+  });
+
+  it("does not confuse ancestor ids that only differ by a separator", () => {
+    const keySplit = routeCacheKey(baseEdge, optionsKey, [], ["a", "b"]);
+    const keyJoined = routeCacheKey(baseEdge, optionsKey, [], ["a,b"]);
+
+    expect(keySplit).not.toBe(keyJoined);
+  });
 });

@@ -2,7 +2,7 @@ import type { Node } from "@xyflow/react";
 
 /**
  * A per-node snapshot of the state that can affect routing: absolute
- * position, measured size, and the dragging/selected flags. Absolute
+ * position, measured size, parent, and the dragging/selected flags. Absolute
  * positions are the caller's responsibility — this module only reads
  * `node.position` verbatim, so a provider resolving subflow offsets (see
  * `getAbsoluteNodes`) must do so before snapshotting.
@@ -13,6 +13,10 @@ export interface NodeSnapshot {
   y: number;
   width: number;
   height: number;
+  /** The node's container, if any. Reparenting changes which containers an
+   * edge treats as ancestors instead of obstacles (see `getEdgeAncestorIds`),
+   * even when no absolute position moves. */
+  parentId?: string;
   dragging: boolean;
   selected: boolean;
 }
@@ -30,6 +34,7 @@ export const snapshotNodes = (nodes: Node[]): NodeSnapshot[] =>
     y: node.position.y,
     width: Math.max(node.measured?.width ?? 0, 1),
     height: Math.max(node.measured?.height ?? 0, 1),
+    parentId: node.parentId,
     dragging: node.dragging ?? false,
     selected: node.selected ?? false,
   }));
@@ -51,6 +56,10 @@ interface ChangedRect {
  * space it now occupies), and the dragging/selected id sets read from
  * `next` — populated regardless of `changed`, so drag-preview fast paths
  * can key off them directly.
+ *
+ * A node whose `parentId` changed without moving sets `changed` and
+ * contributes no rect: no space was vacated or occupied, and each affected
+ * edge detects its own ancestry change through its signature instead.
  */
 export interface NodeDiff {
   changed: boolean;
@@ -78,7 +87,8 @@ const hasMoved = (previous: NodeSnapshot, current: NodeSnapshot): boolean =>
 /**
  * Handles one previously-known node: pushes its old rect if it was removed,
  * both its old and new rect if it moved/resized, or nothing if it is still
- * present and unchanged. Returns whether this node contributed a change.
+ * present in the same place. Returns whether this node contributed a change,
+ * which also covers a node that stayed in place under a different parent.
  */
 const collectPreviousNodeRects = (
   previousSnapshot: NodeSnapshot,
@@ -97,14 +107,15 @@ const collectPreviousNodeRects = (
     return true;
   }
 
-  return false;
+  return previousSnapshot.parentId !== nextSnapshot.parentId;
 };
 
 /**
  * Compares two node snapshots (matched by id) and reports what changed. A
- * node that neither moved nor resized contributes no rects; a moved/resized
- * node contributes both its old and new padded rect; an added or removed
- * node contributes the one rect it has.
+ * node that neither moved nor resized contributes no rects (it still counts
+ * as a change if its `parentId` differs); a moved/resized node contributes
+ * both its old and new padded rect; an added or removed node contributes the
+ * one rect it has.
  */
 export const diffNodeSnapshots = (
   previous: NodeSnapshot[],

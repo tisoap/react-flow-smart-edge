@@ -1131,4 +1131,90 @@ describe("createRoutingScheduler: ancestor containers", () => {
     expect(deps.store.getRoute("e1")?.kind).toBe("routed");
     scheduler.dispose();
   });
+
+  it("schedules a flush on its own when only a container is reparented in place", async () => {
+    const deps = makeDeps({
+      options: makeOptions({ routeOnlyWhenBlocked: true }),
+    });
+    const scheduler = createRoutingScheduler(deps);
+    const outer = makeNode("outer", -20, -20, {
+      measured: { width: 600, height: 300 },
+    });
+    const groupSize = { measured: { width: 450, height: 150 } };
+    const children = [
+      makeNode("a", 0, 0, { parentId: "group" }),
+      makeNode("b", 300, 0, { parentId: "group" }),
+    ];
+
+    // `outer` overlaps the edge without being one of its ancestors yet.
+    scheduler.setNodes([
+      outer,
+      makeNode("group", 0, 0, groupSize),
+      ...children,
+    ]);
+    scheduler.registerEdge(makeEdge({ preset: "smoothstep" }));
+    await scheduler.flush();
+    expect(deps.store.getRoute("e1")?.kind).toBe("routed");
+
+    // Nest `group` into `outer` at the same absolute position. Neither
+    // endpoint's own `parentId` changes and nothing moves, so only the
+    // snapshot diff can notice. No manual `flush()` here: the scheduler has
+    // to arm the debounce by itself.
+    scheduler.setNodes([
+      outer,
+      makeNode("group", 20, 20, { ...groupSize, parentId: "outer" }),
+      ...children,
+    ]);
+    await vi.runAllTimersAsync();
+
+    expect(deps.store.getRoute("e1")).toEqual(clearResult);
+    scheduler.dispose();
+  });
+
+  it("treats the container of a single nested endpoint as an ancestor", async () => {
+    const deps = makeDeps({
+      options: makeOptions({ routeOnlyWhenBlocked: true }),
+    });
+    const scheduler = createRoutingScheduler(deps);
+    scheduler.setNodes([
+      makeNode("a", 0, 0),
+      makeNode("group", 250, -50, { measured: { width: 200, height: 200 } }),
+      makeNode("b", 50, 50, { parentId: "group" }),
+    ]);
+    scheduler.registerEdge(makeEdge({ preset: "smoothstep" }));
+    await scheduler.flush();
+
+    expect(deps.store.getRoute("e1")).toEqual(clearResult);
+    expect(deps.dispatch).not.toHaveBeenCalled();
+    scheduler.dispose();
+  });
+
+  it("leaves edges with unchanged ancestry alone when another node is reparented", async () => {
+    const onMetrics = vi.fn<(metrics: SmartEdgeMetrics) => void>();
+    const deps = makeDeps({ onMetrics });
+    const scheduler = createRoutingScheduler(deps);
+    const endpoints = [makeNode("a", 0, 0), makeNode("b", 300, 0)];
+    const farGroup = makeNode("far-group", 1000, 1000, {
+      measured: { width: 300, height: 300 },
+    });
+
+    scheduler.setNodes([...endpoints, farGroup, makeNode("far", 1100, 1100)]);
+    scheduler.registerEdge(makeEdge());
+    await scheduler.flush();
+    expect(deps.dispatch).toHaveBeenCalledTimes(1);
+
+    scheduler.setNodes([
+      ...endpoints,
+      farGroup,
+      makeNode("far", 100, 100, { parentId: "far-group" }),
+    ]);
+    await vi.runAllTimersAsync();
+
+    expect(onMetrics).toHaveBeenCalledTimes(2);
+    expect(onMetrics).toHaveBeenLastCalledWith(
+      expect.objectContaining({ unchanged: 1, routed: 0, cacheHits: 0 }),
+    );
+    expect(deps.dispatch).toHaveBeenCalledTimes(1);
+    scheduler.dispose();
+  });
 });

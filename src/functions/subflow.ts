@@ -61,21 +61,45 @@ export const getAbsoluteNodes = (nodes: Node[]): Node[] => {
 };
 
 /**
- * Collect the ids of a node and all of its ancestors (its `parentId` chain).
+ * A node id to `parentId` lookup. Built once per node list (see
+ * `buildParentIdLookup`) so resolving an edge's ancestors costs one map read
+ * per level of nesting instead of a scan over every node.
  */
-const collectAncestorIds = (
-  nodeId: string,
-  nodeMap: Map<string, Node>,
-): Set<string> => {
-  const ancestors = new Set<string>();
-  let parentId = nodeMap.get(nodeId)?.parentId;
+export type ParentIdLookup = ReadonlyMap<string, string | undefined>;
 
-  while (parentId && !ancestors.has(parentId)) {
-    ancestors.add(parentId);
-    parentId = nodeMap.get(parentId)?.parentId;
+export const buildParentIdLookup = (nodes: Node[]): ParentIdLookup =>
+  new Map(nodes.map((node) => [node.id, node.parentId]));
+
+/**
+ * The ids of every container an edge lives inside: the `parentId` chains of
+ * both endpoints, deduplicated, source chain first.
+ *
+ * This is the only definition of "an edge's ancestors" in the library. The
+ * routing core uses it to drop those containers from the obstacle set (see
+ * `excludeEdgeAncestorNodes`) and the scheduler uses it for its clearance
+ * check, its per-edge signature, and its route-cache key. Both sides must
+ * agree, otherwise an edge inside a subflow is judged against one obstacle
+ * set and routed against another.
+ */
+export const getEdgeAncestorIds = (
+  sourceId: string,
+  targetId: string,
+  parentIds: ParentIdLookup,
+): string[] => {
+  const ancestors = new Set<string>();
+
+  // Stopping at an id that is already collected covers both a `parentId`
+  // cycle and the two endpoints sharing a container: that container's own
+  // chain was walked when it was first added.
+  for (const endpointId of [sourceId, targetId]) {
+    let parentId = parentIds.get(endpointId);
+    while (parentId && !ancestors.has(parentId)) {
+      ancestors.add(parentId);
+      parentId = parentIds.get(parentId);
+    }
   }
 
-  return ancestors;
+  return [...ancestors];
 };
 
 /**
@@ -85,19 +109,19 @@ const collectAncestorIds = (
  * not be treated as a solid obstacle, otherwise the path is forced to route
  * around the container instead of within it. Sibling and unrelated group nodes
  * are kept so the edge still avoids them.
+ *
+ * `parentIds` is the lookup for `nodes`; callers that process many edges
+ * against the same node list build it once and pass it to every call.
  */
 export const excludeEdgeAncestorNodes = (
   nodes: Node[],
   sourceId: string,
   targetId: string,
+  parentIds: ParentIdLookup,
 ): Node[] => {
-  const nodeMap = toNodeMap(nodes);
-  const ancestors = collectAncestorIds(sourceId, nodeMap);
-  for (const ancestorId of collectAncestorIds(targetId, nodeMap)) {
-    ancestors.add(ancestorId);
-  }
+  const ancestorIds = getEdgeAncestorIds(sourceId, targetId, parentIds);
+  if (ancestorIds.length === 0) return nodes;
 
-  if (ancestors.size === 0) return nodes;
-
+  const ancestors = new Set(ancestorIds);
   return nodes.filter((node) => !ancestors.has(node.id));
 };

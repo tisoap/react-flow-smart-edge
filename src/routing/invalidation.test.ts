@@ -62,6 +62,21 @@ describe("snapshotNodes", () => {
     expect(snapshot.dragging).toBe(false);
     expect(snapshot.selected).toBe(false);
   });
+
+  it("captures parentId so a reparent is visible to the diff", () => {
+    const child: Node = {
+      id: "child",
+      parentId: "group",
+      position: { x: 0, y: 0 },
+      data: {},
+    };
+    const topLevel: Node = { id: "top", position: { x: 0, y: 0 }, data: {} };
+
+    const [childSnapshot, topLevelSnapshot] = snapshotNodes([child, topLevel]);
+
+    expect(childSnapshot.parentId).toBe("group");
+    expect(topLevelSnapshot.parentId).toBeUndefined();
+  });
 });
 
 describe("diffNodeSnapshots", () => {
@@ -101,6 +116,43 @@ describe("diffNodeSnapshots", () => {
       { xMin: -5, yMin: -5, xMax: 45, yMax: 25 },
       { xMin: -5, yMin: -5, xMax: 65, yMax: 25 },
     ]);
+  });
+
+  it("reports a change with no rects for a node reparented in place", () => {
+    const inPlace = testSnapshot("a", 100, 100, 40, 20);
+
+    const adopted = diffNodeSnapshots(
+      [inPlace],
+      [{ ...inPlace, parentId: "group" }],
+      10,
+    );
+    const transferred = diffNodeSnapshots(
+      [{ ...inPlace, parentId: "group" }],
+      [{ ...inPlace, parentId: "other-group" }],
+      10,
+    );
+    const released = diffNodeSnapshots(
+      [{ ...inPlace, parentId: "group" }],
+      [inPlace],
+      10,
+    );
+
+    for (const diff of [adopted, transferred, released]) {
+      expect(diff.changed).toBe(true);
+      expect(diff.changedRects).toEqual([]);
+    }
+  });
+
+  it("reports no change when a nested node keeps its parent and its place", () => {
+    const nested = {
+      ...testSnapshot("a", 100, 100, 40, 20),
+      parentId: "group",
+    };
+
+    const diff = diffNodeSnapshots([nested], [{ ...nested }], 10);
+
+    expect(diff.changed).toBe(false);
+    expect(diff.changedRects).toEqual([]);
   });
 
   it("contributes a single padded rect for an added node", () => {

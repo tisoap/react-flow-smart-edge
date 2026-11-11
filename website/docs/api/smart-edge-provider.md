@@ -127,6 +127,8 @@ const blocked = isDirectPathBlocked(source, target, nodes, {
 });
 ```
 
+`excludeNodeIds` lists the nodes that must not count as obstacles. Always include the edge's own source and target, since a handle sits inside its node's padded box. For an edge inside a [subflow](https://reactflow.dev/examples/grouping/sub-flows), also include every group that contains either endpoint (the whole `parentId` chain): a group encloses the entire line, so leaving it in reports every edge inside it as blocked. `SmartEdgeProvider` excludes those groups automatically; this utility does not look at `parentId`. It also reads `node.position` as is, so pass child nodes with absolute positions.
+
 ## Related
 
 - [Performance guide](../guides/performance) for the routing pipeline this provider runs

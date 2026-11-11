@@ -192,24 +192,13 @@ const setNodes = (
     deps.options.nodePadding,
   );
 
-  const previousParents = new Map(
-    state.rawNodes.map((node) => [node.id, node.parentId]),
-  );
-  const hierarchyChanged = nodes.some(
-    (node) => previousParents.get(node.id) !== node.parentId,
-  );
-
   state.rawNodes = nodes;
   state.absoluteNodes = absoluteNodes;
   state.snapshot = nextSnapshot;
 
   deps.store.setNodeState(diff.draggingNodeIds, diff.selectedNodeIds);
 
-  if (
-    !diff.changed &&
-    !hierarchyChanged &&
-    setsEqual(previousDragging, diff.draggingNodeIds)
-  ) {
+  if (!diff.changed && setsEqual(previousDragging, diff.draggingNodeIds)) {
     return;
   }
 

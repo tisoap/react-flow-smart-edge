@@ -186,7 +186,11 @@ export interface DirectPathOptions {
  * any padded node (or `avoidAreas`)? Useful for skipping path-finding
  * entirely when a direct line is already clear. `excludeNodeIds` should
  * typically include the edge's own source/target node ids, since a handle
- * point normally sits inside its own node's padded box.
+ * point normally sits inside its own node's padded box. Inside a subflow it
+ * should also include every group that contains either endpoint: a container
+ * encloses the whole line, so it would otherwise always report "blocked".
+ * `SmartEdgeProvider` excludes those containers on its own; this standalone
+ * utility leaves the choice to the caller.
  */
 export const isDirectPathBlocked = (
   source: XYPosition,

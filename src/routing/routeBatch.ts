@@ -1,6 +1,10 @@
 import { getSmartEdge } from "../getSmartEdge";
 import { getSmartEdgeWaypoints } from "../getSmartEdge/getSmartEdgeWaypoints";
-import { getAbsoluteNodes, excludeEdgeAncestorNodes } from "../functions";
+import {
+  buildParentIdLookup,
+  excludeEdgeAncestorNodes,
+  getAbsoluteNodes,
+} from "../functions";
 import { resolvePresetRouting } from "./routingRegistry";
 import type { SmartEdgeRouteResult } from "./providerStore";
 import type { SmartEdgePreset } from "../smartEdgePresets";
@@ -80,6 +84,7 @@ export const routeSmartEdgeBatch = (
   edges: SmartEdgeBatchItem[],
 ): Record<string, SmartEdgeRouteResult> => {
   const absoluteNodes = getAbsoluteNodes(nodes);
+  const parentIds = buildParentIdLookup(absoluteNodes);
   const results: Record<string, SmartEdgeRouteResult> = {};
 
   for (const edge of edges) {
@@ -87,6 +92,7 @@ export const routeSmartEdgeBatch = (
       absoluteNodes,
       edge.source,
       edge.target,
+      parentIds,
     );
     const { drawEdge, generatePath } = resolvePresetRouting(
       edge.preset,

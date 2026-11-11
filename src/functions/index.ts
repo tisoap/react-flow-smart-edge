@@ -44,5 +44,11 @@ export {
   type Direction,
 } from "./guaranteeWalkablePath";
 export { graphToGridPoint, gridToGraphPoint } from "./pointConversion";
-export { excludeEdgeAncestorNodes, getAbsoluteNodes } from "./subflow";
+export {
+  buildParentIdLookup,
+  excludeEdgeAncestorNodes,
+  getAbsoluteNodes,
+  getEdgeAncestorIds,
+  type ParentIdLookup,
+} from "./subflow";
 export { round, roundDown, roundUp, toInteger } from "./utils";
